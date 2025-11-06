@@ -1,13 +1,15 @@
 <template>
     <!-- Overlay -->
+    <!-- Overlay -->
     <div
-        class="fixed inset-0 bg-opacity-50! flex items-end md:items-center justify-center z-50 transition-opacity duration-300">
-        <!-- Modal Box dengan animasi muncul dari bawah -->
+        class="fixed inset-0 bg-black/60 flex items-end md:items-center justify-center z-50 transition-opacity duration-300">
+
+        <!-- Modal Box -->
         <div
-            class="bg-gray-300 bg-opacity-30! p-8 rounded-2xl shadow-lg w-full max-w-md text-center m-4 transform transition-all duration-300 translate-y-10 opacity-0 animate-slideUp">
+            class="bg-white/80 p-8 rounded-2xl shadow-lg w-full max-w-md text-center m-4 transform transition-all duration-300 translate-y-10 opacity-0 animate-slideUp backdrop-blur-md">
             <div class="flex flex-col items-center justify-center space-y-4">
                 <img src="https://i.pinimg.com/736x/30/d4/1b/30d41b81c10848151dc5a067725f9cf2.jpg" alt="Email Sent"
-                    class="w-24 h-24" />
+                    class="w-24 h-24 rounded-full shadow-md" />
                 <h2 class="text-xl font-semibold text-gray-800">Email konfirmasi sudah dikirim</h2>
                 <p class="text-sm text-gray-600">
                     Silakan periksa kotak masuk atau folder spam Anda untuk melanjutkan proses.
@@ -19,6 +21,7 @@
             </div>
         </div>
     </div>
+
 </template>
 
 <script setup>

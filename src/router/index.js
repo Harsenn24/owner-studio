@@ -12,7 +12,7 @@ import TransactionDetailPage from '../components/TransactionDetailPage/Transacti
 
 
 const routes = [
-  { path: '/', component: HomePage },
+  { path: '/home', component: HomePage },
   { path: '/login', component: LoginPage },
   { path: '/register', component: RegisterPage },
   { path: '/list-studio', component: CardStudioListPage },
