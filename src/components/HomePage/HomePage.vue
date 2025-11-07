@@ -131,9 +131,10 @@
                   placeholder="Contoh: Studio Suara Jakarta" />
               </div>
               <!-- Provinsi -->
-              <div class="relative">
+              <div class="relative" ref="provinceContainer">
                 <label class="text-xs font-medium text-slate-600">Provinsi</label>
-                <input type="text" v-model="provinceSearch" @input="fetchProvinces" @focus="fetchProvinces" placeholder="Cari provinsi..."
+                <input type="text" v-model="provinceSearch" @input="fetchProvinces" @focus="fetchProvinces"
+                  placeholder="Cari provinsi..."
                   class="mt-2 w-full rounded-lg border px-3 py-2 text-sm border-black text-black!" />
                 <ul v-if="provinceList.length"
                   class="absolute w-full max-h-48 overflow-auto border rounded mt-1 bg-white z-50 text-black! py-2">
@@ -144,32 +145,60 @@
                 </ul>
               </div>
               <!-- Kota -->
-              <div>
+              <div class="relative" ref="cityContainer">
                 <label class="text-xs font-medium text-slate-600">Kota</label>
-                <input v-model="form.city" required
-                  class="mt-2 w-full rounded-lg border px-3 py-2 text-sm border-black text-black"
-                  placeholder="Contoh: Bekasi" />
+                <input type="text" v-model="citySearch" @input="fetchCities()" @focus="fetchCities()"
+                  placeholder="Cari kota..."
+                  class="mt-2 w-full rounded-lg border px-3 py-2 text-sm border-black text-black!" />
+                <ul v-if="cityList.length"
+                  class="absolute w-full max-h-48 overflow-auto border rounded mt-1 bg-white z-50 text-black! py-2">
+                  <li v-for="city in cityList" :key="city.id" @click="selectCities(city)"
+                    class="px-3 py-2 hover:bg-gray-100 cursor-pointer">
+                    {{ city.name }}
+                  </li>
+                </ul>
               </div>
               <!-- Kecamatan -->
-              <div>
+              <div class="relative" ref="districtContainer">
                 <label class="text-xs font-medium text-slate-600">Kecamatan</label>
-                <input v-model="form.district" required
-                  class="mt-2 w-full rounded-lg border px-3 py-2 text-sm border-black text-black"
-                  placeholder="Contoh: Rawalumbu" />
+                <input type="text" v-model="districtSearch" @input="fetchDistricts()" @focus="fetchDistricts()"
+                  placeholder="Cari kecamatan..."
+                  class="mt-2 w-full rounded-lg border px-3 py-2 text-sm border-black text-black!" />
+                <ul v-if="districtList.length"
+                  class="absolute w-full max-h-48 overflow-auto border rounded mt-1 bg-white z-50 text-black! py-2">
+                  <li v-for="district in districtList" :key="district.id" @click="selectDistrict(district)"
+                    class="px-3 py-2 hover:bg-gray-100 cursor-pointer">
+                    {{ district.name }}
+                  </li>
+                </ul>
               </div>
               <!-- Kelurahan -->
-              <div>
+              <div class="relative" ref="villageContainer">
                 <label class="text-xs font-medium text-slate-600">Kelurahan</label>
-                <input v-model="form.subDistrict" required
-                  class="mt-2 w-full rounded-lg border px-3 py-2 text-sm border-black text-black"
-                  placeholder="Contoh: Bojong Rawalumbu" />
+                <input type="text" v-model="villageSearch" @input="fetchVillages()" @focus="fetchVillages()"
+                  placeholder="Cari kelurahan..."
+                  class="mt-2 w-full rounded-lg border px-3 py-2 text-sm border-black text-black!" />
+                <ul v-if="villageList.length"
+                  class="absolute w-full max-h-48 overflow-auto border rounded mt-1 bg-white z-50 text-black! py-2">
+                  <li v-for="village in villageList" :key="village.id" @click="selectVillage(village)"
+                    class="px-3 py-2 hover:bg-gray-100 cursor-pointer">
+                    {{ village.name }}
+                  </li>
+                </ul>
               </div>
               <!-- Kode Pos -->
-              <div>
+              <div class="relative" ref="postalCodeContainer">
                 <label class="text-xs font-medium text-slate-600">Kode Pos</label>
-                <input v-model="form.postalCode" required
-                  class="mt-2 w-full rounded-lg border px-3 py-2 text-sm border-black text-black"
-                  placeholder="Contoh: 554488" />
+                <input type="text" v-model="postalCodeSearch" @input="fetchPostalCode()" @focus="fetchPostalCode()"
+                  placeholder="Cari kode pos..."
+                  class="mt-2 w-full rounded-lg border px-3 py-2 text-sm border-black text-black!" />
+                <ul v-if="postalCodeList.length"
+                  class="absolute w-full max-h-48 overflow-auto border rounded mt-1 bg-white z-50 text-black! py-2">
+                  <li v-for="postal_code in postalCodeList" :key="postal_code.id" @click="selectPostalCode(postal_code)"
+                    class="px-3 py-2 hover:bg-gray-100 cursor-pointer">
+                    {{ postal_code.postal_code }}
+                  </li>
+                </ul>
               </div>
               <!-- Google Maps -->
               <div>
@@ -256,7 +285,7 @@
 
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, onBeforeUnmount } from 'vue'
 import axios from 'axios'
 import { getIpAdresses } from '../../services/axios/ip-adress.services.js'
 import { v4 as uuidv4 } from 'uuid'
@@ -264,21 +293,40 @@ import { useRouter } from 'vue-router'
 
 const router = useRouter()
 const studioList = ref([])
-const provinceList = ref([])
 const page = ref(1)
 const limit = 6
 const maxPage = ref(1)
 const totalData = ref(0)
 const searchQuery = ref('')
-const provinceSearch = ref('') // 👈 input provinsi pakai ini
 const showModal = ref(false)
+
+const provinceSearch = ref('')
+const provinceList = ref([])
+const provinceContainer = ref(null)
+
+const citySearch = ref('')
+const cityList = ref([])
+const cityContainer = ref(null)
+
+const districtSearch = ref('')
+const districtList = ref([])
+const districtContainer = ref(null)
+
+const villageSearch = ref('')
+const villageList = ref([])
+const villageContainer = ref(null)
+
+const postalCodeSearch = ref('')
+const postalCodeList = ref([])
+const postalCodeContainer = ref(null)
 
 const form = reactive({
   name: '',
   city: '',
   district: '',
   gmaps: '',
-  province: '' // 👈 tambahkan ini agar data provinsi tersimpan
+  province: '',
+  postalCode: '',
 })
 
 function logout() {
@@ -338,7 +386,7 @@ async function fetchProvinces() {
       url: `${BE_BASE_URL}owner/address/province-pagination`,
       data: {
         page: 1,
-        limit: 10,
+        limit: 10000,
         search: provinceSearch.value // 👈 ubah pakai provinceSearch
       }
     })
@@ -352,11 +400,141 @@ async function fetchProvinces() {
   }
 }
 
+
+
 function selectProvince(province) {
-  console.log('Pilih provinsi:', province)
-  form.province = province.id       // simpan ke form utama
-  provinceSearch.value = province.name // tampilkan di input
-  provinceList.value = []              // tutup dropdown
+  form.province = province.id
+  provinceSearch.value = province.name
+  fetchCities(province.id)
+  fetchPostalCode(province.id)
+  provinceList.value = []
+}
+
+async function fetchCities(province_id = form.province) {
+  try {
+    if (!province_id) return
+    const BE_BASE_URL = import.meta.env.VITE_STUDIO_BAND_BE_BASE_URL
+    const response = await axios({
+      method: 'POST',
+      url: `${BE_BASE_URL}owner/address/city-pagination`,
+      data: {
+        page: 1,
+        limit: 10000,
+        search: citySearch.value,
+        province_id
+      }
+    })
+
+    if (response.data.status) {
+      cityList.value = response.data.data.data
+    }
+  } catch (error) {
+    console.error(error)
+    alert('Gagal memuat data kota. Silakan coba lagi.')
+  }
+}
+
+function selectCities(city) {
+  form.city = city.id
+  citySearch.value = city.name
+  fetchDistricts(city.id)
+  fetchPostalCode(city.id)
+  cityList.value = []
+}
+
+async function fetchDistricts(city_id = form.city) {
+  try {
+    if (!city_id) return
+    const BE_BASE_URL = import.meta.env.VITE_STUDIO_BAND_BE_BASE_URL
+    const response = await axios({
+      method: 'POST',
+      url: `${BE_BASE_URL}owner/address/district-pagination`,
+      data: {
+        page: 1,
+        limit: 10000,
+        search: districtSearch.value,
+        city_id
+      }
+    })
+
+    if (response.data.status) {
+      districtList.value = response.data.data.data
+    }
+  } catch (error) {
+    console.error(error)
+    alert('Gagal memuat data kecamatan. Silakan coba lagi.')
+  }
+}
+
+function selectDistrict(district) {
+  form.district = district.id
+  districtSearch.value = district.name
+  fetchVillages(district.id)
+  fetchPostalCode(district.id)
+  districtList.value = []
+}
+
+//buat fungsi untuk fetch village
+async function fetchVillages(district_id = form.district) {
+  try {
+    if (!district_id) return
+    const BE_BASE_URL = import.meta.env.VITE_STUDIO_BAND_BE_BASE_URL
+    const response = await axios({
+      method: 'POST',
+      url: `${BE_BASE_URL}owner/address/village-pagination`,
+      data: {
+        page: 1,
+        limit: 10000,
+        search: villageSearch.value,
+        district_id
+      }
+    })
+
+    if (response.data.status) {
+      villageList.value = response.data.data.data
+    }
+  } catch (error) {
+    console.error(error)
+    alert('Gagal memuat data kelurahan. Silakan coba lagi.')
+  }
+}
+
+function selectVillage(village) {
+  form.village = village.id
+  villageSearch.value = village.name
+  fetchPostalCode(village.id)
+  villageList.value = []
+}
+
+async function fetchPostalCode(province_id = form.province, city_id = form.city, district_id = form.district, village_id = form.village) {
+  try {
+    if (!province_id || !city_id || !district_id || !village_id) return
+
+    const BE_BASE_URL = import.meta.env.VITE_STUDIO_BAND_BE_BASE_URL
+    const response = await axios({
+      method: 'POST',
+      url: `${BE_BASE_URL}owner/address/postal-code-pagination`,
+      data: {
+        province_id,
+        city_id,
+        district_id,
+        village_id
+      }
+    })
+
+    if (response.data.status) {
+      postalCodeList.value = response.data.data.data
+    }
+  } catch (error) {
+    console.error(error)
+    alert('Gagal memuat data kode pos. Silakan coba lagi.')
+  }
+}
+
+function selectPostalCode(postalCode) {
+  form.postalCode = postalCode.id
+  postalCodeSearch.value = postalCode.postal_code
+  postalCodeList.value = []
 }
 
 function changePage(p) {
@@ -371,7 +549,30 @@ function submitForm() {
 
 onMounted(() => {
   fetchStudios()
+  document.addEventListener('click', handleClickOutside)
 })
+
+onBeforeUnmount(() => {
+  document.removeEventListener('click', handleClickOutside)
+})
+
+function handleClickOutside(event) {
+  if (provinceContainer.value && !provinceContainer.value.contains(event.target)) {
+    provinceList.value = []
+  }
+
+  if (cityContainer.value && !cityContainer.value.contains(event.target)) {
+    cityList.value = []
+  }
+
+  if (districtContainer.value && !districtContainer.value.contains(event.target)) {
+    districtList.value = []
+  }
+
+  if (villageContainer.value && !villageContainer.value.contains(event.target)) {
+    villageList.value = []
+  }
+}
 </script>
 
 
