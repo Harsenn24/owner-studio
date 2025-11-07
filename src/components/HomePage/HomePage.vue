@@ -369,6 +369,11 @@ import { getIpAdresses } from '../../services/axios/ip-adress.services.js'
 import { v4 as uuidv4 } from 'uuid'
 import { useRouter } from 'vue-router'
 
+const checkSubmissionStatus = ref('')
+const checkSubmissionStudioName = ref('')
+const checkSubmissionCreatedAt = ref(0)
+const isSubmitted = ref(false)
+
 const router = useRouter()
 const studioList = ref([])
 const page = ref(1)
@@ -417,7 +422,7 @@ const form = reactive({
   bankAccount: '',
   contactName: '',
   contactPhone: '',
-  document_ids : []
+  document_ids: []
 })
 
 function removeFile(type) {
@@ -549,7 +554,9 @@ function logout() {
 }
 
 function openModal() { showModal.value = true }
-function closeModal() { showModal.value = false }
+function closeModal() {
+  showModal.value = false
+}
 
 function formatDate(dateStr) {
   return new Date(dateStr).toLocaleDateString('id-ID', {
@@ -585,6 +592,9 @@ async function fetchStudios(p = page.value) {
       studioList.value = response.data.data.data || []
       maxPage.value = response.data.data.maxPage
       totalData.value = response.data.data.totalData
+      if (studioList.value.length > 0) {
+        isSubmitted.value = true
+      }
     }
   } catch (err) {
     console.error(err)
@@ -778,7 +788,7 @@ async function fetchBank() {
 }
 
 function selectBank(bank) {
-  form.bank = bank.id
+  form.bank = bank.prima_code
   bankSearch.value = bank.name
   bankList.value = []
 }
@@ -788,13 +798,85 @@ function changePage(p) {
   fetchStudios(p)
 }
 
-function submitForm() {
-  console.log('Submit studio:', form)
-  closeModal()
+async function checkSubmission() {
+  const BE_BASE_URL = import.meta.env.VITE_STUDIO_BAND_BE_BASE_URL
+  const token = localStorage.getItem('token')
+  const deviceId = localStorage.getItem('device_id')
+  const ip = await getIpAdresses()
+  const response = await axios({
+    method: 'POST',
+    url: `${BE_BASE_URL}owner/studio/submission/check`,
+    headers: {
+      'authorization': `Bearer ${token}`,
+      'x-device-id': deviceId,
+      'x-ip-address': ip,
+      'x-request-id': uuidv4()
+    },
+    data: {}
+  })
+
+  if (response.data.status) {
+    checkSubmissionStatus.value = response.data.data.status
+    checkSubmissionStudioName.value = response.data.data.studio_name
+    checkSubmissionCreatedAt.value = response.data.data.created_at
+    isSubmitted.value = true
+    closeModal()
+  }
+}
+
+async function submitForm() {
+  try {
+    const payload = {
+      name: form.name,
+      address_data: {
+        province_id: form.province,
+        city_id: form.city,
+        district_id: form.district,
+        village_id: form.village,
+        postal_code_id: form.postalCode,
+        address: form.address,
+        gmaps: form.gmaps
+      },
+      contact_person_data: {
+        name: form.contactPersonName,
+        phone: form.contactPhone,
+      },
+      account_number_data: {
+        bank_code: form.bank,
+        bank_account_number: form.bankAccountNumber
+      },
+      document_ids: form.document_ids
+    }
+
+    const BE_BASE_URL = import.meta.env.VITE_STUDIO_BAND_BE_BASE_URL
+    const token = localStorage.getItem('token')
+    const deviceId = localStorage.getItem('device_id')
+    const ip = await getIpAdresses()
+    const response = await axios({
+      method: 'POST',
+      url: `${BE_BASE_URL}owner/studio/submission`,
+      headers: {
+        'authorization': `Bearer ${token}`,
+        'x-device-id': deviceId,
+        'x-ip-address': ip,
+        'x-request-id': uuidv4()
+      },
+      data: payload
+    })
+
+    if (response.data.status) {
+      closeModal()
+    }
+
+  } catch (error) {
+    console.error(error)
+    alert('Gagal membuat studio. Silakan coba lagi.')
+  }
 }
 
 onMounted(() => {
   fetchStudios()
+  checkSubmission()
   document.addEventListener('click', handleClickOutside)
 })
 
