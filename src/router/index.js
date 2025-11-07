@@ -21,7 +21,7 @@ const routes = [
   { path: '/list-studio/:studioId/books/:studioNumberId', component: BookingPage },
   { path: '/order', component: ReviewOrderPage },
   { path: '/order/payment', component: QrCodePage },
-  { path: '/verify/user/:uuid', component: VerifyEmailPage }
+  { path: '/verify/owner/:uuid', component: VerifyEmailPage }
 
 
 ]

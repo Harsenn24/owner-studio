@@ -28,21 +28,19 @@
         {{ isLogin ? 'Masukkan email dan password untuk melanjutkan.' : 'Isi data berikut untuk membuat akun baru.' }}
       </p>
 
-
-
       <form @submit.prevent="submitForm" class="flex flex-col gap-4">
         <div v-if="!isLogin">
           <label class="text-xs font-medium text-slate-600">Nama Lengkap</label>
           <input v-model="form.name" required
             class="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-black"
-            placeholder="Contoh: Ahmad Nidjam" />
+            placeholder="Contoh: Ahmad Nidjam" :disabled="isLoading" />
         </div>
 
         <div>
           <label class="text-xs font-medium text-slate-600">Email</label>
           <input v-model="form.email" type="email" required
             class="mt-1 w-full rounded-lg border text-black border-slate-200 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-            placeholder="ahmadnidjam@example.com" />
+            placeholder="ahmadnidjam@example.com" :disabled="isLoading" />
         </div>
 
         <!-- Password with reveal -->
@@ -50,8 +48,8 @@
           <label class="text-xs font-medium text-slate-600">Password</label>
           <input v-model="form.password" :type="showPassword ? 'text' : 'password'" required
             class="mt-1 w-full text-black rounded-lg border border-slate-200 px-3 py-2 pr-10 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-            placeholder="••••••••" />
-          <button type="button" @click="toggleShowPassword"
+            placeholder="••••••••" :disabled="isLoading" />
+          <button type="button" @click="toggleShowPassword" :disabled="isLoading"
             class="absolute right-0 top-[55%] -translate-y-1/4 text-slate-500 hover:text-slate-800 focus:outline-none bg-white! ">
             <svg v-if="!showPassword" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
               stroke="currentColor" stroke-width="1.6">
@@ -68,28 +66,39 @@
                 d="M2.458 12C3.732 7.943 7.523 5 12 5c1.1 0 2.156.18 3.123.52M20.542 12c-1.274 4.057-5.064 7-9.542 7-1.057 0-2.084-.16-3.03-.46" />
             </svg>
           </button>
-
         </div>
 
-        <button type="submit"
-          class="mt-2 inline-flex justify-center items-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-blue-500 to-green-500 text-white font-semibold shadow-md hover:scale-[1.02] transition-transform">
-          <svg v-if="isLogin" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
-            stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          <svg v-else xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
-            stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-          </svg>
-          {{ isLogin ? 'Masuk Sekarang' : 'Daftar Sekarang' }}
+        <button type="submit" :disabled="isLoading"
+          class="mt-2 inline-flex justify-center items-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-blue-500 to-green-500 text-white font-semibold shadow-md hover:scale-[1.02] transition-transform disabled:opacity-70 disabled:cursor-not-allowed">
+          <template v-if="!isLoading">
+            <svg v-if="isLogin" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
+              stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <svg v-else xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
+              stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            {{ isLogin ? 'Masuk Sekarang' : 'Daftar Sekarang' }}
+          </template>
+
+          <!-- Spinner -->
+          <template v-else>
+            <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
+              viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 00-8 8z"></path>
+            </svg>
+            <span>Memproses...</span>
+          </template>
         </button>
       </form>
 
       <p class="mt-6 text-sm text-slate-500 text-center">
         {{ isLogin ? 'Belum punya akun?' : 'Sudah punya akun?' }}
-        <button @click="toggleForm"
-          class="text-white font-medium bg-gradient-to-r from-blue-500 to-green-500 px-2 py-1 rounded-md hover:opacity-90 transition">
+        <button @click="toggleForm" :disabled="isLoading"
+          class="text-white font-medium bg-gradient-to-r from-blue-500 to-green-500 px-2 py-1 rounded-md hover:opacity-90 transition disabled:opacity-70 disabled:cursor-not-allowed">
           {{ isLogin ? 'Daftar disini' : 'Masuk disini' }}
         </button>
       </p>
@@ -99,11 +108,17 @@
       © 2025 StudioSpace. All rights reserved.
     </p>
 
+    <!-- Global overlay saat loading -->
+    <div v-if="isLoading"
+      class="absolute inset-0 bg-black/30 flex items-center justify-center z-50 backdrop-blur-sm transition">
+      <svg class="animate-spin h-12 w-12 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 00-8 8z"></path>
+      </svg>
+    </div>
 
+    <ModalEmailSentPage v-if="showModal" :handleClose="handleClose" />
   </div>
-
-  <ModalEmailSentPage v-if="showModal" :handleClose="handleClose" />
-
 </template>
 
 <script setup>
@@ -114,23 +129,26 @@ import axios from 'axios'
 import { useRouter } from 'vue-router'
 import ModalEmailSentPage from '../ModalEmailSentPage/ModalEmailSentPage.vue'
 
-
 const router = useRouter()
 const showPassword = ref(false)
 const isLogin = ref(true)
+const showModal = ref(false)
+const isLoading = ref(false) // ✅ state loading baru
+
 const form = reactive({
   name: '',
   email: '',
   password: ''
 })
-const showModal = ref(false)
 
 function handleClose() {
   showModal.value = false
   isLogin.value = true
   router.push('/login')
 }
+
 function toggleForm() {
+  if (isLoading.value) return // biar ga bisa toggle saat loading
   isLogin.value = !isLogin.value
 }
 
@@ -145,11 +163,7 @@ async function register(name, email, password) {
 
     const response = await axios.post(
       `${BE_BASE_URL}owner/auth/register`,
-      {
-        email,
-        password,
-        name
-      },
+      { email, password, name },
       {
         headers: {
           'Content-Type': 'application/json',
@@ -162,7 +176,6 @@ async function register(name, email, password) {
 
     if (!response.data.status) throw new Error('Gagal register')
     return true
-
   } catch (error) {
     console.error(error)
     alert('Terjadi kesalahan saat register')
@@ -171,23 +184,26 @@ async function register(name, email, password) {
 }
 
 async function handleRegister(name, email, password) {
-  const result = await register(name, email, password)
-  if (result) {
-    showModal.value = true
+  isLoading.value = true // ✅ mulai loading
+  try {
+    const result = await register(name, email, password)
+    if (result) {
+      showModal.value = true
+    }
+  } finally {
+    isLoading.value = false // ✅ matikan loading
   }
 }
 
 async function login(email, password) {
+  isLoading.value = true // ✅ mulai loading
   try {
     const BE_BASE_URL = import.meta.env.VITE_STUDIO_BAND_BE_BASE_URL
     const ipAddress = await getIpAdresses()
 
     const response = await axios.post(
       `${BE_BASE_URL}owner/auth/login`,
-      {
-        email,
-        password
-      },
+      { email, password },
       {
         headers: {
           'Content-Type': 'application/json',
@@ -203,15 +219,25 @@ async function login(email, password) {
       throw new Error(result.message || 'Terjadi kesalahan saat login')
     }
 
-    localStorage.setItem('token', result.data.token)
-    localStorage.setItem('device_id', uuidv4())
-    router.push('/home')
+    if (result.data.token) {
+      localStorage.setItem('token', result.data.token)
+      localStorage.setItem('device_id', uuidv4())
+      router.push('/home')
+    }
+
+    if (result.message === "Verification email re-sent") {
+      showModal.value = true
+    }
+
   } catch (err) {
     alert(err.message)
+  } finally {
+    isLoading.value = false // ✅ pastikan loading mati
   }
 }
 
 async function submitForm() {
+  if (isLoading.value) return // biar gak double klik
   if (isLogin.value) {
     await login(form.email, form.password)
   } else {
