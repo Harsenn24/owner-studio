@@ -91,8 +91,8 @@
             <div>
               <p v-if="checkSubmissionStatus === 'submission'" class="text-sm opacity-90">Tim kami sedang meninjau
                 pengajuanmu. Mohon tunggu sebentar ya!</p>
-              <h3 v-else class="text-2xl font-bold mb-2 text-black">Mohon Maaf Pengajuanmu ditolak</h3>
-
+              <h3 v-else-if="checkSubmissionStatus === 'rejected'" class="text-2xl font-bold mb-2 text-black">Mohon Maaf Pengajuanmu ditolak</h3>
+              <h3 v-else-if="checkSubmissionStatus === 'accepted'" class="text-2xl font-bold mb-2 text-white">Selamat! Pengajuanmu diterima, mohon ikuti step berikutnya!</h3>
             </div>
           </div>
 
@@ -145,12 +145,20 @@
                 <p class="text-xs opacity-60 mt-1">Menunggu hasil verifikasi</p>
               </div>
 
-              <div v-else class="relative z-10 flex flex-col items-center text-center">
+              <div v-else-if="checkSubmissionStatus === 'rejected'" class="relative z-10 flex flex-col items-center text-center">
                 <div class="w-14 h-14 flex items-center justify-center rounded-full border-red-500!">
                   <div class="w-10 h-10 bg-red-500 rounded-full"></div>
                 </div>
                 <p class="mt-2 text-sm font-medium text-black">rejected</p>
                 <p class="text-xs opacity-80 mt-1 text-black">permohonan ditolak</p>
+              </div>
+
+              <div v-else class="relative z-10 flex flex-col items-center text-center">
+                <div class="w-14 h-14 flex items-center justify-center rounded-full border-white!">
+                  <div class="w-10 h-10 bg-blue-500 rounded-full"></div>
+                </div>
+                <p class="mt-2 text-sm font-medium">Selesai</p>
+                <p class="text-xs mt-1">Approved</p>
               </div>
             </div>
           </div>
@@ -160,11 +168,18 @@
             <div>
               <p v-if="checkSubmissionStatus === 'submission'" class="text-sm opacity-90 mb-4">Kamu akan menerima
                 notifikasi setelah pengajuan selesai diproses.</p>
-              <p v-else class="text-sm opacity-90 mb-4">Catatan : Foto-foto terlihat tidak asli, pastikan menggunakan foto yang benar </p>
+              <p v-else-if="checkSubmissionStatus === 'rejected'" class="text-sm font-extrabold mb-4 text-black">Catatan : {{ checkSubmissionNotes }}, silakan ajukan ulang!</p>
+              <!-- <p v-else class="text-sm font-extrabold mb-4">Catatan : Foto-foto terlihat tidak asli, pastikan menggunakan foto yang benar </p> -->
+
             </div>
             <button v-if="checkSubmissionStatus === 'submission'" @click="refreshPage"
               class="px-6 py-2 bg-white! hover:bg-white/30 text-black rounded-lg transition-all duration-200">
               Periksa Lagi
+            </button>
+
+            <button v-if="checkSubmissionStatus === 'accepted'" @click="goToStudioDetail(subMissionId)"
+              class="px-6 py-2 bg-white! hover:bg-white/30 text-black rounded-lg transition-all duration-200">
+              Lengkapi Studio Kamu!
             </button>
           </div>
         </div>
@@ -469,8 +484,10 @@ import { useRouter } from 'vue-router'
 
 const checkSubmissionStatus = ref('')
 const checkSubmissionStudioName = ref('')
+const checkSubmissionNotes = ref('')
 const checkSubmissionCreatedAt = ref(0)
 const isSubmitted = ref(false)
+const subMissionId = ref(null)
 
 const isInitialLoading = ref(true)
 
@@ -583,6 +600,10 @@ async function handleFileUpload(event, type) {
 
 function refreshPage() {
   window.location.reload()
+}
+
+function goToStudioDetail (studio_id) {
+  router.push(`/home/create-studio-detail/${studio_id}`)
 }
 
 function handleNameInput(e) {
@@ -932,6 +953,8 @@ async function checkSubmission() {
     checkSubmissionStatus.value = response.data.data.status
     checkSubmissionStudioName.value = response.data.data.studio_name
     checkSubmissionCreatedAt.value = response.data.data.created_at
+    checkSubmissionNotes.value = response.data.data.submission_notes
+    subMissionId.value = response.data.data.submission_uuid
     isSubmitted.value = true
     closeModal()
   }
