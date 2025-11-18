@@ -9,23 +9,12 @@
 
     <template v-else>
       <!-- Header -->
-      <header class="flex justify-between items-center mb-6">
-        <h1 class="text-2xl font-bold text-slate-800">StudioSpace Owner</h1>
-        <div class="flex justify-between gap-x-4">
-          <div v-if="studioList.length > 0 || checkSubmissionStatus === 'rejected'">
-            <button @click="openModal"
-              class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-green-500 text-white font-medium shadow hover:opacity-90 transition-all">
-              + Tambah Studio
-            </button>
-          </div>
-
-          <button @click="logout"
-            class="px-5 py-2.5 rounded-xl bg-red-500!  text-white font-medium shadow hover:opacity-90 transition-all">
-            LogOut
-          </button>
-
-        </div>
-      </header>
+      <HeadersPage
+        :studioList="studioList"
+        :checkSubmissionStatus="checkSubmissionStatus"
+        @open-modal="openModal"
+        @logout="logout"
+      />
 
       <!-- Info Cards + Search -->
       <div v-if="studioList.length > 0"
@@ -51,14 +40,26 @@
       <!-- Studio Grid -->
       <div class="flex-1 bg-gradient-to-r from-blue-600 to-green-500 py-6 px-6 ">
         <div v-if="studioList.length > 0" class="grid justify-center grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-          <div v-for="studio in studioList" :key="studio.studio_id"
+          <div v-for="studio in studioList" :key="studio.studio_id " @click="openStudioDetail(studio)"
             class="bg-white rounded-2xl border border-slate-200 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all overflow-hidden">
 
             <!-- Header Card -->
             <div class="p-5">
-              <h3 class="text-lg font-semibold text-slate-800">{{ studio.studio_name }}</h3>
+              <div class="flex justify-between">
+                <h3 class="text-lg font-semibold text-slate-800">{{ studio.studio_name }}</h3>
+                <span :class="[
+                  'px-3 py-1 text-xs font-semibold rounded-full shadow-md',
+                  studio.status === 'active'
+                    ? 'bg-green-100 text-green-700 shadow-green-300 glow-green'
+                    : 'bg-red-100 text-red-700 shadow-red-300 glow-red'
+                ]">
+                  {{ studio.status === 'active' ? 'ACTIVE' : 'INACTIVE' }}
+                </span>
+
+              </div>
               <p class="text-sm text-slate-500">ID: {{ studio.studio_id }}</p>
             </div>
+
 
             <!-- Body -->
             <div class="px-5 pb-5 border-t border-slate-100">
@@ -67,22 +68,21 @@
             </div>
 
             <div class="px-5 pb-5 border-t border-slate-100">
-              <p class="text-xl text-black"> -Rp 20.000</p>
+              <p class="text-xl text-black"> Rp 20.000</p>
             </div>
 
             <!-- Footer -->
             <div class="px-5 py-3 bg-slate-50 flex justify-between items-center border-t border-slate-100">
-              <a :href="studio.studio_gmaps" target="_blank"
+              <a :href="studio.studio_gmaps" target="_blank" @click.stop
                 class="text-blue-600 text-sm font-medium hover:text-blue-800 flex items-center gap-1">
                 🌐 Lihat di Maps
               </a>
-              <button class="text-sm bg-white! text-slate-500 hover:text-slate-700 transition-colors"
-                @click="openEditModal(studio)">✏️ Edit</button>
+             
             </div>
           </div>
         </div>
 
-        <div v-if="isSubmitted && studioList.length === 0"
+        <div v-else-if="isSubmitted && studioList.length === 0"
           class="flex flex-col items-center justify-center py-20 px-6 text-white bg-gradient-to-br from-blue-500 via-blue-400 to-green-500 rounded-2xl shadow-lg mt-8 mx-4">
           <!-- Header -->
           <div class="text-center mb-10">
@@ -91,8 +91,10 @@
             <div>
               <p v-if="checkSubmissionStatus === 'submission'" class="text-sm opacity-90">Tim kami sedang meninjau
                 pengajuanmu. Mohon tunggu sebentar ya!</p>
-              <h3 v-else-if="checkSubmissionStatus === 'rejected'" class="text-2xl font-bold mb-2 text-black">Mohon Maaf Pengajuanmu ditolak</h3>
-              <h3 v-else-if="checkSubmissionStatus === 'accepted'" class="text-2xl font-bold mb-2 text-white">Selamat! Pengajuanmu diterima, mohon ikuti step berikutnya!</h3>
+              <h3 v-else-if="checkSubmissionStatus === 'rejected'" class="text-2xl font-bold mb-2 text-black">Mohon Maaf
+                Pengajuanmu ditolak</h3>
+              <h3 v-else-if="checkSubmissionStatus === 'accepted'" class="text-2xl font-bold mb-2 text-white">Selamat!
+                Pengajuanmu diterima, mohon ikuti step berikutnya!</h3>
             </div>
           </div>
 
@@ -145,7 +147,8 @@
                 <p class="text-xs opacity-60 mt-1">Menunggu hasil verifikasi</p>
               </div>
 
-              <div v-else-if="checkSubmissionStatus === 'rejected'" class="relative z-10 flex flex-col items-center text-center">
+              <div v-else-if="checkSubmissionStatus === 'rejected'"
+                class="relative z-10 flex flex-col items-center text-center">
                 <div class="w-14 h-14 flex items-center justify-center rounded-full border-red-500!">
                   <div class="w-10 h-10 bg-red-500 rounded-full"></div>
                 </div>
@@ -168,7 +171,8 @@
             <div>
               <p v-if="checkSubmissionStatus === 'submission'" class="text-sm opacity-90 mb-4">Kamu akan menerima
                 notifikasi setelah pengajuan selesai diproses.</p>
-              <p v-else-if="checkSubmissionStatus === 'rejected'" class="text-sm font-extrabold mb-4 text-black">Catatan : {{ checkSubmissionNotes }}, silakan ajukan ulang!</p>
+              <p v-else-if="checkSubmissionStatus === 'rejected'" class="text-sm font-extrabold mb-4 text-black">Catatan
+                : {{ checkSubmissionNotes }}, silakan ajukan ulang!</p>
               <!-- <p v-else class="text-sm font-extrabold mb-4">Catatan : Foto-foto terlihat tidak asli, pastikan menggunakan foto yang benar </p> -->
 
             </div>
@@ -481,6 +485,7 @@ import axios from 'axios'
 import { getIpAdresses } from '../../services/axios/ip-adress.services.js'
 import { v4 as uuidv4 } from 'uuid'
 import { useRouter } from 'vue-router'
+import HeadersPage from '../HeadersPage/HeadersPage.vue'
 
 const checkSubmissionStatus = ref('')
 const checkSubmissionStudioName = ref('')
@@ -602,7 +607,7 @@ function refreshPage() {
   window.location.reload()
 }
 
-function goToStudioDetail (studio_id) {
+function goToStudioDetail(studio_id) {
   router.push(`/home/create-studio-detail/${studio_id}`)
 }
 
@@ -681,6 +686,10 @@ function logout() {
 function openModal() { showModal.value = true }
 function closeModal() {
   showModal.value = false
+}
+
+function openStudioDetail(studio) {
+  router.push(`/home/${studio.studio_id}`)
 }
 
 function formatDate(dateStr) {
