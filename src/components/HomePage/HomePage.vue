@@ -86,89 +86,14 @@
           </div>
         </div>
 
-        <div v-else-if="isSubmitted && studioList.length === 0"
-          class="flex flex-col items-center justify-center py-20 px-6 text-white bg-gradient-to-br from-blue-500 via-blue-400 to-green-500 rounded-2xl shadow-lg mt-8 mx-4">
-          <div class="text-center mb-10">
-            <h2 class="text-3xl font-bold mb-2">{{ checkSubmissionStudioName }}</h2>
-            <div class="mt-2">
-              <h3 v-if="checkSubmissionStatus === 'submission'" class="text-xl font-semibold opacity-90">Pengajuan
-                Studio Sedang Diproses</h3>
-              <h3 v-else-if="checkSubmissionStatus === 'rejected'" class="text-2xl font-bold text-red-100">Mohon Maaf,
-                Pengajuanmu Ditolak</h3>
-              <h3 v-else-if="checkSubmissionStatus === 'accepted'" class="text-2xl font-bold text-white">Selamat!
-                Pengajuanmu Diterima!</h3>
-            </div>
-          </div>
-
-          <div class="flex justify-between items-center w-full max-w-xl relative">
-            <div class="absolute top-1/2 left-0 right-0 h-[2px] bg-white/30 z-0"></div>
-
-            <div class="relative z-10 flex flex-col items-center text-center w-1/3 px-1">
-              <div class="w-14 h-14 flex items-center justify-center rounded-full bg-white/20 border-2 border-white/60">
-                <span class="text-lg font-semibold">1</span>
-              </div>
-              <p class="mt-2 text-sm font-medium">Proses Pengajuan</p>
-              <p class="text-xs opacity-80 mt-1">Diajukan: {{ formatDate(checkSubmissionCreatedAt * 1000) }} | {{
-                formatTime(checkSubmissionCreatedAt * 1000) }}</p>
-            </div>
-
-            <div class="relative z-10 flex flex-col items-center text-center w-1/3 px-1">
-              <div v-if="checkSubmissionStatus === 'submission'"
-                class="w-14 h-14 flex items-center justify-center rounded-full border-4 border-white animate-spin-slow">
-                <div class="w-10 h-10 bg-white/30 rounded-full"></div>
-              </div>
-              <div v-else
-                class="w-14 h-14 flex items-center justify-center rounded-full bg-white/20 border-2 border-white/60">
-                <span class="text-lg font-semibold">2</span>
-              </div>
-              <p class="mt-2 text-sm font-medium">{{ checkSubmissionStatus === 'submission' ? 'Sedang Diproses' :
-                'Proses Selesai' }}</p>
-              <p class="text-xs opacity-80 mt-1">Verifikasi oleh tim kami</p>
-            </div>
-
-            <div class="relative z-10 flex flex-col items-center text-center w-1/3 px-1">
-              <div v-if="checkSubmissionStatus === 'submission'"
-                class="w-14 h-14 flex items-center justify-center rounded-full bg-white/10 border-2 border-white/40">
-                <span class="text-lg font-semibold opacity-60">3</span>
-              </div>
-              <div v-else-if="checkSubmissionStatus === 'rejected'"
-                class="w-14 h-14 flex items-center justify-center rounded-full bg-red-500 border-2 border-red-300">
-                <span class="text-lg font-semibold">❌</span>
-              </div>
-              <div v-else-if="checkSubmissionStatus === 'accepted'"
-                class="w-14 h-14 flex items-center justify-center rounded-full bg-green-500 border-2 border-green-300">
-                <span class="text-lg font-semibold">✅</span>
-              </div>
-              <p class="mt-2 text-sm font-medium">{{ checkSubmissionStatus === 'submission' ? 'Hasil Pengajuan' :
-                'Selesai' }}</p>
-              <p class="text-xs opacity-80 mt-1">{{ checkSubmissionStatus === 'rejected' ? 'Ditolak' :
-                (checkSubmissionStatus === 'accepted' ? 'Approved' : 'Menunggu hasil') }}</p>
-            </div>
-          </div>
-
-          <div class="mt-10 text-center">
-            <div class="mb-4">
-              <p v-if="checkSubmissionStatus === 'submission'" class="text-sm opacity-90">Kamu akan menerima notifikasi
-                setelah pengajuan selesai diproses.</p>
-              <p v-else-if="checkSubmissionStatus === 'rejected'" class="text-sm font-extrabold text-white">Catatan: {{
-                checkSubmissionNotes || 'Tidak ada catatan spesifik.' }}, silakan ajukan ulang!</p>
-            </div>
-
-            <button v-if="checkSubmissionStatus === 'submission'" @click="refreshPage"
-              class="px-6 py-2 bg-white text-black rounded-lg hover:bg-white/90 transition-all duration-200">
-              Periksa Lagi
-            </button>
-
-            <button v-else-if="checkSubmissionStatus === 'accepted'" @click="goToStudioDetail(subMissionId)"
-              class="px-6 py-2 bg-white text-black rounded-lg hover:bg-white/90 transition-all duration-200">
-              Lengkapi Studio Kamu!
-            </button>
-
-            <button v-else-if="checkSubmissionStatus === 'rejected'" @click="openModal"
-              class="px-6 py-2 bg-white text-black rounded-lg hover:bg-white/90 transition-all duration-200">
-              Ajukan Ulang Studio
-            </button>
-          </div>
+        <div v-else-if="isSubmitted && studioList.length === 0">
+          <SubmissionStatusPage
+            :checkSubmissionStatus="checkSubmissionStatus"
+            :checkSubmissionStudioName="checkSubmissionStudioName"
+            :checkSubmissionCreatedAt="checkSubmissionCreatedAt"
+            @open-modal="openModal"
+            @refresh-page="refreshPage"
+          />
         </div>
 
         <div v-else
@@ -220,6 +145,7 @@ import { useRouter } from 'vue-router'
 import HeadersPage from '../HeadersPage/HeadersPage.vue'
 import ModalAddStudioPage from '../ModalAddStudioPage/ModalAddStudioPage.vue'
 import { listStudio, submission } from '../../api/studio.js'
+import SubmissionStatusPage from '../SubmissionStatusPage/SubmissionStatusPage.vue'
 
 // --- REFS ---
 const isInitialLoading = ref(true)
@@ -228,7 +154,6 @@ const router = useRouter()
 // Studio List & Pagination
 const studioList = ref([])
 const page = ref(1)
-const limit = 6
 const maxPage = ref(1)
 const totalData = ref(0)
 const searchQuery = ref('')
@@ -270,9 +195,6 @@ function formatTime(timestamp) {
 
 
 // --- NAVIGATION & MODAL FUNCTIONS ---
-function goToStudioDetail(studio_id) {
-  router.push(`/home/create-studio-detail/${studio_id}`)
-}
 
 function openStudioDetail(studio) {
   router.push(`/home/${studio.studio_id}`)

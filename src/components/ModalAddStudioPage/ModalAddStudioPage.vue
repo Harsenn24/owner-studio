@@ -250,6 +250,10 @@ import { ref } from "vue";
 import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid'; 
 import { getIpAdresses } from '../../services/axios/ip-adress.services.js'
+import { useRouter } from 'vue-router'
+
+
+const router = useRouter()
 
 const ipAddress = async () => {
     return await getIpAdresses();
@@ -326,6 +330,7 @@ const form = ref({
     contactPhone: '',
     document_ids: []
 });
+
 
 // ------------------------
 // HANDLERS
@@ -426,7 +431,6 @@ async function handleFileUpload(event, type) {
         if (!response.data.status) {
             errorsFile.value[type] = 'Upload gagal. Silakan coba lagi.'
         } else {
-            console.log(`✅ ${type} berhasil diupload:`, response.data.data)
             // Tambahkan file_id ke array, perlu diperhatikan jika ada file_id lama untuk tipe yang sama
             form.value.document_ids.push(response.data.data.file_id)
         }
@@ -601,12 +605,12 @@ function selectPostalCode(postalCode) {
 async function fetchBank() { // Fungsi yang hilang
     try {
         const BE_BASE_URL = import.meta.env.VITE_STUDIO_BAND_BE_BASE_URL
-        const response = await axios.post(`${BE_BASE_URL}owner/bank/list`, { // Asumsi endpoint
+        const response = await axios.post(`${BE_BASE_URL}owner/funding/bank-list`, { // Asumsi endpoint
             search: bankSearch.value
         })
 
         if (response.data.status) {
-            bankList.value = response.data.data
+            bankList.value = response.data.data.data
         }
     } catch (error) {
         console.error(error)
@@ -614,7 +618,7 @@ async function fetchBank() { // Fungsi yang hilang
 }
 
 function selectBank(bank) { // Fungsi yang hilang
-    form.value.bank = bank.id
+    form.value.bank = bank.prima_code
     bankSearch.value = bank.name
     bankList.value = []
 }
@@ -648,22 +652,30 @@ async function submitForm() {
         const ip = await ipAddress() // Menggunakan fungsi dummy/impor
 
         const payload = {
-            studio_name: form.value.name,
-            address: form.value.address,
-            gmaps_url: form.value.gmaps,
-            province_id: form.value.province,
-            city_id: form.value.city,
-            district_id: form.value.district,
-            village_id: form.value.village,
-            postal_code_id: form.value.postalCode,
-            contact_person_name: form.value.contactName,
-            contact_person_phone: form.value.contactPhone,
-            bank_id: form.value.bank,
-            bank_account_number: form.value.bankAccount,
+            name : form.value.name,
+            address_data : {
+                province_id: form.value.province,
+                city_id: form.value.city,
+                district_id: form.value.district,
+                village_id: form.value.village,
+                postal_code_id: form.value.postalCode,
+                address: form.value.address,
+                gmaps: form.value.gmaps, 
+            },
+            contact_person_data : {
+                name: form.value.contactName,
+                phone: form.value.contactPhone
+            },
+            account_number_data : {
+                bank_code: form.value.bank,
+                bank_account_number: form.value.bankAccount
+            },
             document_ids: form.value.document_ids // Semua file_id yang sudah diupload
         };
 
-        const response = await axios.post(`${BE_BASE_URL}owner/studio/submit`, payload, { // Asumsi endpoint submit
+        console.log(payload)
+
+        const response = await axios.post(`${BE_BASE_URL}owner/studio/submission`, payload, { // Asumsi endpoint submit
             headers: {
                 'authorization': `Bearer ${token}`,
                 'x-device-id': deviceId,
@@ -676,8 +688,8 @@ async function submitForm() {
             return alert("Gagal mengirim pengajuan: " + (response.data.message || "Terjadi kesalahan."));
         }
 
-        alert("Pengajuan berhasil!");
-        closeModal();
+        
+        router.push('/home')
 
     } catch (err) {
         console.error(err);
