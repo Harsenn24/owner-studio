@@ -5,7 +5,7 @@
             <div class="relative bg-white rounded-2xl w-full max-w-2xl p-6 z-50 drop-shadow-2xl border border-white/30">
                 <header class="flex items-start justify-between gap-4 mb-4">
                     <h3 class="text-lg font-semibold text-black">Form Pengajuan Studio</h3>
-                    <button @click="closeModal" class="text-slate-400 hover:text-slate-600">✖️</button>
+                    <button @click="closeModal" class="text-slate-400 bg-white! hover:text-slate-600">✖️</button>
                 </header>
 
                 <form @submit.prevent="submitForm">
@@ -233,7 +233,7 @@
 
                     <div class="md:col-span-2 flex justify-end gap-3 mt-8">
                         <button type="button" @click="closeModal"
-                            class="px-4 py-2 rounded-lg border border-slate-200 hover:bg-slate-50">Batal</button>
+                            class="px-4 py-2 rounded-lg border bg-white! text-black border-slate-200 hover:bg-slate-50">Batal</button>
                         <button type="submit"
                             class="px-5 py-2 rounded-lg bg-gradient-to-r from-purple-600 to-pink-500 text-white hover:opacity-90 transition-opacity">Kirim
                             Pengajuan</button>

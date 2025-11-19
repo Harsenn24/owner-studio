@@ -8,7 +8,7 @@
         </div>
 
         <template v-else>
-            <header class="flex justify-between items-center mb-6">
+            <!-- <header class="flex justify-between items-center mb-6">
                 <h1 class="text-2xl font-bold text-slate-800">StudioSpace Owner</h1>
                 <div class="flex justify-between gap-x-4">
                     <button @click="openModal"
@@ -23,7 +23,9 @@
                     </button>
 
                 </div>
-            </header>
+            </header> -->
+            <HeadersPage :studioList="studioList" :checkSubmissionStatus="checkSubmissionStatus" @open-modal="openModal"
+                @logout="logout" />
 
             <!-- STUDIO INFO CARD -->
             <div class="bg-gradient-to-r from-blue-600 to-green-500 py-5">
@@ -123,6 +125,12 @@
 
                 </section>
             </div>
+
+            <transition name="modal-fade">
+                <ModalAddStudioPage v-if="showModal" @close-modal="closeModal" />
+            </transition>
+
+
         </template>
     </div>
 </template>
@@ -134,6 +142,8 @@ import { v4 as uuidv4 } from 'uuid'
 import { useRouter } from 'vue-router'
 import { getIpAdresses } from '../../services/axios/ip-adress.services.js'
 import HeadersPage from '../HeadersPage/HeadersPage.vue'
+import ModalAddStudioPage from '../ModalAddStudioPage/ModalAddStudioPage.vue'
+import { listStudio, submission } from '../../api/studio.js'
 
 
 
@@ -144,6 +154,9 @@ const router = useRouter()
 const showModal = ref(false)
 const isInitialLoading = ref(true)
 
+
+const studioList = ref([])
+const checkSubmissionStatus = ref('')
 
 
 const studio = ref({
@@ -165,6 +178,28 @@ const studio = ref({
 function openModal() { showModal.value = true }
 function closeModal() {
     showModal.value = false
+}
+
+async function fetchStudio() {
+    try {
+        const response = await listStudio(1, '')
+        studioList.value = response.data.data.data
+    } catch (error) {
+        console.error(error)
+        alert('Gagal memuat data studio. Silakan coba lagi.')
+    }
+}
+
+async function fetchSubmission() {
+    try {
+        const response = await submission()
+        if (response.data.status) {
+            checkSubmissionStatus.value = response.data.data.status
+        }
+    } catch (error) {
+        console.error(error)
+        alert('Gagal memuat status pengajuan. Silakan coba lagi.')
+    }
 }
 
 async function fetchStudioDetail() {
@@ -218,7 +253,7 @@ function addStudioNumber() {
 
 onMounted(async () => {
     try {
-        await Promise.all([fetchStudioDetail()])
+        await Promise.all([fetchStudioDetail(), fetchStudio(), fetchSubmission()])
     } finally {
         isInitialLoading.value = false
     }

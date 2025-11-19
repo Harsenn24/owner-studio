@@ -199,6 +199,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { useRouter } from 'vue-router'
 import HeadersPage from '../HeadersPage/HeadersPage.vue'
 import ModalAddStudioPage from '../ModalAddStudioPage/ModalAddStudioPage.vue'
+import { listStudio, submission } from '../../api/studio.js'
 
 // --- REFS ---
 const isInitialLoading = ref(true)
@@ -276,26 +277,7 @@ function closeModal() {
 async function fetchStudios(p = page.value) {
   page.value = p
   try {
-    const BE_BASE_URL = import.meta.env.VITE_STUDIO_BAND_BE_BASE_URL
-    const token = localStorage.getItem('token')
-    const deviceId = localStorage.getItem('device_id')
-    const ip = await getIpAdresses()
-
-    const response = await axios({
-      method: 'POST',
-      url: `${BE_BASE_URL}owner/studio/list`,
-      headers: {
-        'authorization': `Bearer ${token}`,
-        'x-device-id': deviceId,
-        'x-ip-address': ip,
-        'x-request-id': uuidv4()
-      },
-      data: {
-        page: page.value,
-        limit,
-        search: searchQuery.value
-      }
-    })
+    const response = await listStudio(page.value, searchQuery.value)
 
     if (response.data.status) {
       studioList.value = response.data.data.data || []
@@ -316,22 +298,7 @@ function changePage(p) {
 
 async function checkSubmission() {
   try {
-    const BE_BASE_URL = import.meta.env.VITE_STUDIO_BAND_BE_BASE_URL
-    const token = localStorage.getItem('token')
-    const deviceId = localStorage.getItem('device_id')
-    const ip = await getIpAdresses()
-
-    const response = await axios({
-      method: 'POST',
-      url: `${BE_BASE_URL}owner/studio/submission/check`,
-      headers: {
-        'authorization': `Bearer ${token}`,
-        'x-device-id': deviceId,
-        'x-ip-address': ip,
-        'x-request-id': uuidv4()
-      },
-      data: {}
-    })
+    const response = await submission()
 
     if (response.data.status) {
       checkSubmissionStatus.value = response.data.data.status
