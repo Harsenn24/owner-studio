@@ -1,7 +1,8 @@
 <template>
     <header class="flex justify-between items-center mb-6">
-        <h1 class="text-2xl font-bold text-slate-800">StudioSpace Owner</h1>
-
+        <h1 class="text-2xl font-bold text-slate-800 cursor-pointer hover:text-blue-600 transition" @click="goToHome">
+            StudioSpace Owner
+        </h1>
         <div class="flex justify-between gap-x-4">
 
             <div v-if="studioList.length > 0 || checkSubmissionStatus === 'rejected'">
@@ -21,8 +22,16 @@
 </template>
 
 <script setup>
+import { useRouter } from 'vue-router'
+const router = useRouter()
+
+
 defineProps({
     studioList: { type: Array, default: () => [] },
     checkSubmissionStatus: { type: String, default: '' }
 })
+
+function goToHome() {
+    router.push('/home')
+}
 </script>

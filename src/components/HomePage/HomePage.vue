@@ -193,9 +193,6 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import axios from 'axios'
-import { getIpAdresses } from '../../services/axios/ip-adress.services.js'
-import { v4 as uuidv4 } from 'uuid'
 import { useRouter } from 'vue-router'
 import HeadersPage from '../HeadersPage/HeadersPage.vue'
 import ModalAddStudioPage from '../ModalAddStudioPage/ModalAddStudioPage.vue'
