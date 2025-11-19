@@ -19,9 +19,22 @@
                 <p class="text-sm text-slate-500">Total Studio</p>
                 <p class="text-xl font-bold text-blue-600">{{ totalData }}</p>
               </div>
+
               <div class="bg-white shadow-md rounded-2xl px-5 py-3">
                 <p class="text-sm text-slate-500">Transaksi Hari Ini</p>
-                <p class="text-xl font-bold text-green-600">0</p> </div>
+                <p class="text-xl font-bold text-green-600">0</p>
+              </div>
+
+              <div class="bg-gradient-to-tr from-yellow-500 to-orange-500 
+            shadow-xl rounded-2xl px-5 py-3 
+            text-white font-medium cursor-pointer transition 
+            pulse-shadow animate-pulse transform hover:scale-[1.03] duration-300">
+
+                <div class="flex items-center justify-between">
+                  <p class="text-sm font-semibold uppercase tracking-wider">🔔 Pengajuan Baru</p>
+                </div>
+
+              </div>
             </div>
             <div class="flex gap-2 w-full sm:w-1/3 mt-2 sm:mt-0">
               <input v-model="searchQuery" @keyup.enter="fetchStudios(1)" placeholder="Cari nama studio..." type="text"
@@ -38,13 +51,14 @@
 
                 <div class="p-5">
                   <div class="flex justify-between items-start">
-                    <h3 class="text-lg font-semibold text-slate-800 break-words max-w-[80%]">{{ studio.studio_name }}</h3>
+                    <h3 class="text-lg font-semibold text-slate-800 break-words max-w-[80%]">{{ studio.studio_name }}
+                    </h3>
                     <span :class="[
-                        'px-3 py-1 text-xs font-semibold rounded-full shadow-md whitespace-nowrap',
-                        studio.status === 'active'
-                          ? 'bg-green-100 text-green-700 shadow-green-300'
-                          : 'bg-red-100 text-red-700 shadow-red-300'
-                      ]">
+                      'px-3 py-1 text-xs font-semibold rounded-full shadow-md whitespace-nowrap',
+                      studio.status === 'active'
+                        ? 'bg-green-100 text-green-700 shadow-green-300'
+                        : 'bg-red-100 text-red-700 shadow-red-300'
+                    ]">
                       {{ studio.status === 'active' ? 'ACTIVE' : 'INACTIVE' }}
                     </span>
                   </div>
@@ -77,9 +91,12 @@
           <div class="text-center mb-10">
             <h2 class="text-3xl font-bold mb-2">{{ checkSubmissionStudioName }}</h2>
             <div class="mt-2">
-              <h3 v-if="checkSubmissionStatus === 'submission'" class="text-xl font-semibold opacity-90">Pengajuan Studio Sedang Diproses</h3>
-              <h3 v-else-if="checkSubmissionStatus === 'rejected'" class="text-2xl font-bold text-red-100">Mohon Maaf, Pengajuanmu Ditolak</h3>
-              <h3 v-else-if="checkSubmissionStatus === 'accepted'" class="text-2xl font-bold text-white">Selamat! Pengajuanmu Diterima!</h3>
+              <h3 v-if="checkSubmissionStatus === 'submission'" class="text-xl font-semibold opacity-90">Pengajuan
+                Studio Sedang Diproses</h3>
+              <h3 v-else-if="checkSubmissionStatus === 'rejected'" class="text-2xl font-bold text-red-100">Mohon Maaf,
+                Pengajuanmu Ditolak</h3>
+              <h3 v-else-if="checkSubmissionStatus === 'accepted'" class="text-2xl font-bold text-white">Selamat!
+                Pengajuanmu Diterima!</h3>
             </div>
           </div>
 
@@ -104,7 +121,8 @@
                 class="w-14 h-14 flex items-center justify-center rounded-full bg-white/20 border-2 border-white/60">
                 <span class="text-lg font-semibold">2</span>
               </div>
-              <p class="mt-2 text-sm font-medium">{{ checkSubmissionStatus === 'submission' ? 'Sedang Diproses' : 'Proses Selesai' }}</p>
+              <p class="mt-2 text-sm font-medium">{{ checkSubmissionStatus === 'submission' ? 'Sedang Diproses' :
+                'Proses Selesai' }}</p>
               <p class="text-xs opacity-80 mt-1">Verifikasi oleh tim kami</p>
             </div>
 
@@ -121,15 +139,19 @@
                 class="w-14 h-14 flex items-center justify-center rounded-full bg-green-500 border-2 border-green-300">
                 <span class="text-lg font-semibold">✅</span>
               </div>
-              <p class="mt-2 text-sm font-medium">{{ checkSubmissionStatus === 'submission' ? 'Hasil Pengajuan' : 'Selesai' }}</p>
-              <p class="text-xs opacity-80 mt-1">{{ checkSubmissionStatus === 'rejected' ? 'Ditolak' : (checkSubmissionStatus === 'accepted' ? 'Approved' : 'Menunggu hasil') }}</p>
+              <p class="mt-2 text-sm font-medium">{{ checkSubmissionStatus === 'submission' ? 'Hasil Pengajuan' :
+                'Selesai' }}</p>
+              <p class="text-xs opacity-80 mt-1">{{ checkSubmissionStatus === 'rejected' ? 'Ditolak' :
+                (checkSubmissionStatus === 'accepted' ? 'Approved' : 'Menunggu hasil') }}</p>
             </div>
           </div>
 
           <div class="mt-10 text-center">
             <div class="mb-4">
-              <p v-if="checkSubmissionStatus === 'submission'" class="text-sm opacity-90">Kamu akan menerima notifikasi setelah pengajuan selesai diproses.</p>
-              <p v-else-if="checkSubmissionStatus === 'rejected'" class="text-sm font-extrabold text-white">Catatan: {{ checkSubmissionNotes || 'Tidak ada catatan spesifik.' }}, silakan ajukan ulang!</p>
+              <p v-if="checkSubmissionStatus === 'submission'" class="text-sm opacity-90">Kamu akan menerima notifikasi
+                setelah pengajuan selesai diproses.</p>
+              <p v-else-if="checkSubmissionStatus === 'rejected'" class="text-sm font-extrabold text-white">Catatan: {{
+                checkSubmissionNotes || 'Tidak ada catatan spesifik.' }}, silakan ajukan ulang!</p>
             </div>
 
             <button v-if="checkSubmissionStatus === 'submission'" @click="refreshPage"
@@ -149,7 +171,8 @@
           </div>
         </div>
 
-        <div v-else class="flex flex-col lg:flex-row items-center justify-center gap-10 py-20 bg-white rounded-2xl shadow-lg mt-8 mx-4">
+        <div v-else
+          class="flex flex-col lg:flex-row items-center justify-center gap-10 py-20 bg-white rounded-2xl shadow-lg mt-8 mx-4">
           <section class="flex flex-col justify-center px-8 max-w-lg text-center lg:text-left">
             <h2 class="text-4xl lg:text-5xl font-extrabold text-slate-800 leading-tight">
               Kamu belum punya
