@@ -1,109 +1,92 @@
 <template>
   <div class="min-h-screen flex flex-col bg-gradient-to-b from-white via-gray-50 to-gray-100 p-6">
 
-    <!-- Loading Placeholder -->
     <div v-if="isInitialLoading" class="flex-1 flex flex-col items-center justify-center">
       <div class="w-12 h-12 border-4 border-blue-400 border-t-transparent rounded-full animate-spin mb-4"></div>
-      <p class="text-slate-500">Loading ...</p>
+      <p class="text-slate-500">Loading studios...</p>
     </div>
 
     <template v-else>
-      <!-- Header -->
-      <HeadersPage
-        :studioList="studioList"
-        :checkSubmissionStatus="checkSubmissionStatus"
-        @open-modal="openModal"
-        @logout="logout"
-      />
+      <HeadersPage :studioList="studioList" :checkSubmissionStatus="checkSubmissionStatus" @open-modal="openModal"
+        @logout="logout" />
 
-      <!-- Info Cards + Search -->
-      <div v-if="studioList.length > 0"
-        class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-3 bg-gradient-to-r from-blue-600 to-green-500 rounded-2xl p-4">
-        <div class="flex flex-col sm:flex-row items-center gap-4">
-          <div class="bg-white shadow-md rounded-2xl px-5 py-3">
-            <p class="text-sm text-slate-500">Total Studio</p>
-            <p class="text-xl font-bold text-blue-600">{{ totalData }}</p>
-          </div>
-          <div class="bg-white shadow-md rounded-2xl px-5 py-3">
-            <p class="text-sm text-slate-500">Transaksi Hari Ini</p>
-            <p class="text-xl font-bold text-green-600">0</p> <!-- Dummy value -->
-          </div>
-        </div>
-        <div class="flex gap-2 w-full sm:w-1/3 mt-2 sm:mt-0">
-          <input v-model="searchQuery" @keyup.enter="fetchStudios(1)" placeholder="Cari nama studio..." type="text"
-            class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white text-black" />
-          <button @click="fetchStudios(1)"
-            class="px-3 py-2 bg-white! text-black rounded-lg hover:bg-blue-700 transition">Cari</button>
-        </div>
-      </div>
-
-      <!-- Studio Grid -->
-      <div class="flex-1 bg-gradient-to-r from-blue-600 to-green-500 py-6 px-6 ">
-        <div v-if="studioList.length > 0" class="grid justify-center grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-          <div v-for="studio in studioList" :key="studio.studio_id " @click="openStudioDetail(studio)"
-            class="bg-white rounded-2xl border border-slate-200 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all overflow-hidden">
-
-            <!-- Header Card -->
-            <div class="p-5">
-              <div class="flex justify-between">
-                <h3 class="text-lg font-semibold text-slate-800">{{ studio.studio_name }}</h3>
-                <span :class="[
-                  'px-3 py-1 text-xs font-semibold rounded-full shadow-md',
-                  studio.status === 'active'
-                    ? 'bg-green-100 text-green-700 shadow-green-300 glow-green'
-                    : 'bg-red-100 text-red-700 shadow-red-300 glow-red'
-                ]">
-                  {{ studio.status === 'active' ? 'ACTIVE' : 'INACTIVE' }}
-                </span>
-
+      <div class="flex-1">
+        <div v-if="studioList.length > 0">
+          <div
+            class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-3 bg-gradient-to-r from-blue-600 to-green-500 rounded-2xl p-4">
+            <div class="flex flex-col sm:flex-row items-center gap-4">
+              <div class="bg-white shadow-md rounded-2xl px-5 py-3">
+                <p class="text-sm text-slate-500">Total Studio</p>
+                <p class="text-xl font-bold text-blue-600">{{ totalData }}</p>
               </div>
-              <p class="text-sm text-slate-500">ID: {{ studio.studio_id }}</p>
+              <div class="bg-white shadow-md rounded-2xl px-5 py-3">
+                <p class="text-sm text-slate-500">Transaksi Hari Ini</p>
+                <p class="text-xl font-bold text-green-600">0</p> </div>
             </div>
-
-
-            <!-- Body -->
-            <div class="px-5 pb-5 border-t border-slate-100">
-              <p class="text-sm text-slate-600 mb-1">📍 {{ studio.studio_city }}, {{ studio.studio_district }}</p>
-              <p class="text-xs text-slate-400">Dibuat: {{ formatDate(studio.studio_created_at * 1000) }}</p>
+            <div class="flex gap-2 w-full sm:w-1/3 mt-2 sm:mt-0">
+              <input v-model="searchQuery" @keyup.enter="fetchStudios(1)" placeholder="Cari nama studio..." type="text"
+                class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white text-black" />
+              <button @click="fetchStudios(1)"
+                class="px-3 py-2 bg-white! text-black rounded-lg hover:bg-slate-100 transition">Cari</button>
             </div>
+          </div>
 
-            <div class="px-5 pb-5 border-t border-slate-100">
-              <p class="text-xl text-black"> Rp 20.000</p>
-            </div>
+          <div class="bg-gradient-to-r from-blue-600 to-green-500 py-6 px-6 rounded-2xl">
+            <div class="grid justify-center grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+              <div v-for="studio in studioList" :key="studio.studio_id" @click="openStudioDetail(studio)"
+                class="bg-white rounded-2xl border border-slate-200 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer overflow-hidden">
 
-            <!-- Footer -->
-            <div class="px-5 py-3 bg-slate-50 flex justify-between items-center border-t border-slate-100">
-              <a :href="studio.studio_gmaps" target="_blank" @click.stop
-                class="text-blue-600 text-sm font-medium hover:text-blue-800 flex items-center gap-1">
-                🌐 Lihat di Maps
-              </a>
-             
+                <div class="p-5">
+                  <div class="flex justify-between items-start">
+                    <h3 class="text-lg font-semibold text-slate-800 break-words max-w-[80%]">{{ studio.studio_name }}</h3>
+                    <span :class="[
+                        'px-3 py-1 text-xs font-semibold rounded-full shadow-md whitespace-nowrap',
+                        studio.status === 'active'
+                          ? 'bg-green-100 text-green-700 shadow-green-300'
+                          : 'bg-red-100 text-red-700 shadow-red-300'
+                      ]">
+                      {{ studio.status === 'active' ? 'ACTIVE' : 'INACTIVE' }}
+                    </span>
+                  </div>
+                  <p class="text-sm text-slate-500 mt-1">ID: {{ studio.studio_id }}</p>
+                </div>
+
+
+                <div class="px-5 pb-5 border-t border-slate-100">
+                  <p class="text-sm text-slate-600 mb-1">📍 {{ studio.studio_city }}, {{ studio.studio_district }}</p>
+                  <p class="text-xs text-slate-400">Dibuat: {{ formatDate(studio.studio_created_at * 1000) }}</p>
+                </div>
+
+                <div class="px-5 pb-5 border-t border-slate-100">
+                  <p class="text-xl font-bold text-black">Rp 20.000</p>
+                </div>
+
+                <div class="px-5 py-3 bg-slate-50 flex justify-end items-center border-t border-slate-100">
+                  <a :href="studio.studio_gmaps" target="_blank" @click.stop
+                    class="text-blue-600 text-sm font-medium hover:text-blue-800 flex items-center gap-1 transition">
+                    🌐 Lihat di Maps
+                  </a>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
         <div v-else-if="isSubmitted && studioList.length === 0"
           class="flex flex-col items-center justify-center py-20 px-6 text-white bg-gradient-to-br from-blue-500 via-blue-400 to-green-500 rounded-2xl shadow-lg mt-8 mx-4">
-          <!-- Header -->
           <div class="text-center mb-10">
-            <h2 class="text-2xl font-bold mb-2">{{ checkSubmissionStudioName }}</h2>
-            <!-- <h3 class="text-2xl font-bold mb-2">Pengajuan Studio Sedang Diproses</h3> -->
-            <div>
-              <p v-if="checkSubmissionStatus === 'submission'" class="text-sm opacity-90">Tim kami sedang meninjau
-                pengajuanmu. Mohon tunggu sebentar ya!</p>
-              <h3 v-else-if="checkSubmissionStatus === 'rejected'" class="text-2xl font-bold mb-2 text-black">Mohon Maaf
-                Pengajuanmu ditolak</h3>
-              <h3 v-else-if="checkSubmissionStatus === 'accepted'" class="text-2xl font-bold mb-2 text-white">Selamat!
-                Pengajuanmu diterima, mohon ikuti step berikutnya!</h3>
+            <h2 class="text-3xl font-bold mb-2">{{ checkSubmissionStudioName }}</h2>
+            <div class="mt-2">
+              <h3 v-if="checkSubmissionStatus === 'submission'" class="text-xl font-semibold opacity-90">Pengajuan Studio Sedang Diproses</h3>
+              <h3 v-else-if="checkSubmissionStatus === 'rejected'" class="text-2xl font-bold text-red-100">Mohon Maaf, Pengajuanmu Ditolak</h3>
+              <h3 v-else-if="checkSubmissionStatus === 'accepted'" class="text-2xl font-bold text-white">Selamat! Pengajuanmu Diterima!</h3>
             </div>
           </div>
 
-          <!-- Timeline -->
           <div class="flex justify-between items-center w-full max-w-xl relative">
             <div class="absolute top-1/2 left-0 right-0 h-[2px] bg-white/30 z-0"></div>
 
-            <!-- Step 1 -->
-            <div class="relative z-10 flex flex-col items-center text-center">
+            <div class="relative z-10 flex flex-col items-center text-center w-1/3 px-1">
               <div class="w-14 h-14 flex items-center justify-center rounded-full bg-white/20 border-2 border-white/60">
                 <span class="text-lg font-semibold">1</span>
               </div>
@@ -112,85 +95,62 @@
                 formatTime(checkSubmissionCreatedAt * 1000) }}</p>
             </div>
 
-            <!-- Step 2 -->
-            <div>
+            <div class="relative z-10 flex flex-col items-center text-center w-1/3 px-1">
               <div v-if="checkSubmissionStatus === 'submission'"
-                class="relative z-10 flex flex-col items-center text-center">
-                <div
-                  class="w-14 h-14 flex items-center justify-center rounded-full border-4 border-white animate-spin-slow">
-                  <div class="w-10 h-10 bg-white/30 rounded-full">....</div>
-                </div>
-                <p class="mt-2 text-sm font-medium">Sedang Diproses</p>
-                <p class="text-xs opacity-80 mt-1">Verifikasi oleh tim kami</p>
+                class="w-14 h-14 flex items-center justify-center rounded-full border-4 border-white animate-spin-slow">
+                <div class="w-10 h-10 bg-white/30 rounded-full"></div>
               </div>
-
-              <div v-else class="relative z-10 flex flex-col items-center text-center">
-                <div
-                  class="w-14 h-14 flex items-center justify-center rounded-full bg-white/20 border-2 border-white/60">
-                  <span class="text-lg font-semibold">2</span>
-                </div>
-                <p class="mt-2 text-sm font-medium">Proses Selesai</p>
-                <p class="text-xs opacity-80 mt-1">Verifikasi oleh tim kami</p>
+              <div v-else
+                class="w-14 h-14 flex items-center justify-center rounded-full bg-white/20 border-2 border-white/60">
+                <span class="text-lg font-semibold">2</span>
               </div>
-
+              <p class="mt-2 text-sm font-medium">{{ checkSubmissionStatus === 'submission' ? 'Sedang Diproses' : 'Proses Selesai' }}</p>
+              <p class="text-xs opacity-80 mt-1">Verifikasi oleh tim kami</p>
             </div>
 
-            <!-- Step 3 -->
-            <div>
+            <div class="relative z-10 flex flex-col items-center text-center w-1/3 px-1">
               <div v-if="checkSubmissionStatus === 'submission'"
-                class="relative z-10 flex flex-col items-center text-center">
-                <div
-                  class="w-14 h-14 flex items-center justify-center rounded-full bg-white/10 border-2 border-white/40">
-                  <span class="text-lg font-semibold opacity-60">3</span>
-                </div>
-                <p class="mt-2 text-sm font-medium opacity-70">Hasil Pengajuan</p>
-                <p class="text-xs opacity-60 mt-1">Menunggu hasil verifikasi</p>
+                class="w-14 h-14 flex items-center justify-center rounded-full bg-white/10 border-2 border-white/40">
+                <span class="text-lg font-semibold opacity-60">3</span>
               </div>
-
               <div v-else-if="checkSubmissionStatus === 'rejected'"
-                class="relative z-10 flex flex-col items-center text-center">
-                <div class="w-14 h-14 flex items-center justify-center rounded-full border-red-500!">
-                  <div class="w-10 h-10 bg-red-500 rounded-full"></div>
-                </div>
-                <p class="mt-2 text-sm font-medium text-black">rejected</p>
-                <p class="text-xs opacity-80 mt-1 text-black">permohonan ditolak</p>
+                class="w-14 h-14 flex items-center justify-center rounded-full bg-red-500 border-2 border-red-300">
+                <span class="text-lg font-semibold">❌</span>
               </div>
-
-              <div v-else class="relative z-10 flex flex-col items-center text-center">
-                <div class="w-14 h-14 flex items-center justify-center rounded-full border-white!">
-                  <div class="w-10 h-10 bg-blue-500 rounded-full"></div>
-                </div>
-                <p class="mt-2 text-sm font-medium">Selesai</p>
-                <p class="text-xs mt-1">Approved</p>
+              <div v-else-if="checkSubmissionStatus === 'accepted'"
+                class="w-14 h-14 flex items-center justify-center rounded-full bg-green-500 border-2 border-green-300">
+                <span class="text-lg font-semibold">✅</span>
               </div>
+              <p class="mt-2 text-sm font-medium">{{ checkSubmissionStatus === 'submission' ? 'Hasil Pengajuan' : 'Selesai' }}</p>
+              <p class="text-xs opacity-80 mt-1">{{ checkSubmissionStatus === 'rejected' ? 'Ditolak' : (checkSubmissionStatus === 'accepted' ? 'Approved' : 'Menunggu hasil') }}</p>
             </div>
           </div>
 
-          <!-- Footer -->
           <div class="mt-10 text-center">
-            <div>
-              <p v-if="checkSubmissionStatus === 'submission'" class="text-sm opacity-90 mb-4">Kamu akan menerima
-                notifikasi setelah pengajuan selesai diproses.</p>
-              <p v-else-if="checkSubmissionStatus === 'rejected'" class="text-sm font-extrabold mb-4 text-black">Catatan
-                : {{ checkSubmissionNotes }}, silakan ajukan ulang!</p>
-              <!-- <p v-else class="text-sm font-extrabold mb-4">Catatan : Foto-foto terlihat tidak asli, pastikan menggunakan foto yang benar </p> -->
-
+            <div class="mb-4">
+              <p v-if="checkSubmissionStatus === 'submission'" class="text-sm opacity-90">Kamu akan menerima notifikasi setelah pengajuan selesai diproses.</p>
+              <p v-else-if="checkSubmissionStatus === 'rejected'" class="text-sm font-extrabold text-white">Catatan: {{ checkSubmissionNotes || 'Tidak ada catatan spesifik.' }}, silakan ajukan ulang!</p>
             </div>
+
             <button v-if="checkSubmissionStatus === 'submission'" @click="refreshPage"
-              class="px-6 py-2 bg-white! hover:bg-white/30 text-black rounded-lg transition-all duration-200">
+              class="px-6 py-2 bg-white text-black rounded-lg hover:bg-white/90 transition-all duration-200">
               Periksa Lagi
             </button>
 
-            <button v-if="checkSubmissionStatus === 'accepted'" @click="goToStudioDetail(subMissionId)"
-              class="px-6 py-2 bg-white! hover:bg-white/30 text-black rounded-lg transition-all duration-200">
+            <button v-else-if="checkSubmissionStatus === 'accepted'" @click="goToStudioDetail(subMissionId)"
+              class="px-6 py-2 bg-white text-black rounded-lg hover:bg-white/90 transition-all duration-200">
               Lengkapi Studio Kamu!
+            </button>
+
+            <button v-else-if="checkSubmissionStatus === 'rejected'" @click="openModal"
+              class="px-6 py-2 bg-white text-black rounded-lg hover:bg-white/90 transition-all duration-200">
+              Ajukan Ulang Studio
             </button>
           </div>
         </div>
 
-        <!-- 🚫 CASE 2: Owner belum punya studio -->
-        <div v-else class="flex flex-col lg:flex-row items-center justify-center gap-10 py-20 bg-white">
-          <section class="flex flex-col justify-center px-8 max-w-lg">
+        <div v-else class="flex flex-col lg:flex-row items-center justify-center gap-10 py-20 bg-white rounded-2xl shadow-lg mt-8 mx-4">
+          <section class="flex flex-col justify-center px-8 max-w-lg text-center lg:text-left">
             <h2 class="text-4xl lg:text-5xl font-extrabold text-slate-800 leading-tight">
               Kamu belum punya
               <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-green-500">studio</span>
@@ -198,9 +158,9 @@
             <p class="mt-4 text-slate-500 text-base">
               Buat listing studiomu agar pengguna bisa menemukan dan menyewa ruangmu.
             </p>
-            <div class="mt-8 flex flex-wrap items-center gap-5">
+            <div class="mt-8 flex justify-center lg:justify-start items-center gap-5">
               <button @click="openModal"
-                class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-green-500 text-white font-semibold shadow-md hover:scale-[1.02] transition-transform">
+                class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-green-500 text-white font-semibold shadow-lg hover:scale-[1.02] transition-transform">
                 + Buat Studiomu
               </button>
             </div>
@@ -208,507 +168,111 @@
         </div>
       </div>
 
-      <!-- Pagination Fixed Bottom -->
       <div v-if="studioList.length > 0"
-        class="mt-6 py-6 px-6 bg-white shadow-inner flex justify-center items-center gap-2 sticky bottom-0 z-10">
+        class="mt-6 py-4 px-6 bg-white! shadow-inner flex justify-center items-center gap-2 sticky bottom-0 z-10 rounded-t-2xl border-t border-slate-200">
         <button @click="changePage(page - 1)" :disabled="page === 1"
-          class="px-3 py-1 rounded-lg border border-slate-300 bg-white hover:bg-slate-100 disabled:opacity-50">
+          class="px-3 py-1 rounded-lg border border-slate-300 bg-white hover:bg-slate-100 disabled:opacity-50 transition">
           Prev
         </button>
         <button v-for="p in maxPage" :key="p" @click="changePage(p)"
-          :class="['px-3 py-1 rounded-lg border', page === p ? 'bg-blue-600 text-white border-blue-600' : 'bg-white border-slate-300 hover:bg-slate-100']">
+          :class="['px-3 py-1 rounded-lg border text-sm transition', page === p ? 'bg-blue-600! text-white border-blue-600 font-semibold' : 'bg-white border-slate-300 hover:bg-slate-100 text-slate-700']">
           {{ p }}
         </button>
         <button @click="changePage(page + 1)" :disabled="page === maxPage"
-          class="px-3 py-1 rounded-lg border border-slate-300 bg-white hover:bg-slate-100 disabled:opacity-50">
+          class="px-3 py-1 rounded-lg border border-slate-300 bg-white hover:bg-slate-100 disabled:opacity-50 transition">
           Next
         </button>
       </div>
 
-      <!-- Modal Form -->
       <transition name="modal-fade">
-        <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center p-6">
-          <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="closeModal"></div>
-          <div class="relative bg-white rounded-2xl w-full max-w-2xl p-6 z-50 drop-shadow-2xl border border-white/30">
-            <header class="flex items-start justify-between gap-4 mb-4">
-              <h3 class="text-lg font-semibold text-black">Form Pengajuan Studio</h3>
-              <button @click="closeModal" class="text-slate-400 hover:text-slate-600">✖️</button>
-            </header>
-
-            <form @submit.prevent="submitForm">
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <!-- Nama Studio -->
-                <div>
-                  <label class="text-xs font-medium text-slate-600">Nama Studio</label>
-                  <input v-model="form.name" @input="handleNameInput" required minlength="5" maxlength="20"
-                    class="mt-2 w-full rounded-lg border px-3 py-2 text-sm border-black text-black"
-                    placeholder="Contoh: Studio Suara Jakarta" />
-                  <p v-if="form.name.length > 0 && (form.name.length < 5 || form.name.length > 20)"
-                    class="text-xs text-red-500 mt-1">
-                    Nama studio harus antara 5–20 karakter.
-                  </p>
-                </div>
-
-                <!-- Provinsi -->
-                <div class="relative" ref="provinceContainer">
-                  <label class="text-xs font-medium text-slate-600">Provinsi</label>
-                  <input type="text" v-model="provinceSearch" @input="fetchProvinces" @focus="fetchProvinces"
-                    placeholder="Cari provinsi..."
-                    class="mt-2 w-full rounded-lg border px-3 py-2 text-sm border-black text-black!" />
-                  <ul v-if="provinceList.length"
-                    class="absolute w-full max-h-48 overflow-auto border rounded mt-1 bg-white z-50 text-black! py-2">
-                    <li v-for="province in provinceList" :key="province.id" @click="selectProvince(province)"
-                      class="px-3 py-2 hover:bg-gray-100 cursor-pointer">
-                      {{ province.name }}
-                    </li>
-                  </ul>
-                </div>
-                <!-- Kota -->
-                <div class="relative" ref="cityContainer">
-                  <label class="text-xs font-medium text-slate-600">Kota</label>
-                  <input type="text" v-model="citySearch" @input="fetchCities()" @focus="fetchCities()"
-                    placeholder="Cari kota..."
-                    class="mt-2 w-full rounded-lg border px-3 py-2 text-sm border-black text-black!" />
-                  <ul v-if="cityList.length"
-                    class="absolute w-full max-h-48 overflow-auto border rounded mt-1 bg-white z-50 text-black! py-2">
-                    <li v-for="city in cityList" :key="city.id" @click="selectCities(city)"
-                      class="px-3 py-2 hover:bg-gray-100 cursor-pointer">
-                      {{ city.name }}
-                    </li>
-                  </ul>
-                </div>
-                <!-- Kecamatan -->
-                <div class="relative" ref="districtContainer">
-                  <label class="text-xs font-medium text-slate-600">Kecamatan</label>
-                  <input type="text" v-model="districtSearch" @input="fetchDistricts()" @focus="fetchDistricts()"
-                    placeholder="Cari kecamatan..."
-                    class="mt-2 w-full rounded-lg border px-3 py-2 text-sm border-black text-black!" />
-                  <ul v-if="districtList.length"
-                    class="absolute w-full max-h-48 overflow-auto border rounded mt-1 bg-white z-50 text-black! py-2">
-                    <li v-for="district in districtList" :key="district.id" @click="selectDistrict(district)"
-                      class="px-3 py-2 hover:bg-gray-100 cursor-pointer">
-                      {{ district.name }}
-                    </li>
-                  </ul>
-                </div>
-                <!-- Kelurahan -->
-                <div class="relative" ref="villageContainer">
-                  <label class="text-xs font-medium text-slate-600">Kelurahan</label>
-                  <input type="text" v-model="villageSearch" @input="fetchVillages()" @focus="fetchVillages()"
-                    placeholder="Cari kelurahan..."
-                    class="mt-2 w-full rounded-lg border px-3 py-2 text-sm border-black text-black!" />
-                  <ul v-if="villageList.length"
-                    class="absolute w-full max-h-48 overflow-auto border rounded mt-1 bg-white z-50 text-black! py-2">
-                    <li v-for="village in villageList" :key="village.id" @click="selectVillage(village)"
-                      class="px-3 py-2 hover:bg-gray-100 cursor-pointer">
-                      {{ village.name }}
-                    </li>
-                  </ul>
-                </div>
-                <!-- Kode Pos -->
-                <div class="relative" ref="postalCodeContainer">
-                  <label class="text-xs font-medium text-slate-600">Kode Pos</label>
-                  <input type="text" v-model="postalCodeSearch" @input="fetchPostalCode()" @focus="fetchPostalCode()"
-                    placeholder="Cari kode pos..."
-                    class="mt-2 w-full rounded-lg border px-3 py-2 text-sm border-black text-black!" />
-                  <ul v-if="postalCodeList.length"
-                    class="absolute w-full max-h-48 overflow-auto border rounded mt-1 bg-white z-50 text-black! py-2">
-                    <li v-for="postal_code in postalCodeList" :key="postal_code.id"
-                      @click="selectPostalCode(postal_code)" class="px-3 py-2 hover:bg-gray-100 cursor-pointer">
-                      {{ postal_code.postal_code }}
-                    </li>
-                  </ul>
-                </div>
-                <!-- Google Maps -->
-                <div>
-                  <label class="text-xs font-medium text-slate-600">Tautan Google Maps</label>
-                  <input v-model="form.gmaps" @input="handleGmapsInput" required
-                    class="mt-2 w-full rounded-lg border px-3 py-2 text-sm border-black text-black"
-                    placeholder="https://maps.app.goo.gl/..." />
-                  <p v-if="form.gmaps && form.gmaps.length < 5" class="text-xs text-red-500 mt-1">
-                    Tautan minimal 5 karakter.
-                  </p>
-                  <p v-else-if="form.gmaps && !isValidUrl(form.gmaps)" class="text-xs text-red-500 mt-1">
-                    Harus berupa tautan (URL) yang valid.
-                  </p>
-                </div>
-
-              </div>
-
-              <!-- Alamat Lengkap -->
-              <div>
-                <label class="text-xs font-medium text-slate-600">Alamat Lengkap</label>
-                <textarea v-model="form.address" @input="handleAddressInput" required rows="3"
-                  class="mt-2 w-full rounded-lg border px-3 py-2 text-sm border-black text-black resize-none overflow-hidden"
-                  placeholder="Contoh: Jalan Sukmajaya 1 No. 23, Depok"></textarea>
-
-                <p v-if="form.address && form.address.length < 10" class="text-xs text-red-500 mt-1">
-                  Alamat minimal 10 karakter.
-                </p>
-              </div>
-
-
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <!-- Contact Person Name -->
-                <div>
-                  <label class="text-xs font-medium text-slate-600">Contact Person Name</label>
-                  <input v-model="form.contactName" @input="handleContactNameInput" required minlength="5"
-                    maxlength="20" class="mt-2 w-full rounded-lg border px-3 py-2 text-sm border-black text-black"
-                    placeholder="Contoh: Dhimas" />
-                  <p v-if="form.contactName.length > 0 && (form.contactName.length < 5 || form.contactName.length > 20)"
-                    class="text-xs text-red-500 mt-1">
-                    Nama contact person harus antara 5–20 karakter.
-                  </p>
-                </div>
-                <!-- Contact Person Phone -->
-                <div>
-                  <label class="text-xs font-medium text-slate-600">Contact Person Phone</label>
-                  <input v-model="form.contactPhone" @input="handlePhoneInput" required maxlength="15"
-                    class="mt-2 w-full rounded-lg border px-3 py-2 text-sm border-black text-black"
-                    placeholder="Contoh: 08135115415" />
-
-                  <p v-if="phoneError" class="text-xs text-red-500 mt-1">
-                    {{ phoneError }}
-                  </p>
-                </div>
-
-                <!-- Bank -->
-                <div class="relative" ref="provinceContainer">
-                  <label class="text-xs font-medium text-slate-600">Bank</label>
-                  <input type="text" v-model="bankSearch" @input="fetchBank" @focus="fetchBank"
-                    placeholder="nama bank..."
-                    class="mt-2 w-full rounded-lg border px-3 py-2 text-sm border-black text-black!" />
-                  <ul v-if="bankList.length"
-                    class="absolute w-full max-h-48 overflow-auto border rounded mt-1 bg-white z-50 text-black! py-2">
-                    <li v-for="bank in bankList" :key="bank.id" @click="selectBank(bank)"
-                      class="px-3 py-2 hover:bg-gray-100 cursor-pointer">
-                      {{ bank.name }}
-                    </li>
-                  </ul>
-                </div>
-                <!-- Nomor Rekening Bank -->
-                <div>
-                  <label class="text-xs font-medium text-slate-600">Nomor Rekening Bank</label>
-                  <input v-model="form.bankAccount" @input="handleBankAccountInput" required minlength="5"
-                    maxlength="20" class="mt-2 w-full rounded-lg border px-3 py-2 text-sm border-black text-black"
-                    placeholder="Contoh: 5544512536" />
-                  <p v-if="form.bankAccount && form.bankAccount.length < 5" class="text-xs text-red-500 mt-1">
-                    Nomor Rekening minimal 5 karakter.
-                  </p>
-                </div>
-
-              </div>
-
-              <!-- Upload Images -->
-              <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
-                <!-- Upload KTP -->
-                <div>
-                  <label class="text-sm font-medium text-slate-700">Upload KTP</label>
-
-                  <input v-if="!previewFile.ktp" type="file" accept="image/*" required
-                    @change="handleFileUpload($event, 'ktp')"
-                    class="mt-2 w-full rounded-lg border px-3 py-3 text-sm border-black text-black cursor-pointer" />
-
-                  <div v-else class="mt-3 relative rounded-lg overflow-hidden border border-gray-300 shadow-md">
-                    <img :src="previewFile.ktp" alt="Preview KTP" class="w-full aspect-[16/9] object-cover" />
-                    <button @click="removeFile('ktp')"
-                      class="absolute top-2 right-2 bg-white bg-opacity-80 hover:bg-opacity-100 text-xs font-medium px-2 py-1 rounded shadow">
-                      Ganti Foto
-                    </button>
-                  </div>
-
-                  <p v-if="errorsFile.ktp" class="text-xs text-red-500 mt-1">{{ errorsFile.ktp }}</p>
-                </div>
-
-                <!-- Upload Studio 1 -->
-                <div>
-                  <label class="text-sm font-medium text-slate-700">Upload Foto Studio 1</label>
-
-                  <input v-if="!previewFile.studio1" type="file" accept="image/*" required
-                    @change="handleFileUpload($event, 'studio1')"
-                    class="mt-2 w-full rounded-lg border px-3 py-3 text-sm border-black text-black cursor-pointer" />
-
-                  <div v-else class="mt-3 relative rounded-lg overflow-hidden border border-gray-300 shadow-md">
-                    <img :src="previewFile.studio1" alt="Preview Studio 1" class="w-full aspect-[16/9] object-cover" />
-                    <button @click="removeFile('studio1')"
-                      class="absolute top-2 right-2 bg-white bg-opacity-80 hover:bg-opacity-100 text-xs font-medium px-2 py-1 rounded shadow">
-                      Ganti Foto
-                    </button>
-                  </div>
-
-                  <p v-if="errorsFile.studio1" class="text-xs text-red-500 mt-1">{{ errorsFile.studio1 }}</p>
-                </div>
-
-                <!-- Upload Studio 2 -->
-                <div>
-                  <label class="text-sm font-medium text-slate-700">Upload Foto Studio 2</label>
-
-                  <input v-if="!previewFile.studio2" type="file" accept="image/*" required
-                    @change="handleFileUpload($event, 'studio2')"
-                    class="mt-2 w-full rounded-lg border px-3 py-3 text-sm border-black text-black cursor-pointer" />
-
-                  <div v-else class="mt-3 relative rounded-lg overflow-hidden border border-gray-300 shadow-md">
-                    <img :src="previewFile.studio2" alt="Preview Studio 2" class="w-full aspect-[16/9] object-cover" />
-                    <button @click="removeFile('studio2')"
-                      class="absolute top-2 right-2 bg-white bg-opacity-80 hover:bg-opacity-100 text-xs font-medium px-2 py-1 rounded shadow">
-                      Ganti Foto
-                    </button>
-                  </div>
-
-                  <p v-if="errorsFile.studio2" class="text-xs text-red-500 mt-1">{{ errorsFile.studio2 }}</p>
-                </div>
-              </div>
-
-
-              <!-- Buttons -->
-              <div class="md:col-span-2 flex justify-end gap-3 mt-4">
-                <button type="button" @click="closeModal"
-                  class="px-4 py-2 rounded-lg border border-slate-200">Batal</button>
-                <button type="submit"
-                  class="px-5 py-2 rounded-lg bg-gradient-to-r from-purple-600 to-pink-500 text-white">Kirim
-                  Pengajuan</button>
-              </div>
-            </form>
-
-          </div>
-        </div>
+        <ModalAddStudioPage v-if="showModal" @close-modal="closeModal" />
       </transition>
-      <!-- Modal / Overlay Saat Pengajuan Sedang Diproses -->
     </template>
   </div>
 </template>
 
-
 <script setup>
-import { ref, reactive, onMounted, onBeforeUnmount } from 'vue'
+import { ref, onMounted } from 'vue'
 import axios from 'axios'
 import { getIpAdresses } from '../../services/axios/ip-adress.services.js'
 import { v4 as uuidv4 } from 'uuid'
 import { useRouter } from 'vue-router'
 import HeadersPage from '../HeadersPage/HeadersPage.vue'
+import ModalAddStudioPage from '../ModalAddStudioPage/ModalAddStudioPage.vue'
 
-const checkSubmissionStatus = ref('')
-const checkSubmissionStudioName = ref('')
-const checkSubmissionNotes = ref('')
-const checkSubmissionCreatedAt = ref(0)
-const isSubmitted = ref(false)
-const subMissionId = ref(null)
-
+// --- REFS ---
 const isInitialLoading = ref(true)
-
 const router = useRouter()
+
+// Studio List & Pagination
 const studioList = ref([])
 const page = ref(1)
 const limit = 6
 const maxPage = ref(1)
 const totalData = ref(0)
 const searchQuery = ref('')
+
+// Submission Check
+const checkSubmissionStatus = ref('') // 'submission', 'accepted', 'rejected'
+const checkSubmissionStudioName = ref('')
+const checkSubmissionNotes = ref('')
+const checkSubmissionCreatedAt = ref(0)
+const isSubmitted = ref(false) // True if submission data is found
+const subMissionId = ref(null)
+
+// UI State
 const showModal = ref(false)
 
-const provinceSearch = ref('')
-const provinceList = ref([])
-const provinceContainer = ref(null)
 
-const citySearch = ref('')
-const cityList = ref([])
-const cityContainer = ref(null)
-
-const districtSearch = ref('')
-const districtList = ref([])
-const districtContainer = ref(null)
-
-const villageSearch = ref('')
-const villageList = ref([])
-const villageContainer = ref(null)
-
-const postalCodeSearch = ref('')
-const postalCodeList = ref([])
-const postalCodeContainer = ref(null)
-
-const bankSearch = ref('')
-const bankList = ref([])
-
-const phoneError = ref('')
-
-const previewFile = ref({ ktp: null, studio1: null, studio2: null })
-const errorsFile = ref({ ktp: '', studio1: '', studio2: '' })
-
-const form = reactive({
-  name: '',
-  city: '',
-  district: '',
-  gmaps: '',
-  province: '',
-  postalCode: '',
-  bank: '',
-  bankAccount: '',
-  contactName: '',
-  contactPhone: '',
-  document_ids: []
-})
-
-function removeFile(type) {
-  previewFile.value[type] = null
-  errorsFile.value[type] = ''
-}
-
-async function handleFileUpload(event, type) {
-  const file = event.target.files[0]
-  if (!file) return
-
-  errorsFile.value[type] = ''
-
-  // Validasi ukuran file (maksimal 500 KB)
-  if (file.size > 500 * 1024) {
-    errorsFile.value[type] = 'Ukuran file maksimal 500 KB.'
-    return
-  }
-
-  // Preview langsung (tanpa validasi rasio)
-  const fileUrl = URL.createObjectURL(file)
-  previewFile.value[type] = fileUrl
-
-  // Tentukan module name
-  const moduleName = type === 'ktp' ? 'studio.ktp' : 'studio.photo'
-
-  try {
-    const BE_BASE_URL = import.meta.env.VITE_STUDIO_BAND_BE_BASE_URL
-    const token = localStorage.getItem('token')
-    const deviceId = localStorage.getItem('device_id')
-    const ip = await getIpAdresses()
-
-    const formData = new FormData()
-    formData.append('image', file)
-    formData.append('module', moduleName)
-
-    const response = await axios.post(`${BE_BASE_URL}owner/file/upload`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-        'authorization': `Bearer ${token}`,
-        'x-device-id': deviceId,
-        'x-ip-address': ip,
-        'x-request-id': uuidv4()
-      }
-    })
-
-    if (!response.data.status) {
-      errorsFile.value[type] = 'Upload gagal. Silakan coba lagi.'
-    } else {
-      console.log(`✅ ${type} berhasil diupload:`, response.data.data)
-      form.document_ids.push(response.data.data.file_id)
-    }
-  } catch (err) {
-    console.error(err)
-    errorsFile.value[type] = 'Terjadi kesalahan saat upload.'
-  }
-}
-
+// --- UTILITY FUNCTIONS ---
 function refreshPage() {
   window.location.reload()
 }
 
-function goToStudioDetail(studio_id) {
-  router.push(`/home/create-studio-detail/${studio_id}`)
-}
-
-function handleNameInput(e) {
-  let value = e.target.value
-
-  value = value
-    .toLowerCase()
-    .replace(/\b\w/g, char => char.toUpperCase())
-
-  form.name = value
-}
-
-function handleContactNameInput(e) {
-  let value = e.target.value
-
-  value = value
-    .toLowerCase()
-    .replace(/\b\w/g, char => char.toUpperCase())
-
-  form.contactName = value
-}
-
-function handleGmapsInput() {
-  form.gmaps = form.gmaps.trim()
-}
-
-function isValidUrl(value) {
-  try {
-    new URL(value)
-    return true
-  } catch (_) {
-    return false
-  }
-}
-
-function handleBankAccountInput() {
-  form.bankAccount = form.bankAccount.replace(/\D/g, '')
-}
-
-
-function handlePhoneInput() {
-  const value = form.contactPhone
-
-  form.contactPhone = value.replace(/\D/g, '')
-
-  if (!form.contactPhone.startsWith('08')) {
-    phoneError.value = 'Nomor harus diawali dengan 08.'
-  } else if (form.contactPhone.length < 10) {
-    phoneError.value = 'Nomor minimal 10 digit.'
-  } else if (form.contactPhone.length > 15) {
-    phoneError.value = 'Nomor maksimal 15 digit.'
-  } else {
-    phoneError.value = ''
-  }
-}
-
-function handleAddressInput(e) {
-  const textarea = e.target
-
-  textarea.style.height = 'auto'
-  textarea.style.height = textarea.scrollHeight + 'px'
-
-  if (form.address && form.address.length < 10) {
-    console.warn('Alamat terlalu pendek')
-  }
-}
-
-
-
-function logout() {
-  localStorage.clear()
-  router.push('/login')
-}
-
-function openModal() { showModal.value = true }
-function closeModal() {
-  showModal.value = false
-}
-
-function openStudioDetail(studio) {
-  router.push(`/home/${studio.studio_id}`)
-}
-
-function formatDate(dateStr) {
-  return new Date(dateStr).toLocaleDateString('id-ID', {
+function formatDate(timestamp) {
+  if (!timestamp) return '-'
+  return new Date(timestamp).toLocaleDateString('id-ID', {
     day: '2-digit',
     month: 'short',
     year: 'numeric'
   })
 }
 
-function formatTime(dateStr) {
-  return new Date(dateStr).toLocaleTimeString('id-ID', {
+function formatTime(timestamp) {
+  if (!timestamp) return '-'
+  return new Date(timestamp).toLocaleTimeString('id-ID', {
     hour: '2-digit',
     minute: '2-digit',
-    hour12: false // biar formatnya 24 jam
+    hour12: false
   })
 }
 
 
+// --- NAVIGATION & MODAL FUNCTIONS ---
+function goToStudioDetail(studio_id) {
+  router.push(`/home/create-studio-detail/${studio_id}`)
+}
+
+function openStudioDetail(studio) {
+  router.push(`/home/${studio.studio_id}`)
+}
+
+function logout() {
+  localStorage.clear()
+  router.push('/login')
+}
+
+function openModal() {
+  showModal.value = true
+}
+
+function closeModal() {
+  showModal.value = false
+  // Consider re-running checkSubmission() after closing the modal if a submission might have been made
+}
+
+
+// --- API CALLS ---
 async function fetchStudios(p = page.value) {
   page.value = p
   try {
@@ -716,6 +280,7 @@ async function fetchStudios(p = page.value) {
     const token = localStorage.getItem('token')
     const deviceId = localStorage.getItem('device_id')
     const ip = await getIpAdresses()
+
     const response = await axios({
       method: 'POST',
       url: `${BE_BASE_URL}owner/studio/list`,
@@ -731,209 +296,17 @@ async function fetchStudios(p = page.value) {
         search: searchQuery.value
       }
     })
+
     if (response.data.status) {
       studioList.value = response.data.data.data || []
       maxPage.value = response.data.data.maxPage
       totalData.value = response.data.data.totalData
-      if (studioList.value.length > 0) {
-        isSubmitted.value = true
-      }
     }
   } catch (err) {
-    console.error(err)
-    alert('Gagal memuat data studio. Silakan coba lagi.')
+    console.error('Error fetching studios:', err)
+    // Handle specific errors like 401/403 (redirect to login) if needed
+    // alert('Gagal memuat data studio. Silakan coba lagi.') // Removed, often annoying for users
   }
-}
-
-async function fetchProvinces() {
-  try {
-    const BE_BASE_URL = import.meta.env.VITE_STUDIO_BAND_BE_BASE_URL
-    const response = await axios({
-      method: 'POST',
-      url: `${BE_BASE_URL}owner/address/province-pagination`,
-      data: {
-        page: 1,
-        limit: 10000,
-        search: provinceSearch.value // 👈 ubah pakai provinceSearch
-      }
-    })
-
-    if (response.data.status) {
-      provinceList.value = response.data.data.data
-    }
-  } catch (error) {
-    console.error(error)
-    alert('Gagal memuat data provinsi. Silakan coba lagi.')
-  }
-}
-
-
-
-function selectProvince(province) {
-  form.province = province.id
-  provinceSearch.value = province.name
-  fetchCities(province.id)
-  fetchPostalCode(province.id)
-  provinceList.value = []
-}
-
-async function fetchCities(province_id = form.province) {
-  try {
-    if (!province_id) return
-    const BE_BASE_URL = import.meta.env.VITE_STUDIO_BAND_BE_BASE_URL
-    const response = await axios({
-      method: 'POST',
-      url: `${BE_BASE_URL}owner/address/city-pagination`,
-      data: {
-        page: 1,
-        limit: 10000,
-        search: citySearch.value,
-        province_id
-      }
-    })
-
-    if (response.data.status) {
-      cityList.value = response.data.data.data
-    }
-  } catch (error) {
-    console.error(error)
-    alert('Gagal memuat data kota. Silakan coba lagi.')
-  }
-}
-
-function selectCities(city) {
-  form.city = city.id
-  citySearch.value = city.name
-  fetchDistricts(city.id)
-  fetchPostalCode(city.id)
-  cityList.value = []
-}
-
-async function fetchDistricts(city_id = form.city) {
-  try {
-    if (!city_id) return
-    const BE_BASE_URL = import.meta.env.VITE_STUDIO_BAND_BE_BASE_URL
-    const response = await axios({
-      method: 'POST',
-      url: `${BE_BASE_URL}owner/address/district-pagination`,
-      data: {
-        page: 1,
-        limit: 10000,
-        search: districtSearch.value,
-        city_id
-      }
-    })
-
-    if (response.data.status) {
-      districtList.value = response.data.data.data
-    }
-  } catch (error) {
-    console.error(error)
-    alert('Gagal memuat data kecamatan. Silakan coba lagi.')
-  }
-}
-
-function selectDistrict(district) {
-  form.district = district.id
-  districtSearch.value = district.name
-  fetchVillages(district.id)
-  fetchPostalCode(district.id)
-  districtList.value = []
-}
-
-//buat fungsi untuk fetch village
-async function fetchVillages(district_id = form.district) {
-  try {
-    if (!district_id) return
-    const BE_BASE_URL = import.meta.env.VITE_STUDIO_BAND_BE_BASE_URL
-    const response = await axios({
-      method: 'POST',
-      url: `${BE_BASE_URL}owner/address/village-pagination`,
-      data: {
-        page: 1,
-        limit: 10000,
-        search: villageSearch.value,
-        district_id
-      }
-    })
-
-    if (response.data.status) {
-      villageList.value = response.data.data.data
-    }
-  } catch (error) {
-    console.error(error)
-    alert('Gagal memuat data kelurahan. Silakan coba lagi.')
-  }
-}
-
-function selectVillage(village) {
-  form.village = village.id
-  villageSearch.value = village.name
-  fetchPostalCode(village.id)
-  villageList.value = []
-}
-
-async function fetchPostalCode(province_id = form.province, city_id = form.city, district_id = form.district, village_id = form.village) {
-  try {
-    if (!province_id || !city_id || !district_id || !village_id) return
-
-    const BE_BASE_URL = import.meta.env.VITE_STUDIO_BAND_BE_BASE_URL
-    const response = await axios({
-      method: 'POST',
-      url: `${BE_BASE_URL}owner/address/postal-code-pagination`,
-      data: {
-        page: 1,
-        limit: 10000,
-        search: postalCodeSearch.value,
-        province_id,
-        city_id,
-        district_id,
-        village_id
-      }
-    })
-
-    if (response.data.status) {
-      postalCodeList.value = response.data.data.data
-    }
-  } catch (error) {
-    console.error(error)
-    alert('Gagal memuat data kode pos. Silakan coba lagi.')
-  }
-}
-
-function selectPostalCode(postalCode) {
-  form.postalCode = postalCode.id
-  postalCodeSearch.value = postalCode.postal_code
-  postalCodeList.value = []
-}
-
-
-async function fetchBank() {
-  try {
-    const BE_BASE_URL = import.meta.env.VITE_STUDIO_BAND_BE_BASE_URL
-    const response = await axios({
-      method: 'POST',
-      url: `${BE_BASE_URL}owner/funding/bank-list`,
-      data: {
-        page: 1,
-        limit: 10000,
-        search: bankSearch.value
-      }
-    })
-
-    if (response.data.status) {
-      bankList.value = response.data.data.data
-    }
-  } catch (error) {
-    console.error(error)
-    alert('Gagal memuat data bank. Silakan coba lagi.')
-  }
-}
-
-function selectBank(bank) {
-  form.bank = bank.prima_code
-  bankSearch.value = bank.name
-  bankList.value = []
 }
 
 function changePage(p) {
@@ -942,117 +315,58 @@ function changePage(p) {
 }
 
 async function checkSubmission() {
-  const BE_BASE_URL = import.meta.env.VITE_STUDIO_BAND_BE_BASE_URL
-  const token = localStorage.getItem('token')
-  const deviceId = localStorage.getItem('device_id')
-  const ip = await getIpAdresses()
-  const response = await axios({
-    method: 'POST',
-    url: `${BE_BASE_URL}owner/studio/submission/check`,
-    headers: {
-      'authorization': `Bearer ${token}`,
-      'x-device-id': deviceId,
-      'x-ip-address': ip,
-      'x-request-id': uuidv4()
-    },
-    data: {}
-  })
-
-  if (response.data.status) {
-    checkSubmissionStatus.value = response.data.data.status
-    checkSubmissionStudioName.value = response.data.data.studio_name
-    checkSubmissionCreatedAt.value = response.data.data.created_at
-    checkSubmissionNotes.value = response.data.data.submission_notes
-    subMissionId.value = response.data.data.submission_uuid
-    isSubmitted.value = true
-    closeModal()
-  }
-}
-
-async function submitForm() {
   try {
-    const payload = {
-      name: form.name,
-      address_data: {
-        province_id: form.province,
-        city_id: form.city,
-        district_id: form.district,
-        village_id: form.village,
-        postal_code_id: form.postalCode,
-        address: form.address,
-        gmaps: form.gmaps
-      },
-      contact_person_data: {
-        name: form.contactName,
-        phone: form.contactPhone,
-      },
-      account_number_data: {
-        bank_code: form.bank,
-        bank_account_number: form.bankAccount
-      },
-      document_ids: form.document_ids
-    }
-
     const BE_BASE_URL = import.meta.env.VITE_STUDIO_BAND_BE_BASE_URL
     const token = localStorage.getItem('token')
     const deviceId = localStorage.getItem('device_id')
     const ip = await getIpAdresses()
+
     const response = await axios({
       method: 'POST',
-      url: `${BE_BASE_URL}owner/studio/submission`,
+      url: `${BE_BASE_URL}owner/studio/submission/check`,
       headers: {
         'authorization': `Bearer ${token}`,
         'x-device-id': deviceId,
         'x-ip-address': ip,
         'x-request-id': uuidv4()
       },
-      data: { ...payload }
+      data: {}
     })
 
     if (response.data.status) {
-      closeModal()
+      checkSubmissionStatus.value = response.data.data.status
+      checkSubmissionStudioName.value = response.data.data.studio_name
+      checkSubmissionCreatedAt.value = response.data.data.created_at
+      checkSubmissionNotes.value = response.data.data.submission_notes
+      subMissionId.value = response.data.data.submission_uuid
+      isSubmitted.value = true
+    } else {
+      isSubmitted.value = false // Explicitly set to false if API returns false status (e.g., no pending submission)
     }
 
-  } catch (error) {
-    console.error(error)
-    alert('Gagal membuat studio. Silakan coba lagi.')
+  } catch (err) {
+    console.error('Error checking submission:', err)
+    isSubmitted.value = false
   }
 }
 
+
+// --- LIFECYCLE HOOKS ---
 onMounted(async () => {
   try {
+    // Run both calls concurrently for faster loading
     await Promise.all([fetchStudios(), checkSubmission()])
-    document.addEventListener('click', handleClickOutside)
   } finally {
+    // Ensure loading is finished regardless of success/failure
     isInitialLoading.value = false
   }
 })
 
-onBeforeUnmount(() => {
-  document.removeEventListener('click', handleClickOutside)
-})
-
-function handleClickOutside(event) {
-  if (provinceContainer.value && !provinceContainer.value.contains(event.target)) {
-    provinceList.value = []
-  }
-
-  if (cityContainer.value && !cityContainer.value.contains(event.target)) {
-    cityList.value = []
-  }
-
-  if (districtContainer.value && !districtContainer.value.contains(event.target)) {
-    districtList.value = []
-  }
-
-  if (villageContainer.value && !villageContainer.value.contains(event.target)) {
-    villageList.value = []
-  }
-}
 </script>
 
 
 <style scoped>
+/* Modal Transition Styles */
 .modal-fade-enter-active,
 .modal-fade-leave-active {
   transition: opacity 200ms ease, transform 200ms ease;
@@ -1064,6 +378,7 @@ function handleClickOutside(event) {
   transform: translateY(6px) scale(0.995);
 }
 
+/* Custom Spin Animation for Submission Loading */
 @keyframes spin-slow {
   0% {
     transform: rotate(0deg);
@@ -1078,20 +393,7 @@ function handleClickOutside(event) {
   animation: spin-slow 3s linear infinite;
 }
 
-/* Fade in */
-@keyframes fade-in-up {
-  0% {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.animate-fade-in-up {
-  animation: fade-in-up 0.5s ease-out;
-}
+/* Note: The 'glow-green' and 'glow-red' classes were present in the original template but
+   did not have corresponding CSS styles defined here. They have been removed from the
+   template for cleanup, or should be added if they are intended to be used. */
 </style>

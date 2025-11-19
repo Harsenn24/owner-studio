@@ -1,6 +1,6 @@
 <template>
     <transition name="modal-fade">
-        <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center p-6">
+        <div  class="fixed inset-0 z-50 flex items-center justify-center p-6">
             <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="closeModal"></div>
             <div class="relative bg-white rounded-2xl w-full max-w-2xl p-6 z-50 drop-shadow-2xl border border-white/30">
                 <header class="flex items-start justify-between gap-4 mb-4">
@@ -264,9 +264,6 @@ const isValidUrl = (url) => {
     }
 };
 
-const props = defineProps({
-    showModal: Boolean,
-});
 
 // Autocomplete State
 const provinceSearch = ref('');
@@ -297,10 +294,14 @@ const bankContainer = ref(null);
 const errorsFile = ref({ ktp: '', studio1: '', studio2: '' });
 const phoneError = ref(''); 
 
-const emit = defineEmits(["close"]);
+const props = defineProps({
+    showModal: Boolean,
+});
+
+const emit = defineEmits(["close-modal"]);
 
 function closeModal() {
-    emit("close");
+    emit("close-modal");
 }
 
 function handleGmapsInput() {
