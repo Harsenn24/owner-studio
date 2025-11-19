@@ -10,7 +10,6 @@
 
                 <form @submit.prevent="submitForm">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <!-- Nama Studio -->
                         <div>
                             <label class="text-xs font-medium text-slate-600">Nama Studio</label>
                             <input v-model="form.name" @input="handleNameInput" required minlength="5" maxlength="20"
@@ -22,14 +21,13 @@
                             </p>
                         </div>
 
-                        <!-- Provinsi -->
                         <div class="relative" ref="provinceContainer">
                             <label class="text-xs font-medium text-slate-600">Provinsi</label>
                             <input type="text" v-model="provinceSearch" @input="fetchProvinces" @focus="fetchProvinces"
-                                placeholder="Cari provinsi..."
-                                class="mt-2 w-full rounded-lg border px-3 py-2 text-sm border-black text-black!" />
+                                required class="mt-2 w-full rounded-lg border px-3 py-2 text-sm border-black text-black"
+                                placeholder="Cari provinsi..." />
                             <ul v-if="provinceList.length"
-                                class="absolute w-full max-h-48 overflow-auto border rounded mt-1 bg-white z-50 text-black! py-2">
+                                class="absolute w-full max-h-48 overflow-auto border rounded mt-1 bg-white z-50 text-black py-2 shadow-lg">
                                 <li v-for="province in provinceList" :key="province.id"
                                     @click="selectProvince(province)"
                                     class="px-3 py-2 hover:bg-gray-100 cursor-pointer">
@@ -37,28 +35,28 @@
                                 </li>
                             </ul>
                         </div>
-                        <!-- Kota -->
                         <div class="relative" ref="cityContainer">
                             <label class="text-xs font-medium text-slate-600">Kota</label>
                             <input type="text" v-model="citySearch" @input="fetchCities()" @focus="fetchCities()"
-                                placeholder="Cari kota..."
-                                class="mt-2 w-full rounded-lg border px-3 py-2 text-sm border-black text-black!" />
+                                :disabled="!form.province" required
+                                class="mt-2 w-full rounded-lg border px-3 py-2 text-sm border-black text-black disabled:bg-gray-50 disabled:cursor-not-allowed"
+                                placeholder="Cari kota..." />
                             <ul v-if="cityList.length"
-                                class="absolute w-full max-h-48 overflow-auto border rounded mt-1 bg-white z-50 text-black! py-2">
+                                class="absolute w-full max-h-48 overflow-auto border rounded mt-1 bg-white z-50 text-black py-2 shadow-lg">
                                 <li v-for="city in cityList" :key="city.id" @click="selectCities(city)"
                                     class="px-3 py-2 hover:bg-gray-100 cursor-pointer">
                                     {{ city.name }}
                                 </li>
                             </ul>
                         </div>
-                        <!-- Kecamatan -->
                         <div class="relative" ref="districtContainer">
                             <label class="text-xs font-medium text-slate-600">Kecamatan</label>
                             <input type="text" v-model="districtSearch" @input="fetchDistricts()"
-                                @focus="fetchDistricts()" placeholder="Cari kecamatan..."
-                                class="mt-2 w-full rounded-lg border px-3 py-2 text-sm border-black text-black!" />
+                                @focus="fetchDistricts()" :disabled="!form.city" required
+                                class="mt-2 w-full rounded-lg border px-3 py-2 text-sm border-black text-black disabled:bg-gray-50 disabled:cursor-not-allowed"
+                                placeholder="Cari kecamatan..." />
                             <ul v-if="districtList.length"
-                                class="absolute w-full max-h-48 overflow-auto border rounded mt-1 bg-white z-50 text-black! py-2">
+                                class="absolute w-full max-h-48 overflow-auto border rounded mt-1 bg-white z-50 text-black py-2 shadow-lg">
                                 <li v-for="district in districtList" :key="district.id"
                                     @click="selectDistrict(district)"
                                     class="px-3 py-2 hover:bg-gray-100 cursor-pointer">
@@ -66,28 +64,28 @@
                                 </li>
                             </ul>
                         </div>
-                        <!-- Kelurahan -->
                         <div class="relative" ref="villageContainer">
                             <label class="text-xs font-medium text-slate-600">Kelurahan</label>
                             <input type="text" v-model="villageSearch" @input="fetchVillages()" @focus="fetchVillages()"
-                                placeholder="Cari kelurahan..."
-                                class="mt-2 w-full rounded-lg border px-3 py-2 text-sm border-black text-black!" />
+                                :disabled="!form.district" required
+                                class="mt-2 w-full rounded-lg border px-3 py-2 text-sm border-black text-black disabled:bg-gray-50 disabled:cursor-not-allowed"
+                                placeholder="Cari kelurahan..." />
                             <ul v-if="villageList.length"
-                                class="absolute w-full max-h-48 overflow-auto border rounded mt-1 bg-white z-50 text-black! py-2">
+                                class="absolute w-full max-h-48 overflow-auto border rounded mt-1 bg-white z-50 text-black py-2 shadow-lg">
                                 <li v-for="village in villageList" :key="village.id" @click="selectVillage(village)"
                                     class="px-3 py-2 hover:bg-gray-100 cursor-pointer">
                                     {{ village.name }}
                                 </li>
                             </ul>
                         </div>
-                        <!-- Kode Pos -->
                         <div class="relative" ref="postalCodeContainer">
                             <label class="text-xs font-medium text-slate-600">Kode Pos</label>
                             <input type="text" v-model="postalCodeSearch" @input="fetchPostalCode()"
-                                @focus="fetchPostalCode()" placeholder="Cari kode pos..."
-                                class="mt-2 w-full rounded-lg border px-3 py-2 text-sm border-black text-black!" />
+                                @focus="fetchPostalCode()" :disabled="!form.village" required
+                                class="mt-2 w-full rounded-lg border px-3 py-2 text-sm border-black text-black disabled:bg-gray-50 disabled:cursor-not-allowed"
+                                placeholder="Cari kode pos..." />
                             <ul v-if="postalCodeList.length"
-                                class="absolute w-full max-h-48 overflow-auto border rounded mt-1 bg-white z-50 text-black! py-2">
+                                class="absolute w-full max-h-48 overflow-auto border rounded mt-1 bg-white z-50 text-black py-2 shadow-lg">
                                 <li v-for="postal_code in postalCodeList" :key="postal_code.id"
                                     @click="selectPostalCode(postal_code)"
                                     class="px-3 py-2 hover:bg-gray-100 cursor-pointer">
@@ -95,7 +93,6 @@
                                 </li>
                             </ul>
                         </div>
-                        <!-- Google Maps -->
                         <div>
                             <label class="text-xs font-medium text-slate-600">Tautan Google Maps</label>
                             <input v-model="form.gmaps" @input="handleGmapsInput" required
@@ -108,11 +105,9 @@
                                 Harus berupa tautan (URL) yang valid.
                             </p>
                         </div>
-
                     </div>
 
-                    <!-- Alamat Lengkap -->
-                    <div>
+                    <div class="mt-4">
                         <label class="text-xs font-medium text-slate-600">Alamat Lengkap</label>
                         <textarea v-model="form.address" @input="handleAddressInput" required rows="3"
                             class="mt-2 w-full rounded-lg border px-3 py-2 text-sm border-black text-black resize-none overflow-hidden"
@@ -124,8 +119,7 @@
                     </div>
 
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <!-- Contact Person Name -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                         <div>
                             <label class="text-xs font-medium text-slate-600">Contact Person Name</label>
                             <input v-model="form.contactName" @input="handleContactNameInput" required minlength="5"
@@ -137,7 +131,6 @@
                                 Nama contact person harus antara 5–20 karakter.
                             </p>
                         </div>
-                        <!-- Contact Person Phone -->
                         <div>
                             <label class="text-xs font-medium text-slate-600">Contact Person Phone</label>
                             <input v-model="form.contactPhone" @input="handlePhoneInput" required maxlength="15"
@@ -149,21 +142,19 @@
                             </p>
                         </div>
 
-                        <!-- Bank -->
-                        <div class="relative" ref="provinceContainer">
+                        <div class="relative" ref="bankContainer">
                             <label class="text-xs font-medium text-slate-600">Bank</label>
-                            <input type="text" v-model="bankSearch" @input="fetchBank" @focus="fetchBank"
-                                placeholder="nama bank..."
-                                class="mt-2 w-full rounded-lg border px-3 py-2 text-sm border-black text-black!" />
+                            <input type="text" v-model="bankSearch" @input="fetchBank" @focus="fetchBank" required
+                                class="mt-2 w-full rounded-lg border px-3 py-2 text-sm border-black text-black"
+                                placeholder="nama bank..." />
                             <ul v-if="bankList.length"
-                                class="absolute w-full max-h-48 overflow-auto border rounded mt-1 bg-white z-50 text-black! py-2">
+                                class="absolute w-full max-h-48 overflow-auto border rounded mt-1 bg-white z-50 text-black py-2 shadow-lg">
                                 <li v-for="bank in bankList" :key="bank.id" @click="selectBank(bank)"
                                     class="px-3 py-2 hover:bg-gray-100 cursor-pointer">
                                     {{ bank.name }}
                                 </li>
                             </ul>
                         </div>
-                        <!-- Nomor Rekening Bank -->
                         <div>
                             <label class="text-xs font-medium text-slate-600">Nomor Rekening Bank</label>
                             <input v-model="form.bankAccount" @input="handleBankAccountInput" required minlength="5"
@@ -177,9 +168,7 @@
 
                     </div>
 
-                    <!-- Upload Images -->
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
-                        <!-- Upload KTP -->
                         <div>
                             <label class="text-sm font-medium text-slate-700">Upload KTP</label>
 
@@ -191,7 +180,7 @@
                                 class="mt-3 relative rounded-lg overflow-hidden border border-gray-300 shadow-md">
                                 <img :src="previewFile.ktp" alt="Preview KTP"
                                     class="w-full aspect-[16/9] object-cover" />
-                                <button @click="removeFile('ktp')"
+                                <button type="button" @click="removeFile('ktp')"
                                     class="absolute top-2 right-2 bg-white bg-opacity-80 hover:bg-opacity-100 text-xs font-medium px-2 py-1 rounded shadow">
                                     Ganti Foto
                                 </button>
@@ -200,7 +189,6 @@
                             <p v-if="errorsFile.ktp" class="text-xs text-red-500 mt-1">{{ errorsFile.ktp }}</p>
                         </div>
 
-                        <!-- Upload Studio 1 -->
                         <div>
                             <label class="text-sm font-medium text-slate-700">Upload Foto Studio 1</label>
 
@@ -212,7 +200,7 @@
                                 class="mt-3 relative rounded-lg overflow-hidden border border-gray-300 shadow-md">
                                 <img :src="previewFile.studio1" alt="Preview Studio 1"
                                     class="w-full aspect-[16/9] object-cover" />
-                                <button @click="removeFile('studio1')"
+                                <button type="button" @click="removeFile('studio1')"
                                     class="absolute top-2 right-2 bg-white bg-opacity-80 hover:bg-opacity-100 text-xs font-medium px-2 py-1 rounded shadow">
                                     Ganti Foto
                                 </button>
@@ -221,7 +209,6 @@
                             <p v-if="errorsFile.studio1" class="text-xs text-red-500 mt-1">{{ errorsFile.studio1 }}</p>
                         </div>
 
-                        <!-- Upload Studio 2 -->
                         <div>
                             <label class="text-sm font-medium text-slate-700">Upload Foto Studio 2</label>
 
@@ -233,7 +220,7 @@
                                 class="mt-3 relative rounded-lg overflow-hidden border border-gray-300 shadow-md">
                                 <img :src="previewFile.studio2" alt="Preview Studio 2"
                                     class="w-full aspect-[16/9] object-cover" />
-                                <button @click="removeFile('studio2')"
+                                <button type="button" @click="removeFile('studio2')"
                                     class="absolute top-2 right-2 bg-white bg-opacity-80 hover:bg-opacity-100 text-xs font-medium px-2 py-1 rounded shadow">
                                     Ganti Foto
                                 </button>
@@ -244,12 +231,11 @@
                     </div>
 
 
-                    <!-- Buttons -->
-                    <div class="md:col-span-2 flex justify-end gap-3 mt-4">
+                    <div class="md:col-span-2 flex justify-end gap-3 mt-8">
                         <button type="button" @click="closeModal"
-                            class="px-4 py-2 rounded-lg border border-slate-200">Batal</button>
+                            class="px-4 py-2 rounded-lg border border-slate-200 hover:bg-slate-50">Batal</button>
                         <button type="submit"
-                            class="px-5 py-2 rounded-lg bg-gradient-to-r from-purple-600 to-pink-500 text-white">Kirim
+                            class="px-5 py-2 rounded-lg bg-gradient-to-r from-purple-600 to-pink-500 text-white hover:opacity-90 transition-opacity">Kirim
                             Pengajuan</button>
                     </div>
                 </form>
@@ -258,21 +244,67 @@
         </div>
     </transition>
 </template>
+
 <script setup>
 import { ref } from "vue";
+import axios from 'axios';
+import { v4 as uuidv4 } from 'uuid'; 
+import { getIpAdresses } from '../../services/axios/ip-adress.services.js'
 
-// props hanya untuk showModal
+const ipAddress = async () => {
+    return await getIpAdresses();
+};
+
+const isValidUrl = (url) => {
+    try {
+        new URL(url);
+        return true;
+    } catch (e) {
+        return false;
+    }
+};
+
 const props = defineProps({
     showModal: Boolean,
 });
 
-const errorsFile = ref({ ktp: '', studio1: '', studio2: '' })
+// Autocomplete State
+const provinceSearch = ref('');
+const provinceList = ref([]);
+const provinceContainer = ref(null);
 
+const citySearch = ref('');
+const cityList = ref([]);
+const cityContainer = ref(null);
 
-const emit = defineEmits(["close"]); // tidak ada "submit" karena submit sekarang internal
+const districtSearch = ref('');
+const districtList = ref([]);
+const districtContainer = ref(null);
+
+const villageSearch = ref('');
+const villageList = ref([]);
+const villageContainer = ref(null);
+
+const postalCodeSearch = ref('');
+const postalCodeList = ref([]);
+const postalCodeContainer = ref(null);
+
+const bankSearch = ref('');
+const bankList = ref([]);
+const bankContainer = ref(null); 
+
+// Error State
+const errorsFile = ref({ ktp: '', studio1: '', studio2: '' });
+const phoneError = ref(''); 
+
+const emit = defineEmits(["close"]);
 
 function closeModal() {
     emit("close");
+}
+
+function handleGmapsInput() {
+    form.value.gmaps = form.value.gmaps.trim()
 }
 
 // ------------------------
@@ -280,12 +312,14 @@ function closeModal() {
 // ------------------------
 const form = ref({
     name: '',
-    city: '',
-    district: '',
+    address: '', // Tambahkan kembali address
+    province: null, // Ubah ke null untuk ID
+    city: null, // Ubah ke null untuk ID
+    district: null, // Ubah ke null untuk ID
+    village: null, // Tambahkan village ID
+    postalCode: null, // Ubah ke null untuk ID
     gmaps: '',
-    province: '',
-    postalCode: '',
-    bank: '',
+    bank: null, // Ubah ke null untuk ID
     bankAccount: '',
     contactName: '',
     contactPhone: '',
@@ -302,59 +336,62 @@ function handleNameInput(e) {
         .toLowerCase()
         .replace(/\b\w/g, char => char.toUpperCase())
 
-    form.name = value
+    form.value.name = value
+}
+function handleContactNameInput(e) { // Fungsi yang hilang
+    let value = e.target.value
+
+    value = value
+        .toLowerCase()
+        .replace(/\b\w/g, char => char.toUpperCase())
+
+    form.value.contactName = value
 }
 function handleAddressInput(e) {
     const textarea = e.target
 
     textarea.style.height = 'auto'
     textarea.style.height = textarea.scrollHeight + 'px'
-
-    if (form.address && form.address.length < 10) {
-        console.warn('Alamat terlalu pendek')
-    }
 }
 function handlePhoneInput() {
-    const value = form.contactPhone
+    const value = form.value.contactPhone
 
-    form.contactPhone = value.replace(/\D/g, '')
+    form.value.contactPhone = value.replace(/\D/g, '') // Hanya angka
 
-    if (!form.contactPhone.startsWith('08')) {
+    if (!form.value.contactPhone.startsWith('08')) {
         phoneError.value = 'Nomor harus diawali dengan 08.'
-    } else if (form.contactPhone.length < 10) {
+    } else if (form.value.contactPhone.length < 10) {
         phoneError.value = 'Nomor minimal 10 digit.'
-    } else if (form.contactPhone.length > 15) {
+    } else if (form.value.contactPhone.length > 15) {
         phoneError.value = 'Nomor maksimal 15 digit.'
     } else {
         phoneError.value = ''
     }
 }
 function handleBankAccountInput() {
-    form.bankAccount = form.bankAccount.replace(/\D/g, '')
+    form.value.bankAccount = form.value.bankAccount.replace(/\D/g, '') // Hanya angka
 }
-// dan semua handlers lainnya
 
 // ------------------------
-// FILE UPLOAD
+// FILE UPLOAD & MANAGEMENT
 // ------------------------
 const previewFile = ref({
     ktp: null,
     studio1: null,
     studio2: null,
 });
-function handleFileUpload(e, type) {
+async function handleFileUpload(event, type) {
     const file = event.target.files[0]
     if (!file) return
 
     errorsFile.value[type] = ''
 
-    // Validasi ukuran file (maksimal 500 KB)
     if (file.size > 500 * 1024) {
         errorsFile.value[type] = 'Ukuran file maksimal 500 KB.'
         return
     }
 
-    // Preview langsung (tanpa validasi rasio)
+    // Preview langsung
     const fileUrl = URL.createObjectURL(file)
     previewFile.value[type] = fileUrl
 
@@ -362,10 +399,14 @@ function handleFileUpload(e, type) {
     const moduleName = type === 'ktp' ? 'studio.ktp' : 'studio.photo'
 
     try {
+        // Hapus file_id lama jika ada, untuk diganti dengan yang baru
+        // Logika ini butuh perubahan untuk menargetkan file_id spesifik.
+        // Untuk saat ini, kita akan push saja dan biarkan BE yang handle.
+
         const BE_BASE_URL = import.meta.env.VITE_STUDIO_BAND_BE_BASE_URL
         const token = localStorage.getItem('token')
         const deviceId = localStorage.getItem('device_id')
-        const ip = await getIpAdresses()
+        const ip = await ipAddress() // Menggunakan fungsi dummy/impor
 
         const formData = new FormData()
         formData.append('image', file)
@@ -377,7 +418,7 @@ function handleFileUpload(e, type) {
                 'authorization': `Bearer ${token}`,
                 'x-device-id': deviceId,
                 'x-ip-address': ip,
-                'x-request-id': uuidv4()
+                'x-request-id': uuidv4() // Menggunakan fungsi impor
             }
         })
 
@@ -385,7 +426,8 @@ function handleFileUpload(e, type) {
             errorsFile.value[type] = 'Upload gagal. Silakan coba lagi.'
         } else {
             console.log(`✅ ${type} berhasil diupload:`, response.data.data)
-            form.document_ids.push(response.data.data.file_id)
+            // Tambahkan file_id ke array, perlu diperhatikan jika ada file_id lama untuk tipe yang sama
+            form.value.document_ids.push(response.data.data.file_id)
         }
     } catch (err) {
         console.error(err)
@@ -393,8 +435,187 @@ function handleFileUpload(e, type) {
     }
 }
 function removeFile(type) {
+    // CATATAN: Hapus juga file_id terkait dari form.value.document_ids jika Anda ingin BE menghapus dokumennya.
+    // Karena Anda tidak menyimpan map (type -> file_id), ini akan rumit.
+    // Asumsi: Saat ini, kita hanya menghapus preview dan membiarkan file_id yang sudah diupload di BE.
     previewFile.value[type] = null
     errorsFile.value[type] = ''
+}
+
+
+// ------------------------
+// ADDRESS FETCHING
+// ------------------------
+async function fetchProvinces() {
+    try {
+        const BE_BASE_URL = import.meta.env.VITE_STUDIO_BAND_BE_BASE_URL
+        const response = await axios.post(`${BE_BASE_URL}owner/address/province-pagination`, {
+            page: 1,
+            limit: 10000,
+            search: provinceSearch.value
+        })
+
+        if (response.data.status) {
+            provinceList.value = response.data.data.data
+        }
+    } catch (error) {
+        console.error(error)
+        // alert('Gagal memuat data provinsi. Silakan coba lagi.') // Hindari alert di fungsi utilitas
+    }
+}
+
+function selectProvince(province) {
+    form.value.province = province.id
+    provinceSearch.value = province.name
+    form.value.city = null; citySearch.value = ''; cityList.value = [];
+    form.value.district = null; districtSearch.value = ''; districtList.value = [];
+    form.value.village = null; villageSearch.value = ''; villageList.value = [];
+    form.value.postalCode = null; postalCodeSearch.value = ''; postalCodeList.value = [];
+
+    fetchCities(province.id)
+    provinceList.value = []
+}
+
+async function fetchCities(province_id = form.value.province) {
+    try {
+        if (!province_id) return
+        const BE_BASE_URL = import.meta.env.VITE_STUDIO_BAND_BE_BASE_URL
+        const response = await axios.post(`${BE_BASE_URL}owner/address/city-pagination`, {
+            page: 1,
+            limit: 10000,
+            search: citySearch.value,
+            province_id
+        })
+
+        if (response.data.status) {
+            cityList.value = response.data.data.data
+        }
+    } catch (error) {
+        console.error(error)
+    }
+}
+
+function selectCities(city) {
+    form.value.city = city.id
+    citySearch.value = city.name
+    form.value.district = null; districtSearch.value = ''; districtList.value = [];
+    form.value.village = null; villageSearch.value = ''; villageList.value = [];
+    form.value.postalCode = null; postalCodeSearch.value = ''; postalCodeList.value = [];
+
+    fetchDistricts(city.id)
+    cityList.value = []
+}
+
+async function fetchDistricts(city_id = form.value.city) {
+    try {
+        if (!city_id) return
+        const BE_BASE_URL = import.meta.env.VITE_STUDIO_BAND_BE_BASE_URL
+        const response = await axios.post(`${BE_BASE_URL}owner/address/district-pagination`, {
+            page: 1,
+            limit: 10000,
+            search: districtSearch.value,
+            city_id
+        })
+
+        if (response.data.status) {
+            districtList.value = response.data.data.data
+        }
+    } catch (error) {
+        console.error(error)
+    }
+}
+
+function selectDistrict(district) {
+    form.value.district = district.id
+    districtSearch.value = district.name
+    form.value.village = null; villageSearch.value = ''; villageList.value = [];
+    form.value.postalCode = null; postalCodeSearch.value = ''; postalCodeList.value = [];
+
+    fetchVillages(district.id)
+    districtList.value = []
+}
+
+async function fetchVillages(district_id = form.value.district) {
+    try {
+        if (!district_id) return
+        const BE_BASE_URL = import.meta.env.VITE_STUDIO_BAND_BE_BASE_URL
+        const response = await axios.post(`${BE_BASE_URL}owner/address/village-pagination`, {
+            page: 1,
+            limit: 10000,
+            search: villageSearch.value,
+            district_id
+        })
+
+        if (response.data.status) {
+            villageList.value = response.data.data.data
+        }
+    } catch (error) {
+        console.error(error)
+    }
+}
+
+function selectVillage(village) {
+    form.value.village = village.id
+    villageSearch.value = village.name
+    form.value.postalCode = null; postalCodeSearch.value = ''; postalCodeList.value = [];
+
+    // Cukup panggil fetchPostalCode di sini karena kelurahan sudah terpilih
+    fetchPostalCode(form.value.province, form.value.city, form.value.district, village.id)
+    villageList.value = []
+}
+
+async function fetchPostalCode(province_id = form.value.province, city_id = form.value.city, district_id = form.value.district, village_id = form.value.village) {
+    try {
+        // Kode pos harusnya sudah bisa dicari jika kelurahan/village sudah ada ID-nya
+        if (!village_id) return
+
+        const BE_BASE_URL = import.meta.env.VITE_STUDIO_BAND_BE_BASE_URL
+        const response = await axios.post(`${BE_BASE_URL}owner/address/postal-code-pagination`, {
+            page: 1,
+            limit: 10000,
+            search: postalCodeSearch.value,
+            province_id,
+            city_id,
+            district_id,
+            village_id
+        })
+
+        if (response.data.status) {
+            postalCodeList.value = response.data.data.data
+        }
+    } catch (error) {
+        console.error(error)
+    }
+}
+
+function selectPostalCode(postalCode) {
+    form.value.postalCode = postalCode.id
+    postalCodeSearch.value = postalCode.postal_code
+    postalCodeList.value = []
+}
+
+// ------------------------
+// BANK FETCHING
+// ------------------------
+async function fetchBank() { // Fungsi yang hilang
+    try {
+        const BE_BASE_URL = import.meta.env.VITE_STUDIO_BAND_BE_BASE_URL
+        const response = await axios.post(`${BE_BASE_URL}owner/bank/list`, { // Asumsi endpoint
+            search: bankSearch.value
+        })
+
+        if (response.data.status) {
+            bankList.value = response.data.data
+        }
+    } catch (error) {
+        console.error(error)
+    }
+}
+
+function selectBank(bank) { // Fungsi yang hilang
+    form.value.bank = bank.id
+    bankSearch.value = bank.name
+    bankList.value = []
 }
 
 
@@ -402,28 +623,56 @@ function removeFile(type) {
 // SUBMIT LANGSUNG DI MODAL
 // ------------------------
 async function submitForm() {
+    // 1. Validasi Minimum Form
+    if (!form.value.name || form.value.name.length < 5 || form.value.name.length > 20) {
+        return alert("Nama studio harus antara 5–20 karakter");
+    }
+    if (phoneError.value) {
+        return alert("Mohon perbaiki format nomor telepon.");
+    }
+    if (!form.value.province || !form.value.city || !form.value.district || !form.value.village || !form.value.postalCode) {
+        return alert("Mohon lengkapi alamat secara berurutan (Provinsi hingga Kode Pos).");
+    }
+    if (!form.value.bank || !form.value.bankAccount) {
+        return alert("Mohon lengkapi detail bank.");
+    }
+    if (form.value.document_ids.length < 3) {
+        return alert("Mohon unggah KTP dan kedua foto studio.");
+    }
+
     try {
-        // validasi manual kalau perlu
-        if (!form.value.name || form.value.name.length < 5) {
-            return alert("Nama studio minimal 5 karakter");
-        }
+        const BE_BASE_URL = import.meta.env.VITE_STUDIO_BAND_BE_BASE_URL
+        const token = localStorage.getItem('token')
+        const deviceId = localStorage.getItem('device_id')
+        const ip = await ipAddress() // Menggunakan fungsi dummy/impor
 
-        // contoh call API
-        const body = new FormData();
-        body.append("name", form.value.name);
-        body.append("address", form.value.address);
-        body.append("gmaps", form.value.gmaps);
-        // append file
-        // append lainnya
+        const payload = {
+            studio_name: form.value.name,
+            address: form.value.address,
+            gmaps_url: form.value.gmaps,
+            province_id: form.value.province,
+            city_id: form.value.city,
+            district_id: form.value.district,
+            village_id: form.value.village,
+            postal_code_id: form.value.postalCode,
+            contact_person_name: form.value.contactName,
+            contact_person_phone: form.value.contactPhone,
+            bank_id: form.value.bank,
+            bank_account_number: form.value.bankAccount,
+            document_ids: form.value.document_ids // Semua file_id yang sudah diupload
+        };
 
-        const res = await fetch("/api/studio/submit", {
-            method: "POST",
-            body,
+        const response = await axios.post(`${BE_BASE_URL}owner/studio/submit`, payload, { // Asumsi endpoint submit
+            headers: {
+                'authorization': `Bearer ${token}`,
+                'x-device-id': deviceId,
+                'x-ip-address': ip,
+                'x-request-id': uuidv4()
+            }
         });
 
-        const json = await res.json();
-        if (!json.success) {
-            return alert("Gagal: " + json.message);
+        if (!response.data.status) {
+            return alert("Gagal mengirim pengajuan: " + (response.data.message || "Terjadi kesalahan."));
         }
 
         alert("Pengajuan berhasil!");
@@ -431,7 +680,7 @@ async function submitForm() {
 
     } catch (err) {
         console.error(err);
-        alert("Terjadi kesalahan server");
+        alert("Terjadi kesalahan server saat mengirim pengajuan.");
     }
 }
 </script>
