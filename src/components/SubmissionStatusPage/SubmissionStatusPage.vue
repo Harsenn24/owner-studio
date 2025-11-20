@@ -7,9 +7,7 @@
 
     <div v-else class="min-h-screen flex flex-col bg-gradient-to-b from-white via-gray-50 to-gray-100 p-6">
 
-        <HeadersPage v-if="shouldFetchData" :studioList="studioList" :checkSubmissionStatus="checkSubmissionStatus" @open-modal="openModal"
-            @logout="logout" />
-
+        <HeadersPage @open-modal="openModal" @logout="logout" />
 
         <div
             class="flex flex-col items-center justify-center py-20 px-6 text-white bg-gradient-to-br from-blue-500 via-blue-400 to-green-500 rounded-2xl shadow-lg mt-8 mx-4">

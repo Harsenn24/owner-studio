@@ -1,5 +1,7 @@
 <template>
     <div class="min-h-screen bg-gradient-to-b from-white to-gray-50 py-10 px-6 flex flex-col gap-10">
+        <HeadersPage @open-modal="openModal" @logout="logout" />
+
         <h1 class="text-3xl font-bold text-slate-800 text-center">🎵 Register Studio</h1>
 
         <!-- STEP 1: Pilih Equipment -->
@@ -156,6 +158,8 @@ import axios from 'axios'
 import { v4 as uuidv4 } from 'uuid'
 import { useRouter } from 'vue-router'
 import { getIpAdresses } from '../../services/axios/ip-adress.services.js'
+import HeadersPage from '../HeadersPage/HeadersPage.vue'
+
 
 
 const router = useRouter()
@@ -280,7 +284,7 @@ async function fetchDocuments() {
                 'x-request-id': uuidv4()
             },
             url: `${BE_BASE_URL}owner/file/images`,
-            data : {
+            data: {
                 studio_submission_uuid
             }
         })

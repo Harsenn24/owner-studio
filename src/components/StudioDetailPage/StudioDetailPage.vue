@@ -9,8 +9,7 @@
 
         <template v-else>
 
-            <HeadersPage :studioList="studioList" :checkSubmissionStatus="checkSubmissionStatus" @open-modal="openModal"
-                @logout="logout" />
+            <HeadersPage @open-modal="openModal" @logout="logout" />
 
             <!-- STUDIO INFO CARD -->
             <div class="bg-gradient-to-r from-blue-600 to-green-500 py-5">

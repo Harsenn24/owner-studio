@@ -219,8 +219,6 @@ async function fetchStudios(p = page.value) {
     }
   } catch (err) {
     console.error('Error fetching studios:', err)
-    // Handle specific errors like 401/403 (redirect to login) if needed
-    // alert('Gagal memuat data studio. Silakan coba lagi.') // Removed, often annoying for users
   }
 }
 
