@@ -1,261 +1,250 @@
 <template>
-    <transition name="modal-fade">
-        <div  class="fixed inset-0 z-50 flex items-center justify-center p-6">
-            <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="closeModal"></div>
-            <div class="relative bg-white rounded-2xl w-full max-w-2xl p-6 z-50 drop-shadow-2xl border border-white/30">
-                <header class="flex items-start justify-between gap-4 mb-4">
-                    <h3 class="text-lg font-semibold text-black">Form Pengajuan Studio</h3>
-                    <button @click="closeModal" class="text-slate-400 bg-white! hover:text-slate-600">✖️</button>
-                </header>
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-6">
+        <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="closeModal"></div>
+        <div class="relative bg-white rounded-2xl w-full max-w-2xl p-6 z-50 drop-shadow-2xl border border-white/30">
+            <header class="flex items-start justify-between gap-4 mb-4">
+                <h3 class="text-lg font-semibold text-black">Form Pengajuan Studio</h3>
+                <button @click="closeModal" class="text-slate-400 bg-white! hover:text-slate-600">✖️</button>
+            </header>
 
-                <form @submit.prevent="submitForm">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="text-xs font-medium text-slate-600">Nama Studio</label>
-                            <input v-model="form.name" @input="handleNameInput" required minlength="5" maxlength="20"
-                                class="mt-2 w-full rounded-lg border px-3 py-2 text-sm border-black text-black"
-                                placeholder="Contoh: Studio Suara Jakarta" />
-                            <p v-if="form.name.length > 0 && (form.name.length < 5 || form.name.length > 20)"
-                                class="text-xs text-red-500 mt-1">
-                                Nama studio harus antara 5–20 karakter.
-                            </p>
-                        </div>
-
-                        <div class="relative" ref="provinceContainer">
-                            <label class="text-xs font-medium text-slate-600">Provinsi</label>
-                            <input type="text" v-model="provinceSearch" @input="fetchProvinces" @focus="fetchProvinces"
-                                required class="mt-2 w-full rounded-lg border px-3 py-2 text-sm border-black text-black"
-                                placeholder="Cari provinsi..." />
-                            <ul v-if="provinceList.length"
-                                class="absolute w-full max-h-48 overflow-auto border rounded mt-1 bg-white z-50 text-black py-2 shadow-lg">
-                                <li v-for="province in provinceList" :key="province.id"
-                                    @click="selectProvince(province)"
-                                    class="px-3 py-2 hover:bg-gray-100 cursor-pointer">
-                                    {{ province.name }}
-                                </li>
-                            </ul>
-                        </div>
-                        <div class="relative" ref="cityContainer">
-                            <label class="text-xs font-medium text-slate-600">Kota</label>
-                            <input type="text" v-model="citySearch" @input="fetchCities()" @focus="fetchCities()"
-                                :disabled="!form.province" required
-                                class="mt-2 w-full rounded-lg border px-3 py-2 text-sm border-black text-black disabled:bg-gray-50 disabled:cursor-not-allowed"
-                                placeholder="Cari kota..." />
-                            <ul v-if="cityList.length"
-                                class="absolute w-full max-h-48 overflow-auto border rounded mt-1 bg-white z-50 text-black py-2 shadow-lg">
-                                <li v-for="city in cityList" :key="city.id" @click="selectCities(city)"
-                                    class="px-3 py-2 hover:bg-gray-100 cursor-pointer">
-                                    {{ city.name }}
-                                </li>
-                            </ul>
-                        </div>
-                        <div class="relative" ref="districtContainer">
-                            <label class="text-xs font-medium text-slate-600">Kecamatan</label>
-                            <input type="text" v-model="districtSearch" @input="fetchDistricts()"
-                                @focus="fetchDistricts()" :disabled="!form.city" required
-                                class="mt-2 w-full rounded-lg border px-3 py-2 text-sm border-black text-black disabled:bg-gray-50 disabled:cursor-not-allowed"
-                                placeholder="Cari kecamatan..." />
-                            <ul v-if="districtList.length"
-                                class="absolute w-full max-h-48 overflow-auto border rounded mt-1 bg-white z-50 text-black py-2 shadow-lg">
-                                <li v-for="district in districtList" :key="district.id"
-                                    @click="selectDistrict(district)"
-                                    class="px-3 py-2 hover:bg-gray-100 cursor-pointer">
-                                    {{ district.name }}
-                                </li>
-                            </ul>
-                        </div>
-                        <div class="relative" ref="villageContainer">
-                            <label class="text-xs font-medium text-slate-600">Kelurahan</label>
-                            <input type="text" v-model="villageSearch" @input="fetchVillages()" @focus="fetchVillages()"
-                                :disabled="!form.district" required
-                                class="mt-2 w-full rounded-lg border px-3 py-2 text-sm border-black text-black disabled:bg-gray-50 disabled:cursor-not-allowed"
-                                placeholder="Cari kelurahan..." />
-                            <ul v-if="villageList.length"
-                                class="absolute w-full max-h-48 overflow-auto border rounded mt-1 bg-white z-50 text-black py-2 shadow-lg">
-                                <li v-for="village in villageList" :key="village.id" @click="selectVillage(village)"
-                                    class="px-3 py-2 hover:bg-gray-100 cursor-pointer">
-                                    {{ village.name }}
-                                </li>
-                            </ul>
-                        </div>
-                        <div class="relative" ref="postalCodeContainer">
-                            <label class="text-xs font-medium text-slate-600">Kode Pos</label>
-                            <input type="text" v-model="postalCodeSearch" @input="fetchPostalCode()"
-                                @focus="fetchPostalCode()" :disabled="!form.village" required
-                                class="mt-2 w-full rounded-lg border px-3 py-2 text-sm border-black text-black disabled:bg-gray-50 disabled:cursor-not-allowed"
-                                placeholder="Cari kode pos..." />
-                            <ul v-if="postalCodeList.length"
-                                class="absolute w-full max-h-48 overflow-auto border rounded mt-1 bg-white z-50 text-black py-2 shadow-lg">
-                                <li v-for="postal_code in postalCodeList" :key="postal_code.id"
-                                    @click="selectPostalCode(postal_code)"
-                                    class="px-3 py-2 hover:bg-gray-100 cursor-pointer">
-                                    {{ postal_code.postal_code }}
-                                </li>
-                            </ul>
-                        </div>
-                        <div>
-                            <label class="text-xs font-medium text-slate-600">Tautan Google Maps</label>
-                            <input v-model="form.gmaps" @input="handleGmapsInput" required
-                                class="mt-2 w-full rounded-lg border px-3 py-2 text-sm border-black text-black"
-                                placeholder="https://maps.app.goo.gl/..." />
-                            <p v-if="form.gmaps && form.gmaps.length < 5" class="text-xs text-red-500 mt-1">
-                                Tautan minimal 5 karakter.
-                            </p>
-                            <p v-else-if="form.gmaps && !isValidUrl(form.gmaps)" class="text-xs text-red-500 mt-1">
-                                Harus berupa tautan (URL) yang valid.
-                            </p>
-                        </div>
-                    </div>
-
-                    <div class="mt-4">
-                        <label class="text-xs font-medium text-slate-600">Alamat Lengkap</label>
-                        <textarea v-model="form.address" @input="handleAddressInput" required rows="3"
-                            class="mt-2 w-full rounded-lg border px-3 py-2 text-sm border-black text-black resize-none overflow-hidden"
-                            placeholder="Contoh: Jalan Sukmajaya 1 No. 23, Depok"></textarea>
-
-                        <p v-if="form.address && form.address.length < 10" class="text-xs text-red-500 mt-1">
-                            Alamat minimal 10 karakter.
+            <form @submit.prevent="submitForm">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-xs font-medium text-slate-600">Nama Studio</label>
+                        <input v-model="form.name" @input="handleNameInput" required minlength="5" maxlength="20"
+                            class="mt-2 w-full rounded-lg border px-3 py-2 text-sm border-black text-black"
+                            placeholder="Contoh: Studio Suara Jakarta" />
+                        <p v-if="form.name.length > 0 && (form.name.length < 5 || form.name.length > 20)"
+                            class="text-xs text-red-500 mt-1">
+                            Nama studio harus antara 5–20 karakter.
                         </p>
                     </div>
 
+                    <div class="relative" ref="provinceContainer">
+                        <label class="text-xs font-medium text-slate-600">Provinsi</label>
+                        <input type="text" v-model="provinceSearch" @input="fetchProvinces" @focus="fetchProvinces"
+                            required class="mt-2 w-full rounded-lg border px-3 py-2 text-sm border-black text-black"
+                            placeholder="Cari provinsi..." />
+                        <ul v-if="provinceList.length"
+                            class="absolute w-full max-h-48 overflow-auto border rounded mt-1 bg-white z-50 text-black py-2 shadow-lg">
+                            <li v-for="province in provinceList" :key="province.id" @click="selectProvince(province)"
+                                class="px-3 py-2 hover:bg-gray-100 cursor-pointer">
+                                {{ province.name }}
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="relative" ref="cityContainer">
+                        <label class="text-xs font-medium text-slate-600">Kota</label>
+                        <input type="text" v-model="citySearch" @input="fetchCities()" @focus="fetchCities()"
+                            :disabled="!form.province" required
+                            class="mt-2 w-full rounded-lg border px-3 py-2 text-sm border-black text-black disabled:bg-gray-50 disabled:cursor-not-allowed"
+                            placeholder="Cari kota..." />
+                        <ul v-if="cityList.length"
+                            class="absolute w-full max-h-48 overflow-auto border rounded mt-1 bg-white z-50 text-black py-2 shadow-lg">
+                            <li v-for="city in cityList" :key="city.id" @click="selectCities(city)"
+                                class="px-3 py-2 hover:bg-gray-100 cursor-pointer">
+                                {{ city.name }}
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="relative" ref="districtContainer">
+                        <label class="text-xs font-medium text-slate-600">Kecamatan</label>
+                        <input type="text" v-model="districtSearch" @input="fetchDistricts()" @focus="fetchDistricts()"
+                            :disabled="!form.city" required
+                            class="mt-2 w-full rounded-lg border px-3 py-2 text-sm border-black text-black disabled:bg-gray-50 disabled:cursor-not-allowed"
+                            placeholder="Cari kecamatan..." />
+                        <ul v-if="districtList.length"
+                            class="absolute w-full max-h-48 overflow-auto border rounded mt-1 bg-white z-50 text-black py-2 shadow-lg">
+                            <li v-for="district in districtList" :key="district.id" @click="selectDistrict(district)"
+                                class="px-3 py-2 hover:bg-gray-100 cursor-pointer">
+                                {{ district.name }}
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="relative" ref="villageContainer">
+                        <label class="text-xs font-medium text-slate-600">Kelurahan</label>
+                        <input type="text" v-model="villageSearch" @input="fetchVillages()" @focus="fetchVillages()"
+                            :disabled="!form.district" required
+                            class="mt-2 w-full rounded-lg border px-3 py-2 text-sm border-black text-black disabled:bg-gray-50 disabled:cursor-not-allowed"
+                            placeholder="Cari kelurahan..." />
+                        <ul v-if="villageList.length"
+                            class="absolute w-full max-h-48 overflow-auto border rounded mt-1 bg-white z-50 text-black py-2 shadow-lg">
+                            <li v-for="village in villageList" :key="village.id" @click="selectVillage(village)"
+                                class="px-3 py-2 hover:bg-gray-100 cursor-pointer">
+                                {{ village.name }}
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="relative" ref="postalCodeContainer">
+                        <label class="text-xs font-medium text-slate-600">Kode Pos</label>
+                        <input type="text" v-model="postalCodeSearch" @input="fetchPostalCode()"
+                            @focus="fetchPostalCode()" :disabled="!form.village" required
+                            class="mt-2 w-full rounded-lg border px-3 py-2 text-sm border-black text-black disabled:bg-gray-50 disabled:cursor-not-allowed"
+                            placeholder="Cari kode pos..." />
+                        <ul v-if="postalCodeList.length"
+                            class="absolute w-full max-h-48 overflow-auto border rounded mt-1 bg-white z-50 text-black py-2 shadow-lg">
+                            <li v-for="postal_code in postalCodeList" :key="postal_code.id"
+                                @click="selectPostalCode(postal_code)"
+                                class="px-3 py-2 hover:bg-gray-100 cursor-pointer">
+                                {{ postal_code.postal_code }}
+                            </li>
+                        </ul>
+                    </div>
+                    <div>
+                        <label class="text-xs font-medium text-slate-600">Tautan Google Maps</label>
+                        <input v-model="form.gmaps" @input="handleGmapsInput" required
+                            class="mt-2 w-full rounded-lg border px-3 py-2 text-sm border-black text-black"
+                            placeholder="https://maps.app.goo.gl/..." />
+                        <p v-if="form.gmaps && form.gmaps.length < 5" class="text-xs text-red-500 mt-1">
+                            Tautan minimal 5 karakter.
+                        </p>
+                        <p v-else-if="form.gmaps && !isValidUrl(form.gmaps)" class="text-xs text-red-500 mt-1">
+                            Harus berupa tautan (URL) yang valid.
+                        </p>
+                    </div>
+                </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                        <div>
-                            <label class="text-xs font-medium text-slate-600">Contact Person Name</label>
-                            <input v-model="form.contactName" @input="handleContactNameInput" required minlength="5"
-                                maxlength="20"
-                                class="mt-2 w-full rounded-lg border px-3 py-2 text-sm border-black text-black"
-                                placeholder="Contoh: Dhimas" />
-                            <p v-if="form.contactName.length > 0 && (form.contactName.length < 5 || form.contactName.length > 20)"
-                                class="text-xs text-red-500 mt-1">
-                                Nama contact person harus antara 5–20 karakter.
-                            </p>
-                        </div>
-                        <div>
-                            <label class="text-xs font-medium text-slate-600">Contact Person Phone</label>
-                            <input v-model="form.contactPhone" @input="handlePhoneInput" required maxlength="15"
-                                class="mt-2 w-full rounded-lg border px-3 py-2 text-sm border-black text-black"
-                                placeholder="Contoh: 08135115415" />
+                <div class="mt-4">
+                    <label class="text-xs font-medium text-slate-600">Alamat Lengkap</label>
+                    <textarea v-model="form.address" @input="handleAddressInput" required rows="3"
+                        class="mt-2 w-full rounded-lg border px-3 py-2 text-sm border-black text-black resize-none overflow-hidden"
+                        placeholder="Contoh: Jalan Sukmajaya 1 No. 23, Depok"></textarea>
 
-                            <p v-if="phoneError" class="text-xs text-red-500 mt-1">
-                                {{ phoneError }}
-                            </p>
-                        </div>
+                    <p v-if="form.address && form.address.length < 10" class="text-xs text-red-500 mt-1">
+                        Alamat minimal 10 karakter.
+                    </p>
+                </div>
 
-                        <div class="relative" ref="bankContainer">
-                            <label class="text-xs font-medium text-slate-600">Bank</label>
-                            <input type="text" v-model="bankSearch" @input="fetchBank" @focus="fetchBank" required
-                                class="mt-2 w-full rounded-lg border px-3 py-2 text-sm border-black text-black"
-                                placeholder="nama bank..." />
-                            <ul v-if="bankList.length"
-                                class="absolute w-full max-h-48 overflow-auto border rounded mt-1 bg-white z-50 text-black py-2 shadow-lg">
-                                <li v-for="bank in bankList" :key="bank.id" @click="selectBank(bank)"
-                                    class="px-3 py-2 hover:bg-gray-100 cursor-pointer">
-                                    {{ bank.name }}
-                                </li>
-                            </ul>
-                        </div>
-                        <div>
-                            <label class="text-xs font-medium text-slate-600">Nomor Rekening Bank</label>
-                            <input v-model="form.bankAccount" @input="handleBankAccountInput" required minlength="5"
-                                maxlength="20"
-                                class="mt-2 w-full rounded-lg border px-3 py-2 text-sm border-black text-black"
-                                placeholder="Contoh: 5544512536" />
-                            <p v-if="form.bankAccount && form.bankAccount.length < 5" class="text-xs text-red-500 mt-1">
-                                Nomor Rekening minimal 5 karakter.
-                            </p>
-                        </div>
 
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                    <div>
+                        <label class="text-xs font-medium text-slate-600">Contact Person Name</label>
+                        <input v-model="form.contactName" @input="handleContactNameInput" required minlength="5"
+                            maxlength="20"
+                            class="mt-2 w-full rounded-lg border px-3 py-2 text-sm border-black text-black"
+                            placeholder="Contoh: Dhimas" />
+                        <p v-if="form.contactName.length > 0 && (form.contactName.length < 5 || form.contactName.length > 20)"
+                            class="text-xs text-red-500 mt-1">
+                            Nama contact person harus antara 5–20 karakter.
+                        </p>
+                    </div>
+                    <div>
+                        <label class="text-xs font-medium text-slate-600">Contact Person Phone</label>
+                        <input v-model="form.contactPhone" @input="handlePhoneInput" required maxlength="15"
+                            class="mt-2 w-full rounded-lg border px-3 py-2 text-sm border-black text-black"
+                            placeholder="Contoh: 08135115415" />
+
+                        <p v-if="phoneError" class="text-xs text-red-500 mt-1">
+                            {{ phoneError }}
+                        </p>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
-                        <div>
-                            <label class="text-sm font-medium text-slate-700">Upload KTP</label>
-
-                            <input v-if="!previewFile.ktp" type="file" accept="image/*" required
-                                @change="handleFileUpload($event, 'ktp')"
-                                class="mt-2 w-full rounded-lg border px-3 py-3 text-sm border-black text-black cursor-pointer" />
-
-                            <div v-else
-                                class="mt-3 relative rounded-lg overflow-hidden border border-gray-300 shadow-md">
-                                <img :src="previewFile.ktp" alt="Preview KTP"
-                                    class="w-full aspect-[16/9] object-cover" />
-                                <button type="button" @click="removeFile('ktp')"
-                                    class="absolute top-2 right-2 bg-white bg-opacity-80 hover:bg-opacity-100 text-xs font-medium px-2 py-1 rounded shadow">
-                                    Ganti Foto
-                                </button>
-                            </div>
-
-                            <p v-if="errorsFile.ktp" class="text-xs text-red-500 mt-1">{{ errorsFile.ktp }}</p>
-                        </div>
-
-                        <div>
-                            <label class="text-sm font-medium text-slate-700">Upload Foto Studio 1</label>
-
-                            <input v-if="!previewFile.studio1" type="file" accept="image/*" required
-                                @change="handleFileUpload($event, 'studio1')"
-                                class="mt-2 w-full rounded-lg border px-3 py-3 text-sm border-black text-black cursor-pointer" />
-
-                            <div v-else
-                                class="mt-3 relative rounded-lg overflow-hidden border border-gray-300 shadow-md">
-                                <img :src="previewFile.studio1" alt="Preview Studio 1"
-                                    class="w-full aspect-[16/9] object-cover" />
-                                <button type="button" @click="removeFile('studio1')"
-                                    class="absolute top-2 right-2 bg-white bg-opacity-80 hover:bg-opacity-100 text-xs font-medium px-2 py-1 rounded shadow">
-                                    Ganti Foto
-                                </button>
-                            </div>
-
-                            <p v-if="errorsFile.studio1" class="text-xs text-red-500 mt-1">{{ errorsFile.studio1 }}</p>
-                        </div>
-
-                        <div>
-                            <label class="text-sm font-medium text-slate-700">Upload Foto Studio 2</label>
-
-                            <input v-if="!previewFile.studio2" type="file" accept="image/*" required
-                                @change="handleFileUpload($event, 'studio2')"
-                                class="mt-2 w-full rounded-lg border px-3 py-3 text-sm border-black text-black cursor-pointer" />
-
-                            <div v-else
-                                class="mt-3 relative rounded-lg overflow-hidden border border-gray-300 shadow-md">
-                                <img :src="previewFile.studio2" alt="Preview Studio 2"
-                                    class="w-full aspect-[16/9] object-cover" />
-                                <button type="button" @click="removeFile('studio2')"
-                                    class="absolute top-2 right-2 bg-white bg-opacity-80 hover:bg-opacity-100 text-xs font-medium px-2 py-1 rounded shadow">
-                                    Ganti Foto
-                                </button>
-                            </div>
-
-                            <p v-if="errorsFile.studio2" class="text-xs text-red-500 mt-1">{{ errorsFile.studio2 }}</p>
-                        </div>
+                    <div class="relative" ref="bankContainer">
+                        <label class="text-xs font-medium text-slate-600">Bank</label>
+                        <input type="text" v-model="bankSearch" @input="fetchBank" @focus="fetchBank" required
+                            class="mt-2 w-full rounded-lg border px-3 py-2 text-sm border-black text-black"
+                            placeholder="nama bank..." />
+                        <ul v-if="bankList.length"
+                            class="absolute w-full max-h-48 overflow-auto border rounded mt-1 bg-white z-50 text-black py-2 shadow-lg">
+                            <li v-for="bank in bankList" :key="bank.id" @click="selectBank(bank)"
+                                class="px-3 py-2 hover:bg-gray-100 cursor-pointer">
+                                {{ bank.name }}
+                            </li>
+                        </ul>
+                    </div>
+                    <div>
+                        <label class="text-xs font-medium text-slate-600">Nomor Rekening Bank</label>
+                        <input v-model="form.bankAccount" @input="handleBankAccountInput" required minlength="5"
+                            maxlength="20"
+                            class="mt-2 w-full rounded-lg border px-3 py-2 text-sm border-black text-black"
+                            placeholder="Contoh: 5544512536" />
+                        <p v-if="form.bankAccount && form.bankAccount.length < 5" class="text-xs text-red-500 mt-1">
+                            Nomor Rekening minimal 5 karakter.
+                        </p>
                     </div>
 
+                </div>
 
-                    <div class="md:col-span-2 flex justify-end gap-3 mt-8">
-                        <button type="button" @click="closeModal"
-                            class="px-4 py-2 rounded-lg border bg-white! text-black border-slate-200 hover:bg-slate-50">Batal</button>
-                        <button type="submit"
-                            class="px-5 py-2 rounded-lg bg-gradient-to-r from-purple-600 to-pink-500 text-white hover:opacity-90 transition-opacity">Kirim
-                            Pengajuan</button>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
+                    <div>
+                        <label class="text-sm font-medium text-slate-700">Upload KTP</label>
+
+                        <input v-if="!previewFile.ktp" type="file" accept="image/*" required
+                            @change="handleFileUpload($event, 'ktp')"
+                            class="mt-2 w-full rounded-lg border px-3 py-3 text-sm border-black text-black cursor-pointer" />
+
+                        <div v-else class="mt-3 relative rounded-lg overflow-hidden border border-gray-300 shadow-md">
+                            <img :src="previewFile.ktp" alt="Preview KTP" class="w-full aspect-[16/9] object-cover" />
+                            <button type="button" @click="removeFile('ktp')"
+                                class="absolute top-2 right-2 bg-white bg-opacity-80 hover:bg-opacity-100 text-xs font-medium px-2 py-1 rounded shadow">
+                                Ganti Foto
+                            </button>
+                        </div>
+
+                        <p v-if="errorsFile.ktp" class="text-xs text-red-500 mt-1">{{ errorsFile.ktp }}</p>
                     </div>
-                </form>
 
-            </div>
+                    <div>
+                        <label class="text-sm font-medium text-slate-700">Upload Foto Studio 1</label>
+
+                        <input v-if="!previewFile.studio1" type="file" accept="image/*" required
+                            @change="handleFileUpload($event, 'studio1')"
+                            class="mt-2 w-full rounded-lg border px-3 py-3 text-sm border-black text-black cursor-pointer" />
+
+                        <div v-else class="mt-3 relative rounded-lg overflow-hidden border border-gray-300 shadow-md">
+                            <img :src="previewFile.studio1" alt="Preview Studio 1"
+                                class="w-full aspect-[16/9] object-cover" />
+                            <button type="button" @click="removeFile('studio1')"
+                                class="absolute top-2 right-2 bg-white bg-opacity-80 hover:bg-opacity-100 text-xs font-medium px-2 py-1 rounded shadow">
+                                Ganti Foto
+                            </button>
+                        </div>
+
+                        <p v-if="errorsFile.studio1" class="text-xs text-red-500 mt-1">{{ errorsFile.studio1 }}</p>
+                    </div>
+
+                    <div>
+                        <label class="text-sm font-medium text-slate-700">Upload Foto Studio 2</label>
+
+                        <input v-if="!previewFile.studio2" type="file" accept="image/*" required
+                            @change="handleFileUpload($event, 'studio2')"
+                            class="mt-2 w-full rounded-lg border px-3 py-3 text-sm border-black text-black cursor-pointer" />
+
+                        <div v-else class="mt-3 relative rounded-lg overflow-hidden border border-gray-300 shadow-md">
+                            <img :src="previewFile.studio2" alt="Preview Studio 2"
+                                class="w-full aspect-[16/9] object-cover" />
+                            <button type="button" @click="removeFile('studio2')"
+                                class="absolute top-2 right-2 bg-white bg-opacity-80 hover:bg-opacity-100 text-xs font-medium px-2 py-1 rounded shadow">
+                                Ganti Foto
+                            </button>
+                        </div>
+
+                        <p v-if="errorsFile.studio2" class="text-xs text-red-500 mt-1">{{ errorsFile.studio2 }}</p>
+                    </div>
+                </div>
+
+
+                <div class="md:col-span-2 flex justify-end gap-3 mt-8">
+                    <button type="button" @click="closeModal"
+                        class="px-4 py-2 rounded-lg border bg-white! text-black border-slate-200 hover:bg-slate-50">Batal</button>
+                    <button type="submit"
+                        class="px-5 py-2 rounded-lg bg-gradient-to-r from-purple-600 to-pink-500 text-white hover:opacity-90 transition-opacity">Kirim
+                        Pengajuan</button>
+                </div>
+            </form>
+
         </div>
-    </transition>
-    <ModalSubmissionSuccessPage v-if="ModalSubmissionSuccessPageVisible"  />
+        <ModalSubmissionSuccessPage v-if="ModalSubmissionSuccessPageVisible" />
+    </div>
 </template>
 
 <script setup>
 import { ref } from "vue";
 import axios from 'axios';
-import { v4 as uuidv4 } from 'uuid'; 
+import { v4 as uuidv4 } from 'uuid';
 import { getIpAdresses } from '../../services/axios/ip-adress.services.js'
-import { useRouter } from 'vue-router'
 import ModalSubmissionSuccessPage from "../ModalSubmissionSuccessPage/ModalSubmissionSuccessPage.vue";
 
-
-const router = useRouter()
 
 const ipAddress = async () => {
     return await getIpAdresses();
@@ -294,13 +283,13 @@ const postalCodeContainer = ref(null);
 
 const bankSearch = ref('');
 const bankList = ref([]);
-const bankContainer = ref(null); 
+const bankContainer = ref(null);
 
 const ModalSubmissionSuccessPageVisible = ref(false);
 
 // Error State
 const errorsFile = ref({ ktp: '', studio1: '', studio2: '' });
-const phoneError = ref(''); 
+const phoneError = ref('');
 
 const props = defineProps({
     showModal: Boolean,
@@ -656,21 +645,21 @@ async function submitForm() {
         const ip = await ipAddress() // Menggunakan fungsi dummy/impor
 
         const payload = {
-            name : form.value.name,
-            address_data : {
+            name: form.value.name,
+            address_data: {
                 province_id: form.value.province,
                 city_id: form.value.city,
                 district_id: form.value.district,
                 village_id: form.value.village,
                 postal_code_id: form.value.postalCode,
                 address: form.value.address,
-                gmaps: form.value.gmaps, 
+                gmaps: form.value.gmaps,
             },
-            contact_person_data : {
+            contact_person_data: {
                 name: form.value.contactName,
                 phone: form.value.contactPhone
             },
-            account_number_data : {
+            account_number_data: {
                 bank_code: form.value.bank,
                 bank_account_number: form.value.bankAccount
             },
@@ -690,8 +679,8 @@ async function submitForm() {
             return alert("Gagal mengirim pengajuan: " + (response.data.message || "Terjadi kesalahan."));
         }
 
-        
-       ModalSubmissionSuccessPageVisible.value = true;
+
+        ModalSubmissionSuccessPageVisible.value = true;
 
     } catch (err) {
         console.error(err);
