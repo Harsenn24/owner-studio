@@ -25,10 +25,11 @@
                 <p class="text-xl font-bold text-green-600">0</p>
               </div>
 
-              <div class="bg-gradient-to-tr from-yellow-500 to-orange-500 
-            shadow-xl rounded-2xl px-5 py-3 
-            text-white font-medium cursor-pointer transition 
-            pulse-shadow animate-pulse transform hover:scale-[1.03] duration-300">
+              <div v-if="checkSubmissionStatus === 'submission'" class="bg-gradient-to-tr from-yellow-500 to-orange-500 
+                shadow-xl rounded-2xl px-5 py-3 
+                text-white font-medium cursor-pointer transition 
+                pulse-shadow animate-pulse transform hover:scale-[1.03] duration-300"
+                @click="goToSubmissionStatusPage(subMissionId)">
 
                 <div class="flex items-center justify-between">
                   <p class="text-sm font-semibold uppercase tracking-wider">🔔 Pengajuan Baru</p>
@@ -87,13 +88,9 @@
         </div>
 
         <div v-else-if="isSubmitted && studioList.length === 0">
-          <SubmissionStatusPage
-            :checkSubmissionStatus="checkSubmissionStatus"
-            :checkSubmissionStudioName="checkSubmissionStudioName"
-            :checkSubmissionCreatedAt="checkSubmissionCreatedAt"
-            @open-modal="openModal"
-            @refresh-page="refreshPage"
-          />
+          <SubmissionStatusPage :checkSubmissionStatus="checkSubmissionStatus"
+            :checkSubmissionStudioName="checkSubmissionStudioName" :checkSubmissionCreatedAt="checkSubmissionCreatedAt"
+            @open-modal="openModal" @refresh-page="refreshPage" />
         </div>
 
         <div v-else
@@ -147,6 +144,11 @@ import ModalAddStudioPage from '../ModalAddStudioPage/ModalAddStudioPage.vue'
 import { listStudio, submission } from '../../api/studio.js'
 import SubmissionStatusPage from '../SubmissionStatusPage/SubmissionStatusPage.vue'
 
+// const BE_BASE_URL = import.meta.env.VITE_STUDIO_BAND_BE_BASE_URL
+// const token = localStorage.getItem('token')
+// const deviceId = localStorage.getItem('device_id')
+// const ip = await getIpAdresses()
+
 // --- REFS ---
 const isInitialLoading = ref(true)
 const router = useRouter()
@@ -192,7 +194,7 @@ function openStudioDetail(studio) {
 
 function logout() {
   localStorage.clear()
-  router.push('/login')
+  window.location.href = '/login'   // bukan router.push
 }
 
 function openModal() {
@@ -202,6 +204,10 @@ function openModal() {
 function closeModal() {
   showModal.value = false
   // Consider re-running checkSubmission() after closing the modal if a submission might have been made
+}
+
+function goToSubmissionStatusPage(submission_uuid) {
+  router.push('/home/submission-status/' + submission_uuid)
 }
 
 
@@ -252,6 +258,7 @@ async function checkSubmission() {
 
 // --- LIFECYCLE HOOKS ---
 onMounted(async () => {
+  
   try {
     // Run both calls concurrently for faster loading
     await Promise.all([fetchStudios(), checkSubmission()])

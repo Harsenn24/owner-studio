@@ -222,7 +222,7 @@ async function login(email, password) {
     if (result.data.token) {
       localStorage.setItem('token', result.data.token)
       localStorage.setItem('device_id', uuidv4())
-      router.push('/home')
+      window.location.href = '/home'
     }
 
     if (result.message === "Verification email re-sent") {

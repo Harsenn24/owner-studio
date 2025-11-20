@@ -1,5 +1,11 @@
 <template>
-    <div
+
+    <div v-if="isInitialLoading" class="flex-1 flex flex-col items-center justify-center">
+      <div class="w-12 h-12 border-4 border-blue-400 border-t-transparent rounded-full animate-spin mb-4"></div>
+      <p class="text-slate-500">Loading studios...</p>
+    </div>
+
+    <div v-else
         class="flex flex-col items-center justify-center py-20 px-6 text-white bg-gradient-to-br from-blue-500 via-blue-400 to-green-500 rounded-2xl shadow-lg mt-8 mx-4">
         <div class="text-center mb-10">
             <h2 class="text-3xl font-bold mb-2">{{ checkSubmissionStudioName }}</h2>
@@ -70,7 +76,8 @@
                         checkSubmissionNotes || 'Tidak ada catatan spesifik.' }}, silakan ajukan ulang!</p>
             </div>
 
-            <button v-if="checkSubmissionStatus === 'submission'" @click="$emit('refresh-page')"
+            <button v-if="checkSubmissionStatus === 'submission'"
+                @click="shouldFetchData ? refreshPage() : $emit('refresh-page')"
                 class="px-6 py-2 bg-white! text-black rounded-lg hover:bg-white/90 transition-all duration-200">
                 Periksa Lagi
             </button>
@@ -104,8 +111,11 @@ const showModal = ref(props.showModal || false)
 const shouldFetchData = ref(
     !props.checkSubmissionCreatedAt &&
     !props.checkSubmissionStatus &&
-    !props.checkSubmissionStudioName 
+    !props.checkSubmissionStudioName
 )
+
+const isInitialLoading = ref(true)
+
 
 function formatDate(timestamp) {
     if (!timestamp) return '-'
@@ -125,12 +135,12 @@ function openModal() {
 }
 
 function formatTime(timestamp) {
-  if (!timestamp) return '-'
-  return new Date(timestamp).toLocaleTimeString('id-ID', {
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false
-  })
+    if (!timestamp) return '-'
+    return new Date(timestamp).toLocaleTimeString('id-ID', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+    })
 }
 
 async function checkSubmission() {
@@ -149,8 +159,12 @@ async function checkSubmission() {
 }
 
 onMounted(async () => {
-    if(shouldFetchData.value) {
-        await Promise.all([checkSubmission()])
+    try {
+        if (shouldFetchData.value) {
+            await Promise.all([checkSubmission()])
+        }
+    } finally {
+        isInitialLoading.value = false
     }
 })
 
@@ -158,15 +172,16 @@ onMounted(async () => {
 
 <style scoped>
 @keyframes spin-slow {
-  0% {
-    transform: rotate(0deg);
-  }
+    0% {
+        transform: rotate(0deg);
+    }
 
-  100% {
-    transform: rotate(360deg);
-  }
+    100% {
+        transform: rotate(360deg);
+    }
 }
+
 .animate-spin-slow {
-  animation: spin-slow 3s linear infinite;
+    animation: spin-slow 3s linear infinite;
 }
 </style>

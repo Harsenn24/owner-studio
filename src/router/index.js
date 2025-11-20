@@ -4,6 +4,7 @@ import LoginPage from '../components/LoginPage/LoginPage.vue'
 import VerifyEmailPage from '../components/VerifyEmailPage/VerifyEmailPage.vue'
 import CreateStudioDetailPage from '../components/CreateStudioDetailPage/CreateStudioDetailPage.vue'
 import StudioDetailPage from '../components/StudioDetailPage/StudioDetailPage.vue'
+import SubmissionStatusPage from '../components/SubmissionStatusPage/SubmissionStatusPage.vue'
 
 
 
@@ -13,6 +14,8 @@ const routes = [
   { path: '/verify/owner/:uuid', component: VerifyEmailPage },
   { path: '/home/create-studio-detail/:studio_submission_id', component: CreateStudioDetailPage },
   { path: '/home/:studio_uuid', component: StudioDetailPage },
+  { path: '/home/submission-status/:submission_uuid', component: SubmissionStatusPage },
+
 
 
 ]
