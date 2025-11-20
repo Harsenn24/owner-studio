@@ -7,8 +7,7 @@
     </div>
 
     <template v-else>
-      <HeadersPage :studioList="studioList" :checkSubmissionStatus="checkSubmissionStatus" @open-modal="openModal"
-        @logout="logout" />
+      <HeadersPage />
 
       <div class="flex-1">
         <div v-if="studioList.length > 0">
@@ -90,7 +89,7 @@
         <div v-else-if="isSubmitted && studioList.length === 0">
           <SubmissionStatusPage :checkSubmissionStatus="checkSubmissionStatus"
             :checkSubmissionStudioName="checkSubmissionStudioName" :checkSubmissionCreatedAt="checkSubmissionCreatedAt"
-            @open-modal="openModal" @refresh-page="refreshPage" />
+            @refresh-page="refreshPage" />
         </div>
 
         <div v-else
@@ -104,7 +103,7 @@
               Buat listing studiomu agar pengguna bisa menemukan dan menyewa ruangmu.
             </p>
             <div class="mt-8 flex justify-center lg:justify-start items-center gap-5">
-              <button @click="openModal"
+              <button
                 class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-green-500 text-white font-semibold shadow-lg hover:scale-[1.02] transition-transform">
                 + Buat Studiomu
               </button>
@@ -129,9 +128,6 @@
         </button>
       </div>
 
-      <transition name="modal-fade">
-        <ModalAddStudioPage v-if="showModal" @close-modal="closeModal" />
-      </transition>
     </template>
   </div>
 </template>
@@ -140,7 +136,6 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import HeadersPage from '../HeadersPage/HeadersPage.vue'
-import ModalAddStudioPage from '../ModalAddStudioPage/ModalAddStudioPage.vue'
 import { listStudio, submission } from '../../api/studio.js'
 import SubmissionStatusPage from '../SubmissionStatusPage/SubmissionStatusPage.vue'
 
@@ -162,9 +157,6 @@ const checkSubmissionNotes = ref('')
 const checkSubmissionCreatedAt = ref(0)
 const isSubmitted = ref(false) // True if submission data is found
 const subMissionId = ref(null)
-
-// UI State
-const showModal = ref(false)
 
 
 // --- UTILITY FUNCTIONS ---
@@ -189,17 +181,9 @@ function openStudioDetail(studio) {
 
 function logout() {
   localStorage.clear()
-  window.location.href = '/login'  
+  window.location.href = '/login'
 }
 
-function openModal() {
-  showModal.value = true
-}
-
-function closeModal() {
-  showModal.value = false
-  // Consider re-running checkSubmission() after closing the modal if a submission might have been made
-}
 
 function goToSubmissionStatusPage(submission_uuid) {
   router.push('/home/submission-status/' + submission_uuid)
@@ -251,7 +235,7 @@ async function checkSubmission() {
 
 // --- LIFECYCLE HOOKS ---
 onMounted(async () => {
-  
+
   try {
     // Run both calls concurrently for faster loading
     await Promise.all([fetchStudios(), checkSubmission()])

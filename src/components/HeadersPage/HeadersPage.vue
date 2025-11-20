@@ -7,35 +7,53 @@
 
             <div
                 v-if="studioList.length > 0 && (checkSubmissionStatus === 'rejected' || checkSubmissionStatus === 'accepted')">
-                <button @click="$emit('open-modal')"
+                <button @click="openModal()"
                     class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-green-500 text-white font-medium shadow hover:opacity-90 transition-all">
                     + Tambah Studio
                 </button>
             </div>
 
-            <button @click="$emit('logout')"
+            <button @click="logout()"
                 class="px-5 py-2.5 rounded-xl bg-red-500! text-white! font-medium shadow hover:opacity-90 transition-all">
                 LogOut
             </button>
 
         </div>
     </header>
+    <transition name="modal-fade">
+        <ModalAddStudioPage v-if="showModal" @close-modal="closeModal" />
+    </transition>
 </template>
 
 <script setup>
 import { useRouter } from 'vue-router'
 import { listStudio, submission } from '../../api/studio'
 import { ref, onMounted } from 'vue'
+import ModalAddStudioPage from '../ModalAddStudioPage/ModalAddStudioPage.vue'
+
 const router = useRouter()
 
 const checkSubmissionStatus = ref('')
 const studioList = ref([])
 
+const showModal = ref(false)
 
 
+function openModal() {
+    showModal.value = true
+}
+function closeModal() {
+    showModal.value = false
+}
 function goToHome() {
     router.push('/home')
 }
+
+function logout() {
+  localStorage.clear()
+  window.location.href = '/login'  
+}
+
 
 async function fetchStudio() {
     try {
