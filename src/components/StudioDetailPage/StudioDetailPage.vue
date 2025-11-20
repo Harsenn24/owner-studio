@@ -8,7 +8,7 @@
         </div>
 
         <template v-else>
-           
+
             <HeadersPage :studioList="studioList" :checkSubmissionStatus="checkSubmissionStatus" @open-modal="openModal"
                 @logout="logout" />
 
@@ -145,19 +145,19 @@ const checkSubmissionStatus = ref('')
 
 
 const studio = ref({
-    studio_id: 12,
-    studio_name: "Studio Musik Bekasi",
-    studio_address: "Jalan Mawar No. 12",
-    studio_district: "Bekasi Barat",
-    studio_city: "Bekasi",
-    studio_province: "Jawa Barat",
-    studio_village: "Bekasi Timur",
-    studio_postal_code: "17114",
-    studio_contact_person_name: "Budi Santoso",
-    studio_contact_person_phone: "08123456789",
-    studio_bank_name: "BCA",
-    studio_bank_account_number: "1234567890",
-    status: "active"
+    studio_id: null,
+    studio_name: "",
+    studio_address: "",
+    studio_district: "",
+    studio_city: "",
+    studio_province: " ",
+    studio_village: " ",
+    studio_postal_code: "",
+    studio_contact_person_name: " ",
+    studio_contact_person_phone: "",
+    studio_bank_name: "",
+    studio_bank_account_number: "",
+    status: ""
 })
 
 function openModal() { showModal.value = true }
@@ -233,7 +233,8 @@ function openStudioNumberDetail(sn) {
 }
 
 function addStudioNumber() {
-    console.log("Add Studio Number Clicked")
+    const studio_uuid = router.currentRoute.value.params.studio_uuid
+    router.push(`/home/create-studio-detail/${studio_uuid}`)
 }
 
 onMounted(async () => {

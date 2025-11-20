@@ -12,11 +12,9 @@ const routes = [
   { path: '/home', component: HomePage },
   { path: '/login', component: LoginPage },
   { path: '/verify/owner/:uuid', component: VerifyEmailPage },
-  { path: '/home/create-studio-detail/:studio_submission_id', component: CreateStudioDetailPage },
+  { path: '/home/create-studio-detail/:submission_uuid', component: CreateStudioDetailPage },
   { path: '/home/:studio_uuid', component: StudioDetailPage },
   { path: '/home/submission-status/:submission_uuid', component: SubmissionStatusPage },
-
-
 
 ]
 
