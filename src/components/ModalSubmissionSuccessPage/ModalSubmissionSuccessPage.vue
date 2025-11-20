@@ -9,7 +9,7 @@
             <div class="flex flex-col items-center justify-center space-y-4">
 
                 <!-- Icon / Image -->
-                <img src="https://i.pinimg.com/736x/30/d4/1b/30d41b81c10848151dc5a067725f9cf2.jpg" alt="Success"
+                <img src="/success_submission.jpg" alt="Success"
                     class="w-24 h-24 rounded-full shadow-md" />
 
                 <!-- Title -->
