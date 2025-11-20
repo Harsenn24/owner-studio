@@ -5,7 +5,7 @@
         </h1>
         <div class="flex justify-between gap-x-4">
 
-            <div v-if="studioList.length > 0 || checkSubmissionStatus === 'rejected'">
+            <div v-if="studioList.length > 0 && (checkSubmissionStatus === 'rejected' || checkSubmissionStatus === 'accepted')">
                 <button @click="$emit('open-modal')"
                     class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-green-500 text-white font-medium shadow hover:opacity-90 transition-all">
                     + Tambah Studio

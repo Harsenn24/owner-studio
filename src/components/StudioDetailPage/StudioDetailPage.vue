@@ -8,22 +8,7 @@
         </div>
 
         <template v-else>
-            <!-- <header class="flex justify-between items-center mb-6">
-                <h1 class="text-2xl font-bold text-slate-800">StudioSpace Owner</h1>
-                <div class="flex justify-between gap-x-4">
-                    <button @click="openModal"
-                        class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-green-500 text-white font-medium shadow hover:opacity-90 transition-all">
-                        + Tambah Studio
-                    </button>
-
-
-                    <button @click="logout"
-                        class="px-5 py-2.5 rounded-xl bg-red-500!  text-white font-medium shadow hover:opacity-90 transition-all">
-                        LogOut
-                    </button>
-
-                </div>
-            </header> -->
+           
             <HeadersPage :studioList="studioList" :checkSubmissionStatus="checkSubmissionStatus" @open-modal="openModal"
                 @logout="logout" />
 
@@ -233,7 +218,7 @@ async function fetchStudioDetail() {
 
 function logout() {
     localStorage.clear()
-    router.push('/login')
+    window.location.href = '/login'
 }
 
 

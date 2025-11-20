@@ -144,11 +144,6 @@ import ModalAddStudioPage from '../ModalAddStudioPage/ModalAddStudioPage.vue'
 import { listStudio, submission } from '../../api/studio.js'
 import SubmissionStatusPage from '../SubmissionStatusPage/SubmissionStatusPage.vue'
 
-// const BE_BASE_URL = import.meta.env.VITE_STUDIO_BAND_BE_BASE_URL
-// const token = localStorage.getItem('token')
-// const deviceId = localStorage.getItem('device_id')
-// const ip = await getIpAdresses()
-
 // --- REFS ---
 const isInitialLoading = ref(true)
 const router = useRouter()
@@ -194,7 +189,7 @@ function openStudioDetail(studio) {
 
 function logout() {
   localStorage.clear()
-  window.location.href = '/login'   // bukan router.push
+  window.location.href = '/login'  
 }
 
 function openModal() {
