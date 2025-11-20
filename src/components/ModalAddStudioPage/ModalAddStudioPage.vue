@@ -243,6 +243,7 @@
             </div>
         </div>
     </transition>
+    <ModalSubmissionSuccessPage v-if="ModalSubmissionSuccessPageVisible"  />
 </template>
 
 <script setup>
@@ -251,6 +252,7 @@ import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid'; 
 import { getIpAdresses } from '../../services/axios/ip-adress.services.js'
 import { useRouter } from 'vue-router'
+import ModalSubmissionSuccessPage from "../ModalSubmissionSuccessPage/ModalSubmissionSuccessPage.vue";
 
 
 const router = useRouter()
@@ -293,6 +295,8 @@ const postalCodeContainer = ref(null);
 const bankSearch = ref('');
 const bankList = ref([]);
 const bankContainer = ref(null); 
+
+const ModalSubmissionSuccessPageVisible = ref(false);
 
 // Error State
 const errorsFile = ref({ ktp: '', studio1: '', studio2: '' });
@@ -673,8 +677,6 @@ async function submitForm() {
             document_ids: form.value.document_ids // Semua file_id yang sudah diupload
         };
 
-        console.log(payload)
-
         const response = await axios.post(`${BE_BASE_URL}owner/studio/submission`, payload, { // Asumsi endpoint submit
             headers: {
                 'authorization': `Bearer ${token}`,
@@ -689,7 +691,7 @@ async function submitForm() {
         }
 
         
-        router.push('/home')
+       ModalSubmissionSuccessPageVisible.value = true;
 
     } catch (err) {
         console.error(err);
