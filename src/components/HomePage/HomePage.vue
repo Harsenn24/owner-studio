@@ -103,7 +103,7 @@
               Buat listing studiomu agar pengguna bisa menemukan dan menyewa ruangmu.
             </p>
             <div class="mt-8 flex justify-center lg:justify-start items-center gap-5">
-              <button
+              <button @click="openAddStudioPage()"
                 class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-green-500 text-white font-semibold shadow-lg hover:scale-[1.02] transition-transform">
                 + Buat Studiomu
               </button>
@@ -129,6 +129,7 @@
       </div>
 
     </template>
+    <ModalAddStudioPage v-if="addStudioPage === true" @closeModal="addStudioPage = false"/>
   </div>
 </template>
 
@@ -138,10 +139,13 @@ import { useRouter } from 'vue-router'
 import HeadersPage from '../HeadersPage/HeadersPage.vue'
 import { listStudio, submission } from '../../api/studio.js'
 import SubmissionStatusPage from '../SubmissionStatusPage/SubmissionStatusPage.vue'
+import ModalAddStudioPage from '../ModalAddStudioPage/ModalAddStudioPage.vue'
+
 
 // --- REFS ---
 const isInitialLoading = ref(true)
 const router = useRouter()
+const addStudioPage = ref(false)
 
 // Studio List & Pagination
 const studioList = ref([])
@@ -162,6 +166,10 @@ const subMissionId = ref(null)
 // --- UTILITY FUNCTIONS ---
 function refreshPage() {
   window.location.reload()
+}
+
+function openAddStudioPage() {
+  addStudioPage.value = true
 }
 
 function formatDate(timestamp) {

@@ -1,6 +1,6 @@
 <template>
     <div class="min-h-screen bg-gradient-to-b from-white to-gray-50 py-10 px-6 flex flex-col gap-10">
-        <HeadersPage @open-modal="openModal" @logout="logout" />
+        <HeadersPage />
 
         <h1 class="text-3xl font-bold text-slate-800 text-center">🎵 Register Studio</h1>
 

@@ -19,10 +19,10 @@
             </button>
 
         </div>
+        <transition name="modal-fade">
+            <ModalAddStudioPage v-if="showModal" @close-modal="closeModal" />
+        </transition>
     </header>
-    <transition name="modal-fade">
-        <ModalAddStudioPage v-if="showModal" @close-modal="closeModal" />
-    </transition>
 </template>
 
 <script setup>
