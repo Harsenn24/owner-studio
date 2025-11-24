@@ -29,7 +29,7 @@
 import { useRouter } from 'vue-router'
 import { listStudio, submission } from '../../api/studio'
 import { ref, onMounted } from 'vue'
-import ModalAddStudioPage from '../ModalAddStudioPage/ModalAddStudioPage.vue'
+import ModalAddStudioPage from '../ModalAddStudioPage/ModalAddStudioPage.vue';
 
 const router = useRouter()
 
