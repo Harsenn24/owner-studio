@@ -33,7 +33,7 @@ import ModalAddStudioPage from '../ModalAddStudioPage/ModalAddStudioPage.vue';
 
 const router = useRouter()
 
-const checkSubmissionStatus = ref('')
+const checkSubmissionStatus = ref('');
 const studioList = ref([])
 
 const showModal = ref(false)
