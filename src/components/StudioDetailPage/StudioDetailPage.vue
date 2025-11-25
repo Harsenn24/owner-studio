@@ -74,26 +74,62 @@
                 <section
                     class="bg-white rounded-2xl shadow-lg border border-slate-200 p-6 max-w-4xl mx-auto backdrop-blur-sm mt-5">
 
-                    <h2 class="text-xl font-semibold text-slate-800 mb-4">
-                        🎧 Daftar Nomor Studio
-                    </h2>
+                    <div class="flex justify-between items-center">
+                        <h2 class="text-xl font-semibold text-slate-800 mb-4">
+                            🎧 Daftar Nomor Studio
+                        </h2>
+
+                        <button
+                            class="mt-4 px-4 py-2 bg-green-600! text-white rounded-xl shadow hover:bg-green-700! transition"
+                            @click="addStudioNumber">
+                            + Tambah Nomor Studio
+                        </button>
+
+                    </div>
 
                     <!-- KALAU ADA DATA -->
                     <div v-if="studioNumbers.length" class="grid md:grid-cols-2 gap-4">
+
                         <div v-for="sn in studioNumbers" :key="sn.id"
-                            class="p-4 rounded-xl border border-slate-200 shadow hover:shadow-md transition bg-white flex justify-between items-center">
-                            <div>
-                                <p class="font-semibold text-slate-800">Studio #{{ sn.number }}</p>
-                                <p class="text-sm text-slate-500">Tipe: {{ sn.type }}</p>
+                            class="p-4 rounded-xl border border-slate-200 shadow hover:shadow-md transition bg-white">
+
+                            <!-- IMAGE -->
+                            <img :src="`${BE_BASE_URL}uploads/${sn.document_file}`"
+                                class="w-full h-40 object-cover rounded-lg mb-3" alt="Studio Image" />
+
+                            <!-- HEADER -->
+                            <div class="flex justify-between items-center mb-3">
+                                <p class="font-semibold text-slate-800 text-lg">Studio #{{ sn.studio_number }}</p>
+
+                                <button
+                                    class="px-3 py-1 text-sm rounded-lg bg-blue-600! text-white hover:bg-blue-700 transition"
+                                    @click="openStudioNumberDetail(sn)">
+                                    Edit
+                                </button>
                             </div>
 
-                            <button
-                                class="px-3 py-1 text-sm rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition"
-                                @click="openStudioNumberDetail(sn)">
-                                Detail
-                            </button>
+                            <!-- EQUIPMENT LIST -->
+                            <div class="mb-3">
+                                <p class="font-semibold text-slate-700 text-sm mb-1">Equipment:</p>
+                                <ul class="text-sm text-slate-600 space-y-1">
+                                    <li v-for="eq in sn.studio_equipment" :key="eq.name">
+                                        • {{ eq.name }} ({{ eq.quantity }})
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <!-- PRICE -->
+                            <div class="flex justify-between text-sm text-slate-700">
+                                <p>Weekday: <span class="font-semibold">{{ sn.price_weekday }}</span></p>
+                                <p>Weekend: <span class="font-semibold">{{ sn.price_weekend }}</span></p>
+                            </div>
+
                         </div>
+
+                        
+
                     </div>
+
 
                     <!-- KALAU BELUM PUNYA -->
                     <div v-else class="text-center py-10">
@@ -127,7 +163,7 @@ import { useRouter } from 'vue-router'
 import { getIpAdresses } from '../../services/axios/ip-adress.services.js'
 import HeadersPage from '../HeadersPage/HeadersPage.vue'
 import ModalAddStudioPage from '../ModalAddStudioPage/ModalAddStudioPage.vue'
-import { listStudio, submission } from '../../api/studio.js'
+import { listStudio, studioNumberOwner, submission } from '../../api/studio.js'
 
 
 
@@ -142,6 +178,13 @@ const isInitialLoading = ref(true)
 const studioList = ref([])
 const checkSubmissionStatus = ref('')
 
+const studio_uuid = router.currentRoute.value.params.studio_uuid
+
+const sn = ref({
+    id: null,
+    number: null,
+    type: null
+})
 
 const studio = ref({
     studio_id: null,
@@ -159,9 +202,27 @@ const studio = ref({
     status: ""
 })
 
+const studioNumbers = ref([
+    // contoh dummy
+    // { id: 1, number: 1, type: 'Vocal Room' },
+    // { id: 2, number: 2, type: 'Band Room' }
+])
+
 function openModal() { showModal.value = true }
 function closeModal() {
     showModal.value = false
+}
+
+async function fetchStudioNumbers() {
+    try {
+        const response = await studioNumberOwner(studio_uuid)
+        studioNumbers.value = response.data.data.data
+
+        console.log(studioNumbers.value)
+    } catch (error) {
+        console.error(error)
+        alert('Gagal memuat data studio number. Silakan coba lagi.')
+    }
 }
 
 async function fetchStudio() {
@@ -204,6 +265,8 @@ async function fetchStudioDetail() {
             }
         })
 
+        console.log(studioData.data.data)
+
         if (studioData.data.status) {
             studio.value = studioData.data.data
         }
@@ -221,12 +284,6 @@ function logout() {
 }
 
 
-const studioNumbers = ref([
-    // contoh dummy
-    // { id: 1, number: 1, type: 'Vocal Room' },
-    // { id: 2, number: 2, type: 'Band Room' }
-])
-
 function openStudioNumberDetail(sn) {
     console.log("Open Studio Number:", sn)
 }
@@ -238,7 +295,7 @@ function addStudioNumber() {
 
 onMounted(async () => {
     try {
-        await Promise.all([fetchStudioDetail(), fetchStudio(), fetchSubmission()])
+        await Promise.all([fetchStudioDetail(), fetchStudio(), fetchSubmission(), fetchStudioNumbers()])
     } finally {
         isInitialLoading.value = false
     }
