@@ -112,17 +112,17 @@
 
 
                 </div>
-                <p class="text-sm font-bold text-white mt-1">
-                    CATATAN : <br></br>
-                    1. pastikan jam buka dan tutup sesuai dengan jam operasional studio. <br>
-                    2. jam buka harus lebih kecil dari jam tutup. <br>
-                    3. setiap tanggal hanya bisa dipilih sekali saja. <br>
-                    4. jika ingin menambah jam operasional, klik tombol "Tambah Jam Operasional". <br>
-                    5. jika ingin menghapus jam operasional, klik tombol "Hapus". <br>
-                    6. jam operasional yang sudah diatur tidak bisa diubah setelah disimpan. <br>
-                    7. Jika jam buka pukul 09:00 dan jam tutup pukul 18:00, maka penyewaan dibagi per 1 Jam.
-                </p>
             </div>
+            <p class="text-sm font-bold text-white mt-1">
+                CATATAN : <br></br>
+                1. pastikan jam buka dan tutup sesuai dengan jam operasional studio. <br>
+                2. jam buka harus lebih kecil dari jam tutup. <br>
+                3. setiap tanggal hanya bisa dipilih sekali saja. <br>
+                4. jika ingin menambah jam operasional, klik tombol "Tambah Jam Operasional". <br>
+                5. jika ingin menghapus jam operasional, klik tombol "Hapus". <br>
+                6. jam operasional yang sudah diatur tidak bisa diubah setelah disimpan. <br>
+                7. Jika jam buka pukul 09:00 dan jam tutup pukul 18:00, maka penyewaan dibagi per 1 Jam.
+            </p>
 
         </section>
 
@@ -134,9 +134,7 @@
                     class="relative rounded-xl overflow-hidden border-2 transition cursor-pointer"
                     :class="doc.id === selectedDocumentId ? 'border-blue-500 shadow-lg' : 'border-gray-300'"
                     @click="selectedDocumentId = doc.id">
-                    <img :src="doc.url" class="w-full h-40 object-cover" />
-                    <div class="absolute bottom-0 bg-black bg-opacity-40 text-white text-sm text-center w-full py-1">{{
-                        doc.name }}</div>
+                    <img :src="`${BE_BASE_URL}uploads/${doc.file_name}`" class="w-full h-40 object-cover" />
                 </div>
             </div>
             <p v-else class="text-gray-500 italic text-sm">Menunggu data gambar...</p>
@@ -274,7 +272,7 @@ async function fetchDocuments() {
         const deviceId = localStorage.getItem('device_id')
         const ip = await getIpAdresses()
 
-        const studio_submission_uuid = router.currentRoute.value.params.studio_submission_id
+        const studio_uuid = router.currentRoute.value.params.studio_uuid
         const res = await axios({
             method: "POST",
             headers: {
@@ -285,11 +283,11 @@ async function fetchDocuments() {
             },
             url: `${BE_BASE_URL}owner/file/images`,
             data: {
-                studio_submission_uuid
+                studio_uuid
             }
         })
-        console.log(res.data?.data)
-        // documents.value = res.data?.data || []
+        // console.log(res.data?.data)
+        documents.value = res.data?.data || []
     } catch (err) {
         console.error(err)
         alert('Gagal memuat dokumen')
@@ -335,8 +333,10 @@ async function submit() {
             ],
             operational_times: operationalTimes,
             document_photo_id: selectedDocumentId.value,
-            // studio_id: use actual id if needed
+            studio_uuid: router.currentRoute.value.params.studio_uuid
         }
+
+        console.log(payload, "isi payload")
 
         // await axios.post(`${BE_BASE_URL}owner/studio/create-detail`, payload)
         // alert('Studio berhasil didaftarkan!')
