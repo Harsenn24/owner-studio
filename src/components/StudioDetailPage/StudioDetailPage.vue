@@ -79,11 +79,13 @@
                             🎧 Daftar Nomor Studio
                         </h2>
 
-                        <button
-                            class="mt-4 px-4 py-2 bg-green-600! text-white rounded-xl shadow hover:bg-green-700! transition"
-                            @click="addStudioNumber">
-                            + Tambah Nomor Studio
-                        </button>
+                        <div v-if="studioNumbers.length > 0">
+                            <button
+                                class="mt-4 px-4 py-2 bg-green-600! text-white rounded-xl shadow hover:bg-green-700! transition"
+                                @click="addStudioNumber">
+                                + Tambah Nomor Studio
+                            </button>
+                        </div>
 
                     </div>
 
@@ -163,7 +165,7 @@ import { useRouter } from 'vue-router'
 import { getIpAdresses } from '../../services/axios/ip-adress.services.js'
 import HeadersPage from '../HeadersPage/HeadersPage.vue'
 import ModalAddStudioPage from '../ModalAddStudioPage/ModalAddStudioPage.vue'
-import { listStudio, studioNumberOwner, submission } from '../../api/studio.js'
+import {  studioNumberOwner, submission } from '../../api/studio.js'
 
 
 
@@ -175,7 +177,6 @@ const showModal = ref(false)
 const isInitialLoading = ref(true)
 
 
-// const studioList = ref([])
 const studioNumbers = ref([])
 const checkSubmissionStatus = ref('')
 
@@ -221,16 +222,6 @@ async function fetchStudioNumbers() {
         alert('Gagal memuat data studio number.');
     }
 }
-
-// async function fetchStudio() {
-//     try {
-//         const response = await listStudio(1, '')
-//         studioList.value = response.data.data.data
-//     } catch (error) {
-//         console.error(error)
-//         alert('Gagal memuat data studio. Silakan coba lagi.')
-//     }
-// }
 
 async function fetchSubmission() {
     try {
