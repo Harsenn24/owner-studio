@@ -68,7 +68,7 @@
                             class="mt-2 w-full rounded-lg border px-3 py-2 text-sm border-gray-400 text-black">
                             <option disabled value="">Pilih tanggal</option>
 
-                            <option v-for="d in filteredDates(index)" :key="d.date_id" :value="d.date">
+                            <option v-for="d in filteredDates(index)" :key="d.id" :value="d.date">
                                 {{ d.date }}
                             </option>
                         </select>
@@ -147,6 +147,8 @@
                 {{ loading ? 'Menyimpan...' : '💾 Simpan Detail Studio' }}
             </button>
         </div>
+
+        <ModalStudioNumberSuccessPage v-if="showModalStudioNumberSuccessPage" :studio_uuid="studio_uuid" />
     </div>
 </template>
 
@@ -157,6 +159,8 @@ import { v4 as uuidv4 } from 'uuid'
 import { useRouter } from 'vue-router'
 import { getIpAdresses } from '../../services/axios/ip-adress.services.js'
 import HeadersPage from '../HeadersPage/HeadersPage.vue'
+import ModalStudioNumberSuccessPage from '../ModalStudioNumberSuccessPage/ModalStudioNumberSuccessPage.vue'
+import { submitStudioNumber } from '../../api/studio.js'
 
 
 
@@ -178,14 +182,16 @@ const selectedDocumentId = ref(null)
 const hours = ref([]) // optional, if you want to predefine hours
 
 const loading = ref(false)
+const showModalStudioNumberSuccessPage = ref(false)
+
+const studio_uuid = ref("");
+
 
 // operational rows
 const operationalList = ref([
     { uid: uuidv4(), date: '', open: '', close: '' } // uid used as key
 ])
 
-// refs registry for time inputs
-const inputRefs = ref({})
 
 // ---------- HELPERS ----------
 
@@ -319,7 +325,7 @@ async function submit() {
         const operationalTimes = operationalList.value.map(op => {
             const found = dates.value.find(d => d.date === op.date)
             return {
-                date_id: found?.date_id || null,
+                date_id: found?.id || null,
                 open_hour: op.open,
                 close_hour: op.close
             }
@@ -336,11 +342,12 @@ async function submit() {
             studio_uuid: router.currentRoute.value.params.studio_uuid
         }
 
-        console.log(payload, "isi payload")
 
-        // await axios.post(`${BE_BASE_URL}owner/studio/create-detail`, payload)
-        // alert('Studio berhasil didaftarkan!')
-        // optionally reset form here
+        const resultSubmit = await submitStudioNumber(payload)
+        if(resultSubmit.data.status) {
+            studio_uuid.value = router.currentRoute.value.params.studio_uuid
+            showModalStudioNumberSuccessPage.value = true
+        }
     } catch (err) {
         console.error(err)
         alert('Gagal menyimpan data studio!')

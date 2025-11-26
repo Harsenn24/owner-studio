@@ -81,7 +81,7 @@
 
                         <div v-if="studioNumbers.length > 0">
                             <button
-                                class="mt-4 px-4 py-2 bg-green-600! text-white rounded-xl shadow hover:bg-green-700! transition"
+                                class="     mb-4 bg-green-600! text-white rounded-xl shadow hover:bg-green-700! transition"
                                 @click="addStudioNumber">
                                 + Tambah Nomor Studio
                             </button>
