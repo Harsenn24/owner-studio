@@ -88,7 +88,7 @@
                     </div>
 
                     <!-- KALAU ADA DATA -->
-                    <div v-if="studioNumbers.length" class="grid md:grid-cols-2 gap-4">
+                    <div v-if="studioNumbers.length > 0" class="grid md:grid-cols-2 gap-4">
 
                         <div v-for="sn in studioNumbers" :key="sn.id"
                             class="p-4 rounded-xl border border-slate-200 shadow hover:shadow-md transition bg-white">
@@ -126,7 +126,7 @@
 
                         </div>
 
-                        
+
 
                     </div>
 
@@ -175,7 +175,8 @@ const showModal = ref(false)
 const isInitialLoading = ref(true)
 
 
-const studioList = ref([])
+// const studioList = ref([])
+const studioNumbers = ref([])
 const checkSubmissionStatus = ref('')
 
 const studio_uuid = router.currentRoute.value.params.studio_uuid
@@ -202,11 +203,6 @@ const studio = ref({
     status: ""
 })
 
-const studioNumbers = ref([
-    // contoh dummy
-    // { id: 1, number: 1, type: 'Vocal Room' },
-    // { id: 2, number: 2, type: 'Band Room' }
-])
 
 function openModal() { showModal.value = true }
 function closeModal() {
@@ -215,25 +211,26 @@ function closeModal() {
 
 async function fetchStudioNumbers() {
     try {
-        const response = await studioNumberOwner(studio_uuid)
-        studioNumbers.value = response.data.data.data
+        const response = await studioNumberOwner(studio_uuid);
 
-        console.log(studioNumbers.value)
+        studioNumbers.value = response?.data?.data?.data ?? [];
+
     } catch (error) {
-        console.error(error)
-        alert('Gagal memuat data studio number. Silakan coba lagi.')
+        console.error(error);
+        studioNumbers.value = [];
+        alert('Gagal memuat data studio number.');
     }
 }
 
-async function fetchStudio() {
-    try {
-        const response = await listStudio(1, '')
-        studioList.value = response.data.data.data
-    } catch (error) {
-        console.error(error)
-        alert('Gagal memuat data studio. Silakan coba lagi.')
-    }
-}
+// async function fetchStudio() {
+//     try {
+//         const response = await listStudio(1, '')
+//         studioList.value = response.data.data.data
+//     } catch (error) {
+//         console.error(error)
+//         alert('Gagal memuat data studio. Silakan coba lagi.')
+//     }
+// }
 
 async function fetchSubmission() {
     try {
@@ -265,8 +262,6 @@ async function fetchStudioDetail() {
             }
         })
 
-        console.log(studioData.data.data)
-
         if (studioData.data.status) {
             studio.value = studioData.data.data
         }
@@ -295,7 +290,7 @@ function addStudioNumber() {
 
 onMounted(async () => {
     try {
-        await Promise.all([fetchStudioDetail(), fetchStudio(), fetchSubmission(), fetchStudioNumbers()])
+        await Promise.all([fetchStudioNumbers(), fetchStudioDetail(), fetchSubmission()])
     } finally {
         isInitialLoading.value = false
     }
