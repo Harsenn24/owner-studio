@@ -79,7 +79,7 @@
                             🎧 Daftar Nomor Studio
                         </h2>
 
-                        <div v-if="studioNumbers.length > 0">
+                        <div v-if="studioNumbers.length > 0 && studioNumbers.length < checkSubmissionStatus.estimated_studio_number">
                             <button
                                 class="     mb-4 bg-green-600! text-white rounded-xl shadow hover:bg-green-700! transition"
                                 @click="addStudioNumber">
