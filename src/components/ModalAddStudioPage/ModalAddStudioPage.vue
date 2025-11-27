@@ -1,7 +1,7 @@
 <template>
-    <div class="fixed inset-0 z-50 flex items-center justify-center p-6">
+    <div class="min-h-screen fixed inset-0 z-50 flex items-center justify-center p-6">
         <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="closeModal"></div>
-        <div class="relative bg-white rounded-2xl w-full max-w-2xl p-6 z-50 drop-shadow-2xl border border-white/30">
+        <div class="max-h-screen overflow-y-auto relative bg-white rounded-2xl w-full max-w-2xl p-6 z-50 drop-shadow-2xl border border-white/30 scrollbar-hide">
             <header class="flex items-start justify-between gap-4 mb-4">
                 <h3 class="text-lg font-semibold text-black">Form Pengajuan Studio</h3>
                 <button @click="closeModal" class="text-slate-400 bg-white! hover:text-slate-600">✖️</button>

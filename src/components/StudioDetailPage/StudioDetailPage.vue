@@ -79,7 +79,7 @@
                             🎧 Daftar Nomor Studio
                         </h2>
 
-                        <div v-if="studioNumbers.length > 0 && studioNumbers.length < checkSubmissionStatus.estimated_studio_number">
+                        <div v-if="studioNumbers.length > 0 && studioNumbers.length < estimatedStudios">
                             <button
                                 class="     mb-4 bg-green-600! text-white rounded-xl shadow hover:bg-green-700! transition"
                                 @click="addStudioNumber">
@@ -165,7 +165,7 @@ import { useRouter } from 'vue-router'
 import { getIpAdresses } from '../../services/axios/ip-adress.services.js'
 import HeadersPage from '../HeadersPage/HeadersPage.vue'
 import ModalAddStudioPage from '../ModalAddStudioPage/ModalAddStudioPage.vue'
-import {  studioNumberOwner, submission } from '../../api/studio.js'
+import { studioNumberOwner, submission } from '../../api/studio.js'
 
 
 
@@ -176,7 +176,7 @@ const router = useRouter()
 const showModal = ref(false)
 const isInitialLoading = ref(true)
 
-
+const estimatedStudios = ref(null)
 const studioNumbers = ref([])
 const checkSubmissionStatus = ref('')
 
@@ -255,6 +255,7 @@ async function fetchStudioDetail() {
 
         if (studioData.data.status) {
             studio.value = studioData.data.data
+            estimatedStudios.value = studioData.data.data.estimated_studio_number
         }
 
     } catch (error) {
