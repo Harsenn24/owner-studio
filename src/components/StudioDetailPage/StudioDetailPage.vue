@@ -272,7 +272,10 @@ function logout() {
 
 
 function openStudioNumberDetail(sn) {
-    console.log("Open Studio Number:", sn)
+    const studio_uuid = router.currentRoute.value.params.studio_uuid
+    const studio_number_uuid = sn.id
+    router.push(`/home/${studio_uuid}/${studio_number_uuid}`)
+    // console.log("Open Studio Number:", sn)
 }
 
 function addStudioNumber() {

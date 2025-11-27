@@ -74,10 +74,29 @@ async function submitStudioNumber(payload) {
             'x-ip-address': ip,
             'x-request-id': uuidv4()
         },
-        data: {...payload }
+        data: { ...payload }
     })
 
     return response
 }
 
-export { listStudio, submission, studioNumberOwner, submitStudioNumber }
+async function studioNumberDetail(studio_number_uuid, studio_uuid) {
+    const response = await axios({
+        method: 'POST',
+        url: `${BE_BASE_URL}owner/studio/studio-number/detail`,
+        headers: {
+            'authorization': `Bearer ${token}`,
+            'x-device-id': deviceId,
+            'x-ip-address': ip,
+            'x-request-id': uuidv4()
+        },
+        data: { 
+            studio_number_uuid,
+            studio_uuid
+        }
+    })
+
+    return response
+}
+
+export { listStudio, submission, studioNumberOwner, submitStudioNumber, studioNumberDetail }

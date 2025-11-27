@@ -160,7 +160,7 @@ import { useRouter } from 'vue-router'
 import { getIpAdresses } from '../../services/axios/ip-adress.services.js'
 import HeadersPage from '../HeadersPage/HeadersPage.vue'
 import ModalStudioNumberSuccessPage from '../ModalStudioNumberSuccessPage/ModalStudioNumberSuccessPage.vue'
-import { submitStudioNumber } from '../../api/studio.js'
+import { studioNumberDetail, submitStudioNumber } from '../../api/studio.js'
 
 
 
@@ -185,6 +185,7 @@ const loading = ref(false)
 const showModalStudioNumberSuccessPage = ref(false)
 
 const studio_uuid = ref("");
+const studio_number_detail = ref(null);
 
 
 // operational rows
@@ -239,9 +240,7 @@ const canAddOperational = computed(() => {
 async function fetchEquipment() {
     try {
         const res = await axios.get(`${BE_BASE_URL}owner/studio/equipment/list`)
-        // adapt to your API shape
         equipments.value = res.data?.data || []
-        // init selectedEquipments keys
         equipments.value.forEach(e => {
             if (!(e.equipment_id in selectedEquipments)) selectedEquipments[e.equipment_id] = 0
         })
@@ -300,10 +299,7 @@ async function fetchDocuments() {
     }
 }
 
-// ---------- LIFECYCLE ----------
-onMounted(async () => {
-    await Promise.all([fetchEquipment(), fetchDate(), fetchDocuments(), fetchHours()])
-})
+
 
 // ---------- SUBMIT ----------
 async function submit() {
@@ -344,7 +340,7 @@ async function submit() {
 
 
         const resultSubmit = await submitStudioNumber(payload)
-        if(resultSubmit.data.status) {
+        if (resultSubmit.data.status) {
             studio_uuid.value = router.currentRoute.value.params.studio_uuid
             showModalStudioNumberSuccessPage.value = true
         }
@@ -355,6 +351,40 @@ async function submit() {
         loading.value = false
     }
 }
+
+async function editOrCreatePage() {
+    const studio_number_uuid = router.currentRoute.value.params.studio_number_uuid
+    const editPage = studio_number_uuid !== undefined
+    return {
+        editPage: editPage,
+        studio_number_uuid: studio_number_uuid
+    }
+}
+
+async function fetchStudioNumberDetail(studio_number_uuid, studio_uuid) {
+    try {
+        const response = await studioNumberDetail(studio_number_uuid, studio_uuid)
+        if (response.data.status) {
+            studio_number_detail.value = response.data.data
+        }
+    } catch (error) {
+        console.error(error)
+        alert('Gagal memuat data studio number. Silakan coba lagi.')
+    }
+}
+
+// ---------- LIFECYCLE ----------
+onMounted(async () => {
+    const isEditPage = await editOrCreatePage()
+    const studio_uuid = router.currentRoute.value.params.studio_uuid
+
+    if (isEditPage.editPage) {
+        await Promise.all([fetchEquipment(), fetchDate(), fetchDocuments(), fetchHours(), fetchStudioNumberDetail(isEditPage.studio_number_uuid, studio_uuid)])
+        console.log(studio_number_detail.value)
+    } else {
+        await Promise.all([fetchEquipment(), fetchDate(), fetchDocuments(), fetchHours()])
+    }
+})
 </script>
 
 <style scoped>
