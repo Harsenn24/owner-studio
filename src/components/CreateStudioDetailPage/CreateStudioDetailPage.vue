@@ -187,6 +187,8 @@ const showModalStudioNumberSuccessPage = ref(false)
 const studio_uuid = ref("");
 const studio_number_detail = ref(null);
 
+const editPageFlag = ref(false);
+
 
 // operational rows
 const operationalList = ref([
@@ -355,6 +357,7 @@ async function submit() {
 async function editOrCreatePage() {
     const studio_number_uuid = router.currentRoute.value.params.studio_number_uuid
     const editPage = studio_number_uuid !== undefined
+    editPageFlag.value = editPage
     return {
         editPage: editPage,
         studio_number_uuid: studio_number_uuid
@@ -365,6 +368,7 @@ async function fetchStudioNumberDetail(studio_number_uuid, studio_uuid) {
     try {
         const response = await studioNumberDetail(studio_number_uuid, studio_uuid)
         if (response.data.status) {
+            console.log(response.data.data)
             studio_number_detail.value = response.data.data
         }
     } catch (error) {
@@ -380,7 +384,6 @@ onMounted(async () => {
 
     if (isEditPage.editPage) {
         await Promise.all([fetchEquipment(), fetchDate(), fetchDocuments(), fetchHours(), fetchStudioNumberDetail(isEditPage.studio_number_uuid, studio_uuid)])
-        console.log(studio_number_detail.value)
     } else {
         await Promise.all([fetchEquipment(), fetchDate(), fetchDocuments(), fetchHours()])
     }
