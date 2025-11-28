@@ -2,39 +2,70 @@
     <div class="min-h-screen bg-gradient-to-b from-white to-gray-50 py-10 px-6 flex flex-col gap-10">
         <HeadersPage />
 
-        <h1 class="text-3xl font-bold text-slate-800 text-center">🎵 Register Studio</h1>
+        <div class="w-full border-b border-slate-300/60 "></div>
+
+
+        <h1 class="text-3xl font-bold text-slate-800 text-center"> {{ editPageFlag ? "Edit Detail Studio" : "Register Detail Studio" }}</h1>
 
         <!-- STEP 1: Pilih Equipment -->
         <section class="bg-gradient-to-r from-green-600 to-blue-500 shadow rounded-2xl p-6">
-            <h2 class="text-xl font-semibold text-white mb-4">1️⃣ Pilih & Atur Jumlah Alat Musik</h2>
-            <div v-if="equipments.length" class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <div v-for="eq in equipments" :key="eq.equipment_id"
-                    class="p-4 border rounded-xl flex justify-between items-center hover:shadow-md transition bg-white">
-                    <div>
-                        <p class="font-medium text-slate-800">{{ eq.equipment_name }}</p>
+
+            <h2 class="text-xl font-semibold text-white mb-4">
+                {{ editPageFlag ? "1️⃣ Edit Jumlah Alat Musik" : "1️⃣ Pilih & Atur Jumlah Alat Musik" }}
+            </h2>
+
+            <div v-if="editPageFlag">
+                <div v-if="studio_number_detail?.studio_equipment?.length"
+                    class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+
+                    <div v-for="eq in studio_number_detail.studio_equipment" :key="eq.equipment_id"
+                        class="p-4 border rounded-xl flex justify-between items-center hover:shadow-md transition bg-white">
+
+                        <p class="font-medium text-slate-800">{{ eq.name }}</p>
+
+                        <input type="number" min="0" v-model.number="selectedEquipments[eq.equipment_id]"
+                            :placeholder="eq.quantity"
+                            class="w-20 rounded-lg border px-2 py-1 text-center text-sm border-gray-400 text-black" />
                     </div>
-                    <input type="number" min="0" v-model.number="selectedEquipments[eq.equipment_id]"
-                        class="w-20 rounded-lg border px-2 py-1 text-center text-sm border-gray-400 text-black" />
                 </div>
+
+                <p v-else class="text-gray-500 italic text-sm">Loading equipment...</p>
             </div>
-            <p v-else class="text-gray-500 italic text-sm">Loading equipment...</p>
+
+            <div v-else>
+                <div v-if="equipments.length" class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+
+                    <div v-for="eq in equipments" :key="eq.equipment_id"
+                        class="p-4 border rounded-xl flex justify-between items-center hover:shadow-md transition bg-white">
+
+                        <p class="font-medium text-slate-800">{{ eq.equipment_name }}</p>
+
+                        <input type="number" min="0" v-model.number="selectedEquipments[eq.equipment_id]"
+                            class="w-20 rounded-lg border px-2 py-1 text-center text-sm border-gray-400 text-black" />
+                    </div>
+                </div>
+
+                <p v-else class="text-gray-500 italic text-sm">Loading equipment...</p>
+            </div>
+
         </section>
+
 
         <!-- STEP 2: Harga Weekend/Weekday -->
         <section class="bg-gradient-to-r from-green-600 to-blue-500 shadow rounded-2xl p-6">
-            <h2 class="text-xl font-semibold mb-4 text-white">2️⃣ Atur Harga Sewa</h2>
+            <h2 class="text-xl font-semibold mb-4 text-white"> {{ editPageFlag ? "2️⃣ Edit Harga Sewa" : " 2️⃣ Atur Harga Sewa" }}</h2>
             <div class="flex flex-col md:flex-row gap-6">
                 <div class="flex-1 bg-white rounded-lg p-4">
                     <label class="block text-sm font-medium text-black">Harga Weekday</label>
                     <input type="number" v-model.number="prices.weekday"
                         class="mt-2 w-full rounded-lg border px-3 py-2 text-sm border-gray-400 text-black"
-                        placeholder="Contoh: 50000" />
+                        :placeholder="editPageFlag ? studio_number_detail.price_weekday : 'Contoh: 50000'" />
                 </div>
                 <div class="flex-1 bg-white rounded-lg p-4">
                     <label class="block text-sm font-medium text-black">Harga Weekend</label>
                     <input type="number" v-model.number="prices.weekend"
                         class="mt-2 w-full rounded-lg border px-3 py-2 text-sm border-gray-400 text-black"
-                        placeholder="Contoh: 50000" />
+                        :placeholder="editPageFlag ? studio_number_detail.price_weekend : 'Contoh: 50000'" />
                 </div>
             </div>
         </section>
@@ -384,6 +415,10 @@ onMounted(async () => {
 
     if (isEditPage.editPage) {
         await Promise.all([fetchEquipment(), fetchDate(), fetchDocuments(), fetchHours(), fetchStudioNumberDetail(isEditPage.studio_number_uuid, studio_uuid)])
+
+        studio_number_detail.value.studio_equipment.forEach(eq => {
+            selectedEquipments[eq.equipment_id] = null // supaya placeholder muncul
+        })
     } else {
         await Promise.all([fetchEquipment(), fetchDate(), fetchDocuments(), fetchHours()])
     }
