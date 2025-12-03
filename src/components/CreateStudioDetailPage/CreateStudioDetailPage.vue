@@ -144,6 +144,33 @@
 
                 </div>
             </div>
+
+            <!-- Tombol Download + Upload -->
+            <div class="flex flex-col md:flex-row items-start md:items-center gap-4 mb-4">
+
+            <!-- Download Template -->
+            <button
+                @click="downloadTemplate"
+                class="bg-white! text-green-700! font-semibold px-4 py-2 rounded-lg shadow hover:bg-gray-100 transition"
+            >
+                📥 Download Template Jam Operasional
+            </button>
+
+            <!-- Upload Template -->
+            <div>
+                <label
+                    class="bg-white text-blue-700 font-semibold px-4 py-2 rounded-lg shadow hover:bg-gray-100 transition cursor-pointer"
+                >
+                    ⬆️ Upload Template Jam Operasional
+                    <input type="file" accept=".xlsx" class="hidden" @change="handleUpload">
+                </label>
+
+                <p v-if="uploadStatus" class="text-xs text-white mt-1">
+                    {{ uploadStatus }}
+                </p>
+            </div>
+            </div>
+
             <p class="text-sm font-bold text-white mt-1">
                 CATATAN : <br></br>
                 1. pastikan jam buka dan tutup sesuai dengan jam operasional studio. <br>
@@ -229,6 +256,10 @@ const operationalList = ref([
 
 // ---------- HELPERS ----------
 
+function downloadTemplate() {
+    console.log(BE_BASE_URL)
+    window.open(`${BE_BASE_URL}owner/file/operation-time/download`, "_blank");
+}
 
 function addOperational() {
     if (!canAddOperational.value) return
