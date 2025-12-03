@@ -5,7 +5,7 @@
         <div class="w-full border-b border-slate-300/60 "></div>
 
 
-        <h1 class="text-3xl font-bold text-slate-800 text-center"> {{ editPageFlag ? "Edit Detail Studio" : "Register Detail Studio" }}</h1>
+        <h1 class="text-3xl font-bold text-slate-800 text-center"> {{ editPageFlag ? 'Edit Detail Studio' : 'Register Detail Studio' }}</h1>
 
         <!-- STEP 1: Pilih Equipment -->
         <section class="bg-gradient-to-r from-green-600 to-blue-500 shadow rounded-2xl p-6">
@@ -53,7 +53,7 @@
 
         <!-- STEP 2: Harga Weekend/Weekday -->
         <section class="bg-gradient-to-r from-green-600 to-blue-500 shadow rounded-2xl p-6">
-            <h2 class="text-xl font-semibold mb-4 text-white"> {{ editPageFlag ? "2️⃣ Edit Harga Sewa" : " 2️⃣ Atur Harga Sewa" }}</h2>
+            <h2 class="text-xl font-semibold mb-4 text-white"> {{ editPageFlag ? `2️⃣ Edit Harga Sewa` : `2️⃣ Atur   Harga Sewa` }}</h2>
             <div class="flex flex-col md:flex-row gap-6">
                 <div class="flex-1 bg-white rounded-lg p-4">
                     <label class="block text-sm font-medium text-black">Harga Weekday</label>
@@ -75,11 +75,7 @@
             <div class="flex justify-between items-center">
                 <h2 class="text-xl font-semibold text-white mb-4">3️⃣ Atur Jam Operasional</h2>
 
-                <button class="text-xl font-semibold text-white mb-4 px-3 py-1 rounded"
-                    :class="{ 'opacity-50 cursor-not-allowed': !canAddOperational }" :disabled="!canAddOperational"
-                    @click="addOperational" aria-disabled="!canAddOperational">
-                    + Tambah Jam Operasional
-                </button>
+
             </div>
 
             <div v-for="(op, index) in operationalList" :key="op.uid" class="space-y-4 mb-6">
@@ -146,29 +142,35 @@
             </div>
 
             <!-- Tombol Download + Upload -->
-            <div class="flex flex-col md:flex-row items-start md:items-center gap-4 mb-4">
-
-            <!-- Download Template -->
-            <button
-                @click="downloadTemplate"
-                class="bg-white! text-green-700! font-semibold px-4 py-2 rounded-lg shadow hover:bg-gray-100 transition"
-            >
-                📥 Download Template Jam Operasional
-            </button>
-
-            <!-- Upload Template -->
-            <div>
-                <label
-                    class="bg-white text-blue-700 font-semibold px-4 py-2 rounded-lg shadow hover:bg-gray-100 transition cursor-pointer"
-                >
-                    ⬆️ Upload Template Jam Operasional
-                    <input type="file" accept=".xlsx" class="hidden" @change="handleUpload">
-                </label>
-
-                <p v-if="uploadStatus" class="text-xs text-white mt-1">
-                    {{ uploadStatus }}
-                </p>
-            </div>
+            <div class="flex justify-between" >
+                <div class="flex flex-col md:flex-row items-start md:items-center gap-4 mb-4">
+    
+                    <!-- Download Template -->
+                    <button @click="downloadTemplate"
+                        class="bg-white! text-green-700! font-semibold px-4 py-2 rounded-lg shadow hover:bg-gray-100 transition">
+                        📥 Download Template Jam Operasional
+                    </button>
+    
+                    <!-- Upload Template -->
+                    <div>
+                        <label
+                            class="bg-white text-blue-700 font-semibold px-4 py-2 rounded-lg shadow hover:bg-gray-100 transition cursor-pointer">
+                            ⬆️ Upload Template Jam Operasional
+                            <input type="file" accept=".xlsx" class="hidden" @change="handleUpload">
+                        </label>
+    
+                    </div>
+                    <p v-if="uploadStatus" class="text-xs text-white mt-1">
+                        {{ uploadStatus }}
+                    </p>
+                    
+                </div>
+                <button class="text-xl font-semibold text-white mb-4 px-3 py-1 rounded"
+                    :class="{ 'opacity-50 cursor-not-allowed': !canAddOperational }" :disabled="!canAddOperational"
+                    @click="addOperational" aria-disabled="!canAddOperational">
+                    + Tambah Jam Operasional
+                </button>
+            
             </div>
 
             <p class="text-sm font-bold text-white mt-1">
@@ -249,9 +251,12 @@ const editPageFlag = ref(false);
 
 
 // operational rows
-const operationalList = ref([
-    { uid: uuidv4(), date: '', open: '', close: '' } // uid used as key
-])
+const operationalList = ref([]);
+
+const isManualDisabled = ref(false);
+const uploadStatus = ref("");
+
+
 
 
 // ---------- HELPERS ----------
@@ -259,6 +264,44 @@ const operationalList = ref([
 function downloadTemplate() {
     console.log(BE_BASE_URL)
     window.open(`${BE_BASE_URL}owner/file/operation-time/download`, "_blank");
+}
+
+async function handleUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("excel_file", file);
+    formData.append("module", "upload.excel");
+
+    uploadStatus.value = "Uploading...";
+
+    try {
+        const res = await axios.post(`${BE_BASE_URL}owner/file/upload/excel`, formData);
+
+        uploadStatus.value = "Upload berhasil!";
+
+        let data = res.data.data.data;
+
+
+        operationalList.value = [];
+
+        operationalList.value = data.map(item => ({
+            uid: uuidv4(),
+            date: item.date,
+            open: item.open,
+            close: item.close
+        }));
+
+        console.log(operationalList.value);
+
+
+    } catch (error) {
+        console.log(error);
+        uploadStatus.value = "Upload gagal!";
+    }
+
+    event.target.value = "";
 }
 
 function addOperational() {
@@ -402,12 +445,14 @@ async function submit() {
             studio_uuid: router.currentRoute.value.params.studio_uuid
         }
 
+        console.log(payload)
 
-        const resultSubmit = await submitStudioNumber(payload)
-        if (resultSubmit.data.status) {
-            studio_uuid.value = router.currentRoute.value.params.studio_uuid
-            showModalStudioNumberSuccessPage.value = true
-        }
+
+        // const resultSubmit = await submitStudioNumber(payload)
+        // if (resultSubmit.data.status) {
+        //     studio_uuid.value = router.currentRoute.value.params.studio_uuid
+        //     showModalStudioNumberSuccessPage.value = true
+        // }
     } catch (err) {
         console.error(err)
         alert('Gagal menyimpan data studio!')
@@ -443,6 +488,13 @@ async function fetchStudioNumberDetail(studio_number_uuid, studio_uuid) {
 onMounted(async () => {
     const isEditPage = await editOrCreatePage()
     const studio_uuid = router.currentRoute.value.params.studio_uuid
+
+    operationalList.value.push({
+        uid: uuidv4(),
+        date: '',
+        open: '',
+        close: ''
+    });
 
     if (isEditPage.editPage) {
         await Promise.all([fetchEquipment(), fetchDate(), fetchDocuments(), fetchHours(), fetchStudioNumberDetail(isEditPage.studio_number_uuid, studio_uuid)])
