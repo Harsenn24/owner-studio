@@ -11,7 +11,7 @@
 
             <HeadersPage @open-modal="openModal" @logout="logout" />
 
-            <!-- STUDIO INFO CARD -->
+            <!-- STUDIO INFO CARD -->`
             <div class="bg-gradient-to-r from-blue-600 to-green-500 py-5">
 
                 <section

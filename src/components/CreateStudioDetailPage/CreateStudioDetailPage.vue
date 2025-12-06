@@ -5,7 +5,8 @@
         <div class="w-full border-b border-slate-300/60 "></div>
 
 
-        <h1 class="text-3xl font-bold text-slate-800 text-center"> {{ editPageFlag ? 'Edit Detail Studio' : 'Register Detail Studio' }}</h1>
+        <h1 class="text-3xl font-bold text-slate-800 text-center">
+            {{ editPageFlag ? 'Edit Detail Studio' : 'Register Detail Studio' }}</h1>
 
         <!-- STEP 1: Pilih Equipment -->
         <section class="bg-gradient-to-r from-green-600 to-blue-500 shadow rounded-2xl p-6">
@@ -24,7 +25,6 @@
                         <p class="font-medium text-slate-800">{{ eq.name }}</p>
 
                         <input type="number" min="0" v-model.number="selectedEquipments[eq.equipment_id]"
-                            :placeholder="eq.quantity"
                             class="w-20 rounded-lg border px-2 py-1 text-center text-sm border-gray-400 text-black" />
                     </div>
                 </div>
@@ -53,19 +53,20 @@
 
         <!-- STEP 2: Harga Weekend/Weekday -->
         <section class="bg-gradient-to-r from-green-600 to-blue-500 shadow rounded-2xl p-6">
-            <h2 class="text-xl font-semibold mb-4 text-white"> {{ editPageFlag ? `2️⃣ Edit Harga Sewa` : `2️⃣ Atur   Harga Sewa` }}</h2>
+            <h2 class="text-xl font-semibold mb-4 text-white"> {{ editPageFlag ? `2️⃣ Edit Harga Sewa` : `2️⃣ Atur Harga
+                Sewa` }}</h2>
             <div class="flex flex-col md:flex-row gap-6">
                 <div class="flex-1 bg-white rounded-lg p-4">
                     <label class="block text-sm font-medium text-black">Harga Weekday</label>
                     <input type="number" v-model.number="prices.weekday"
                         class="mt-2 w-full rounded-lg border px-3 py-2 text-sm border-gray-400 text-black"
-                        :placeholder="editPageFlag ? studio_number_detail.price_weekday : 'Contoh: 50000'" />
+                        :placeholder="editPageFlag ? studio_number_detail?.price_weekday : 'Contoh: 50000'" />
                 </div>
                 <div class="flex-1 bg-white rounded-lg p-4">
                     <label class="block text-sm font-medium text-black">Harga Weekend</label>
                     <input type="number" v-model.number="prices.weekend"
                         class="mt-2 w-full rounded-lg border px-3 py-2 text-sm border-gray-400 text-black"
-                        :placeholder="editPageFlag ? studio_number_detail.price_weekend : 'Contoh: 50000'" />
+                        :placeholder="editPageFlag ? studio_number_detail?.price_weekend : 'Contoh: 50000'" />
                 </div>
             </div>
         </section>
@@ -142,15 +143,15 @@
             </div>
 
             <!-- Tombol Download + Upload -->
-            <div class="flex justify-between" >
+            <div class="flex justify-between">
                 <div class="flex flex-col md:flex-row items-start md:items-center gap-4 mb-4">
-    
+
                     <!-- Download Template -->
                     <button @click="downloadTemplate"
                         class="bg-white! text-green-700! font-semibold px-4 py-2 rounded-lg shadow hover:bg-gray-100 transition">
                         📥 Download Template Jam Operasional
                     </button>
-    
+
                     <!-- Upload Template -->
                     <div>
                         <label
@@ -158,19 +159,17 @@
                             ⬆️ Upload Template Jam Operasional
                             <input type="file" accept=".xlsx" class="hidden" @change="handleUpload">
                         </label>
-    
+
                     </div>
                     <p v-if="uploadStatus" class="text-xs text-white mt-1">
                         {{ uploadStatus }}
                     </p>
-                    
                 </div>
                 <button class="text-xl font-semibold text-white mb-4 px-3 py-1 rounded"
                     :class="{ 'opacity-50 cursor-not-allowed': !canAddOperational }" :disabled="!canAddOperational"
                     @click="addOperational" aria-disabled="!canAddOperational">
                     + Tambah Jam Operasional
                 </button>
-            
             </div>
 
             <p class="text-sm font-bold text-white mt-1">
@@ -187,22 +186,52 @@
         </section>
 
         <!-- STEP 4: Pilih Gambar Studio -->
-        <section class="bg-white shadow rounded-2xl p-6">
-            <h2 class="text-xl font-semibold text-slate-700 mb-4">4️⃣ Pilih Foto Studio</h2>
-            <div v-if="documents.length" class="grid md:grid-cols-3 gap-4">
-                <div v-for="doc in documents" :key="doc.id"
-                    class="relative rounded-xl overflow-hidden border-2 transition cursor-pointer"
-                    :class="doc.id === selectedDocumentId ? 'border-blue-500 shadow-lg' : 'border-gray-300'"
-                    @click="selectedDocumentId = doc.id">
-                    <img :src="`${BE_BASE_URL}uploads/${doc.file_name}`" class="w-full h-40 object-cover" />
+        <section class="bg-white shadow rounded-2xl p-6 items-center">
+            <div v-if="editPageFlag">
+                <h2 class="text-xl font-semibold text-slate-700 mb-4">4️⃣ Review & Ganti Foto Studio</h2>
+
+                <div class="flex justify-center bg-gradient-to-r from-green-600 to-blue-500 p-5">
+                    <!-- Wrapper untuk clickable image -->
+                    <div class="relative w-96 h-60 group cursor-pointer">
+                        <!-- Hidden input file -->
+                        <input type="file" accept="image/*" ref="imageInput" class="hidden"
+                            @change="handleImageUpload" />
+
+                        <!-- Gambar -->
+                        <img :src="previewImage || `${BE_BASE_URL}uploads/${studio_number_detail?.file_name}`"
+                            class="w-full h-full object-cover rounded-xl border" @click="triggerFilePicker" />
+
+                        <!-- Overlay “Change Photo” -->
+                        <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 
+                   flex items-center justify-center text-white font-semibold 
+                   text-xl rounded-xl transition" @click="triggerFilePicker">
+                            Change Photo
+                        </div>
+                    </div>
                 </div>
+
+                <div class="my-4 h-px bg-gray-300"></div>
+
             </div>
-            <p v-else class="text-gray-500 italic text-sm">Menunggu data gambar...</p>
+
+            <div v-else>
+                <h2 class="text-xl font-semibold text-slate-700 mb-4">4️⃣ Pilih Foto Studio</h2>
+                <div v-if="documents.length" class="grid md:grid-cols-3 gap-4">
+                    <div v-for="doc in documents" :key="doc.id"
+                        class="relative rounded-xl overflow-hidden border-2 transition cursor-pointer"
+                        :class="doc.id === selectedDocumentId ? 'border-blue-500 shadow-lg' : 'border-gray-300'"
+                        @click="selectedDocumentId = doc.id">
+                        <img :src="`${BE_BASE_URL}uploads/${doc.file_name}`" class="w-full h-40 object-cover" />
+                    </div>
+                </div>
+                <p v-else class="text-gray-500 italic text-sm">Menunggu data gambar...</p>
+            </div>
+
         </section>
 
         <!-- Submit -->
         <div class="text-center">
-            <button @click="submit" :disabled="loading"
+            <button @click="submit(editPageFlag)" :disabled="loading"
                 class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl shadow">
                 {{ loading ? 'Menyimpan...' : '💾 Simpan Detail Studio' }}
             </button>
@@ -220,7 +249,7 @@ import { useRouter } from 'vue-router'
 import { getIpAdresses } from '../../services/axios/ip-adress.services.js'
 import HeadersPage from '../HeadersPage/HeadersPage.vue'
 import ModalStudioNumberSuccessPage from '../ModalStudioNumberSuccessPage/ModalStudioNumberSuccessPage.vue'
-import { studioNumberDetail, submitStudioNumber } from '../../api/studio.js'
+import { editStudioNumber, studioNumberDetail, submitStudioNumber } from '../../api/studio.js'
 
 
 
@@ -256,14 +285,37 @@ const operationalList = ref([]);
 const isManualDisabled = ref(false);
 const uploadStatus = ref("");
 
+const imageInput = ref(null);
+const previewImage = ref(null);
 
-
+const formUploadImageEdit = ref(null);
 
 // ---------- HELPERS ----------
+
+function triggerFilePicker() {
+    imageInput.value?.click();
+}
 
 function downloadTemplate() {
     console.log(BE_BASE_URL)
     window.open(`${BE_BASE_URL}owner/file/operation-time/download`, "_blank");
+}
+
+async function handleImageUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("image", file);
+    formData.append("module", "studio.photo");
+
+    previewImage.value = URL.createObjectURL(file);
+
+    formUploadImageEdit.value = formData;
+
+
+    event.target.value = "";
+
 }
 
 async function handleUpload(event) {
@@ -292,8 +344,6 @@ async function handleUpload(event) {
             open: item.open,
             close: item.close
         }));
-
-        console.log(operationalList.value);
 
 
     } catch (error) {
@@ -409,7 +459,7 @@ async function fetchDocuments() {
 
 
 // ---------- SUBMIT ----------
-async function submit() {
+async function submit(editPageFlag) {
     // basic client-side checks
     for (const r of operationalList.value) {
         if (!r.date) return alert('Semua baris operasional harus memiliki tanggal.')
@@ -420,6 +470,7 @@ async function submit() {
     loading.value = true
     try {
         // Map equipments
+
         const equipmentList = Object.entries(selectedEquipments)
             .filter(([_, qty]) => qty > 0)
             .map(([id, qty]) => ({ equipment_id: Number(id), quantity: qty }))
@@ -445,7 +496,27 @@ async function submit() {
             studio_uuid: router.currentRoute.value.params.studio_uuid
         }
 
-        console.log(payload)
+        if (editPageFlag) {
+            payload['studio_uuid'] = router.currentRoute.value.params.studio_uuid
+            payload['studio_number_uuid'] = router.currentRoute.value.params.studio_number_uuid
+            payload['weekday_price'] = prices.weekday
+            payload['weekend_price'] = prices.weekend
+
+            if (formUploadImageEdit) {
+                const res = await axios.post(`${BE_BASE_URL}owner/file/upload`, formUploadImageEdit.value);
+                payload['document_id'] = res.data.data.file_id
+            } 
+
+
+            const resultEdit = await editStudioNumber(payload)
+
+            if (resultEdit.data.status) {
+                router.push(`/home/${router.currentRoute.value.params.studio_uuid}`)
+            }
+
+            return
+        }
+
 
 
         // const resultSubmit = await submitStudioNumber(payload)
@@ -475,8 +546,23 @@ async function fetchStudioNumberDetail(studio_number_uuid, studio_uuid) {
     try {
         const response = await studioNumberDetail(studio_number_uuid, studio_uuid)
         if (response.data.status) {
-            console.log(response.data.data)
             studio_number_detail.value = response.data.data
+            if (studio_number_detail.value?.studio_equipment?.length) {
+
+                studio_number_detail.value.studio_equipment.forEach(eq => {
+                    selectedEquipments[eq.equipment_id] = eq.quantity
+                });
+            }
+            const studioOperationalData = response.data.data.operational_data
+            operationalList.value = studioOperationalData.map(item => ({
+                uid: uuidv4(),
+                date: item.date,
+                open: item.open,
+                close: item.close
+            }));
+
+            prices.weekday = response.data.data.price_weekday
+            prices.weekend = response.data.data.price_weekend
         }
     } catch (error) {
         console.error(error)
@@ -489,19 +575,19 @@ onMounted(async () => {
     const isEditPage = await editOrCreatePage()
     const studio_uuid = router.currentRoute.value.params.studio_uuid
 
-    operationalList.value.push({
-        uid: uuidv4(),
-        date: '',
-        open: '',
-        close: ''
-    });
+    // operationalList.value.push({
+    //     uid: uuidv4(),
+    //     date: '',
+    //     open: '',
+    //     close: ''
+    // });
 
     if (isEditPage.editPage) {
         await Promise.all([fetchEquipment(), fetchDate(), fetchDocuments(), fetchHours(), fetchStudioNumberDetail(isEditPage.studio_number_uuid, studio_uuid)])
 
-        studio_number_detail.value.studio_equipment.forEach(eq => {
-            selectedEquipments[eq.equipment_id] = null // supaya placeholder muncul
-        })
+        // studio_number_detail.value.studio_equipment.forEach(eq => {
+        //     selectedEquipments[eq.equipment_id] = null // supaya placeholder muncul
+        // })
     } else {
         await Promise.all([fetchEquipment(), fetchDate(), fetchDocuments(), fetchHours()])
     }

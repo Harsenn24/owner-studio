@@ -99,4 +99,20 @@ async function studioNumberDetail(studio_number_uuid, studio_uuid) {
     return response
 }
 
-export { listStudio, submission, studioNumberOwner, submitStudioNumber, studioNumberDetail }
+async function editStudioNumber(payload) {
+    const response = await axios({
+        method: 'POST',
+        url: `${BE_BASE_URL}owner/studio/studio-number/edit`,
+        headers: {
+            'authorization': `Bearer ${token}`,
+            'x-device-id': deviceId,
+            'x-ip-address': ip,
+            'x-request-id': uuidv4()
+        },
+        data: { ...payload }
+    })
+
+    return response
+}
+
+export { listStudio, submission, studioNumberOwner, submitStudioNumber, studioNumberDetail, editStudioNumber }
