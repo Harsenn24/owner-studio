@@ -75,16 +75,49 @@
         <section class="bg-gradient-to-r from-green-600 to-blue-500 shadow rounded-2xl p-6">
             <div class="flex justify-between items-center">
                 <h2 class="text-xl font-semibold text-white mb-4">3️⃣ Atur Jam Operasional</h2>
-
-
             </div>
 
             <div v-for="(op, index) in operationalList" :key="op.uid" class="space-y-4 mb-6">
 
-                <button v-if="operationalList.length > 1" @click="removeOperational(index)"
-                    class="text-xs bg-red-500! text-white ml-2">
-                    Hapus
-                </button>
+                <div class="flex items-center gap-4">
+
+                    <button v-if="(!editPageFlag && operationalList.length > 1) || (editPageFlag && !op.date)"
+                        @click="removeOperational(index)" class="text-xs bg-red-500! text-white ml-2">
+                        Hapus
+                    </button>
+
+                    <div v-if="editPageFlag" class="rounded-lg p-4">
+                        <label class="block text-sm font-medium text-white">Operasional ?</label>
+
+                        <label class="mt-3 inline-flex items-center cursor-pointer">
+                            <input type="checkbox" v-model="op.is_operational" class="sr-only peer"
+                                :checked="op.is_operational" />
+
+                            <!-- Track -->
+                            <div class="relative w-12 h-7 
+                    bg-gray-400 rounded-full 
+                    peer-checked:bg-blue-500
+                    transition-colors duration-300">
+
+                                <!-- Knob -->
+                                <div class="absolute top-0.5 left-0.5 
+                       w-6 h-6 rounded-full
+                       !bg-white
+                       shadow-md
+                       transition-all duration-300
+                       peer-checked:translate-x-5">
+                                </div>
+                            </div>
+
+                            <span class="ml-3 text-sm text-white">
+                                {{ op.is_operational ? 'Beroperasi' : 'Tidak Beroperasi' }}
+                            </span>
+                        </label>
+                    </div>
+
+                </div>
+
+
 
                 <div class="flex flex-col md:flex-row gap-4 items-start">
 
@@ -93,9 +126,10 @@
                         <label class="block text-sm font-medium text-slate-600">Tanggal</label>
 
                         <select v-model="op.date"
+                            :disabled="editPageFlag && op.date !== '' && op.open !== '' && op.close !== ''"
+                            :class="(editPageFlag && op.date && op.open && op.close) ? 'opacity-50 pointer-events-none' : ''"
                             class="mt-2 w-full rounded-lg border px-3 py-2 text-sm border-gray-400 text-black">
                             <option disabled value="">Pilih tanggal</option>
-
                             <option v-for="d in filteredDates(index)" :key="d.id" :value="d.date">
                                 {{ d.date }}
                             </option>
@@ -111,13 +145,15 @@
                         <label class="block text-sm font-medium text-slate-600">Jam Buka</label>
 
                         <select v-model="op.open"
+                            :disabled="editPageFlag && op.date !== '' && op.open !== '' && op.close !== ''"
+                            :class="(editPageFlag && op.date && op.open && op.close) ? 'opacity-50 pointer-events-none' : ''"
                             class="mt-2 w-full rounded-lg border px-3 py-2 text-sm border-gray-400 text-black">
                             <option disabled value="">Pilih Jam Buka</option>
-
                             <option v-for="h in hours" :key="h.id" :value="h.hour_time">
                                 {{ h.hour_time }}
                             </option>
                         </select>
+
                     </div>
 
                     <!-- Jam Tutup -->
@@ -125,13 +161,15 @@
                         <label class="block text-sm font-medium text-slate-600">Jam Tutup</label>
 
                         <select v-model="op.close"
+                            :disabled="editPageFlag && op.date !== '' && op.open !== '' && op.close !== ''"
+                            :class="(editPageFlag && op.date && op.open && op.close) ? 'opacity-50 pointer-events-none' : ''"
                             class="mt-2 w-full rounded-lg border px-3 py-2 text-sm border-gray-400 text-black">
                             <option disabled value="">Pilih Jam Tutup</option>
-
                             <option v-for="h in hours" :key="h.id" :value="h.hour_time">
                                 {{ h.hour_time }}
                             </option>
                         </select>
+
 
                         <p v-if="op.open && op.close && !validTime(op)" class="text-xs text-red-600 mt-1">
                             Jam buka harus lebih kecil dari jam tutup.
@@ -481,7 +519,8 @@ async function submit(editPageFlag) {
             return {
                 date_id: found?.id || null,
                 open_hour: op.open,
-                close_hour: op.close
+                close_hour: op.close,
+                is_operational: op.is_operational
             }
         })
 
@@ -505,8 +544,7 @@ async function submit(editPageFlag) {
             if (formUploadImageEdit) {
                 const res = await axios.post(`${BE_BASE_URL}owner/file/upload`, formUploadImageEdit.value);
                 payload['document_id'] = res.data.data.file_id
-            } 
-
+            }
 
             const resultEdit = await editStudioNumber(payload)
 
@@ -558,8 +596,11 @@ async function fetchStudioNumberDetail(studio_number_uuid, studio_uuid) {
                 uid: uuidv4(),
                 date: item.date,
                 open: item.open,
-                close: item.close
+                close: item.close,
+                is_operational: item.is_operational === 1 ? true : false
             }));
+
+            console.log(operationalList.value);
 
             prices.weekday = response.data.data.price_weekday
             prices.weekend = response.data.data.price_weekend
@@ -584,10 +625,6 @@ onMounted(async () => {
 
     if (isEditPage.editPage) {
         await Promise.all([fetchEquipment(), fetchDate(), fetchDocuments(), fetchHours(), fetchStudioNumberDetail(isEditPage.studio_number_uuid, studio_uuid)])
-
-        // studio_number_detail.value.studio_equipment.forEach(eq => {
-        //     selectedEquipments[eq.equipment_id] = null // supaya placeholder muncul
-        // })
     } else {
         await Promise.all([fetchEquipment(), fetchDate(), fetchDocuments(), fetchHours()])
     }
