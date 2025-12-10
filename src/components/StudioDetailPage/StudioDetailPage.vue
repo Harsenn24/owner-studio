@@ -57,15 +57,35 @@
                         <!-- STATUS -->
                         <div>
                             <h3 class="text-sm font-semibold text-blue-600 mb-2">Status Studio</h3>
-                            <span :class="[
-                                'px-3 py-1 text-xs font-semibold rounded-full shadow-md',
-                                studio.status === 'active'
-                                    ? 'bg-green-100 text-green-700 shadow-green-300'
-                                    : 'bg-red-100 text-red-700 shadow-red-300'
-                            ]">
-                                {{ studio.status === 'active' ? 'ACTIVE' : 'INACTIVE' }}
-                            </span>
+
+                            <!-- ACTIVE -->
+                            <template v-if="studio.status === 'active'">
+                                <span
+                                    class="px-3 py-1 text-xs font-semibold rounded-full shadow-md bg-green-100 text-green-700 shadow-green-300">
+                                    ACTIVE
+                                </span>
+
+                                <p class="text-[11px] text-gray-500 mt-1">
+                                    Aktif sampai: {{ studio.active_until }}
+                                </p>
+                            </template>
+
+                            <!-- INACTIVE + BUTTON -->
+                            <template v-else>
+                                <div class="flex items-center gap-3">
+                                    <span
+                                        class="px-3 py-1 text-xs font-semibold rounded-full shadow-md bg-red-100 text-red-700 shadow-red-300">
+                                        INACTIVE
+                                    </span>
+
+                                    <button @click="showModalPaymentSubscribe = true"
+                                        class="px-3 py-1 text-xs bg-blue-500! hover:bg-blue-600 text-white rounded shadow">
+                                        Aktifkan Studio
+                                    </button>
+                                </div>
+                            </template>
                         </div>
+
 
                     </div>
                 </section>
@@ -152,6 +172,10 @@
                 <ModalAddStudioPage v-if="showModal" @close-modal="closeModal" />
             </transition>
 
+            <transition name="modal-fade">
+                <PaymentSubscribeModalPage v-if="showModalPaymentSubscribe" @close-modal="showModalPaymentSubscribe = false" />
+            </transition>
+
 
         </template>
     </div>
@@ -166,6 +190,8 @@ import { getIpAdresses } from '../../services/axios/ip-adress.services.js'
 import HeadersPage from '../HeadersPage/HeadersPage.vue'
 import ModalAddStudioPage from '../ModalAddStudioPage/ModalAddStudioPage.vue'
 import { studioNumberOwner, submission } from '../../api/studio.js'
+import PaymentSubscribeModalPage from '../PaymentSubscribeModal/PaymentSubscribeModalPage.vue'
+
 
 
 
@@ -179,6 +205,8 @@ const isInitialLoading = ref(true)
 const estimatedStudios = ref(null)
 const studioNumbers = ref([])
 const checkSubmissionStatus = ref('')
+
+const showModalPaymentSubscribe = ref(false)
 
 const studio_uuid = router.currentRoute.value.params.studio_uuid
 

@@ -2,7 +2,7 @@
     <div class="min-h-screen bg-gradient-to-b from-white to-gray-50 py-10 px-6 flex flex-col gap-10">
         <HeadersPage />
 
-        <div class="w-full border-b border-slate-300/60 "></div>
+        <div class="w-full border-b border-4 border-black "></div>
 
 
         <h1 class="text-3xl font-bold text-slate-800 text-center">

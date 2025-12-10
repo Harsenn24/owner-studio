@@ -90,7 +90,7 @@ async function studioNumberDetail(studio_number_uuid, studio_uuid) {
             'x-ip-address': ip,
             'x-request-id': uuidv4()
         },
-        data: { 
+        data: {
             studio_number_uuid,
             studio_uuid
         }
@@ -115,4 +115,56 @@ async function editStudioNumber(payload) {
     return response
 }
 
-export { listStudio, submission, studioNumberOwner, submitStudioNumber, studioNumberDetail, editStudioNumber }
+async function subscriptionPrice() {
+    const response = await axios({
+        method: 'POST',
+        url: `${BE_BASE_URL}owner/studio/subscription/price`,
+        headers: {
+            'authorization': `Bearer ${token}`,
+            'x-device-id': deviceId,
+            'x-ip-address': ip,
+            'x-request-id': uuidv4()
+        },
+        data: {}
+    })
+
+    return response
+}
+
+async function checkQrSubscription(studio_uuid) {
+    const response = await axios({
+        method: 'POST',
+        url: `${BE_BASE_URL}owner/studio/subscription/qr/check`,
+        headers: {
+            'authorization': `Bearer ${token}`,
+            'x-device-id': deviceId,
+            'x-ip-address': ip,
+            'x-request-id': uuidv4()
+        },
+        data: {
+            studio_id : studio_uuid
+        }
+    })
+
+    return response
+}
+
+async function subscribeStudio(studio_uuid) {
+    const response = await axios({
+        method: 'POST',
+        url: `${BE_BASE_URL}owner/studio/subscription`,
+        headers: {
+            'authorization': `Bearer ${token}`,
+            'x-device-id': deviceId,
+            'x-ip-address': ip,
+            'x-request-id': uuidv4()
+        },
+        data: {
+            studio_id : studio_uuid
+        }
+    })
+
+    return response
+}
+
+export { listStudio, submission, studioNumberOwner, submitStudioNumber, studioNumberDetail, editStudioNumber, subscriptionPrice, checkQrSubscription, subscribeStudio }
