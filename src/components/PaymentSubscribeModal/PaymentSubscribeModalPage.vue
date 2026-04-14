@@ -104,7 +104,7 @@
 
 <script setup>
 import { ref, onUnmounted, onMounted, computed } from 'vue'
-import { checkQrSubscription, subscribeStudio, subscriptionPrice } from '../../api/studio';
+import { checkQrSubscription, checkSubscriptionPayment, subscribeStudio, subscriptionPrice } from '../../api/studio';
 import { useRouter } from 'vue-router'
 import QrcodeVue from 'qrcode.vue'
 
@@ -112,8 +112,12 @@ import QrcodeVue from 'qrcode.vue'
 const router = useRouter()
 
 const emit = defineEmits(['close-modal'])
-const close = () => emit("close-modal");
+const close = () => {
+    if (interval) clearInterval(interval)
+    if (timer) clearInterval(timer)
 
+    emit("close-modal")
+}
 const price = ref(null);
 const loading = ref(false)
 const qrData = ref(null)
@@ -121,7 +125,6 @@ const status = ref('MENUNGGU')
 let interval = null
 const activationDate = ref('')
 const expireDate = ref('')
-const checkQrData = ref(false)
 const isExpired = ref(false)
 const loadingQr = ref(false)
 
@@ -149,14 +152,30 @@ const generate = async () => {
     }
 }
 
-const checkStatus = () => {
-    interval = setInterval(() => {
-        status.value = 'PAID'
-        if (status.value === 'PAID') {
-            clearInterval(interval)
-            setTimeout(() => emit('close'), 800)
+const checkStatus = async (transaction_uuid) => {
+    try {
+        const studio_uuid = router.currentRoute.value.params.studio_uuid
+        const res = await checkSubscriptionPayment(studio_uuid, transaction_uuid)
+
+        const paymentStatus = res.data.data?.payment_status // sesuaikan field API
+
+        if (paymentStatus) {
+            status.value = paymentStatus
         }
-    }, 3000)
+
+        // STOP kalau sudah selesai
+        if (paymentStatus === true) {
+            clearInterval(interval)
+            interval = null
+
+            setTimeout(() => {
+                window.location.reload() // 🔥 refresh full page
+            }, 800)
+        }
+
+    } catch (err) {
+        console.error('Check status error:', err)
+    }
 }
 
 const countdownDisplay = computed(() => {
@@ -218,6 +237,13 @@ async function checkQrSubscriptionData() {
                 expired: expiredQris,
                 amount: totalPayment
             }
+
+            // START polling
+            if (interval) clearInterval(interval)
+
+            interval = setInterval(() => {
+                checkStatus(transaction_uuid)
+            }, 3000)
         } else {
 
             const response = await subscribeStudio(studio_uuid)
@@ -231,6 +257,13 @@ async function checkQrSubscriptionData() {
                     expired: expiredQris,
                     amount: totalPayment
                 }
+
+                // START polling
+                if (interval) clearInterval(interval)
+
+                interval = setInterval(() => {
+                    checkStatus(transaction_uuid)
+                }, 3000)
             }
         }
 
@@ -245,6 +278,11 @@ async function checkQrSubscriptionData() {
                 clearInterval(timer)
                 timer = null
                 isExpired.value = true
+
+                if (interval) {
+                    clearInterval(interval)
+                    interval = null
+                }
             }
         }, 1000)
 
@@ -256,8 +294,10 @@ async function checkQrSubscriptionData() {
 }
 
 
-onUnmounted(() => clearInterval(interval))
-
+onUnmounted(() => {
+    if (interval) clearInterval(interval)
+    if (timer) clearInterval(timer)
+})
 onMounted(async () => {
     await Promise.all([expiredData()])
 })
