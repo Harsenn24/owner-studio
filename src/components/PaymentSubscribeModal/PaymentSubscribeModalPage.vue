@@ -35,10 +35,22 @@
                 <!-- RIGHT ACTION -->
                 <div class="border rounded-lg p-4 bg-white flex items-center justify-center hover:bg-blue-300 ">
                     <!-- BUTTON GENERATE -->
-                    <div v-if="!qrData && !loading" class="w-full flex justify-center">
-                        <button @click="generate"
-                            class="w-64 py-3 bg-gradient-to-r from-blue-600 to-green-500 hover:bg-green-600 text-black rounded-lg font-semibold text-sm shadow text-center">
-                            Generate Pembayaran
+                    <div v-if="!qrData" class="w-full flex justify-center">
+                        <button @click="generate" :disabled="loadingQr"
+                            class="w-64 py-3 rounded-lg font-semibold text-sm shadow text-center transition-all duration-300"
+                            :class="loadingQr
+                                ? 'bg-gray-400! cursor-not-allowed'
+                                : 'bg-gradient-to-r from-blue-600 to-green-500 hover:scale-105 active:scale-95 text-black'">
+                            <span v-if="!loadingQr">Generate Pembayaran</span>
+
+                            <span v-else class="flex items-center justify-center gap-2">
+                                <svg class="animate-spin h-5 w-5 text-black" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                        stroke-width="4" fill="none" />
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                                </svg>
+                                Loading...
+                            </span>
                         </button>
                     </div>
 
@@ -111,6 +123,7 @@ const activationDate = ref('')
 const expireDate = ref('')
 const checkQrData = ref(false)
 const isExpired = ref(false)
+const loadingQr = ref(false)
 
 
 let expiryEpoch = null
@@ -124,10 +137,16 @@ const format = (n) => new Intl.NumberFormat('id-ID').format(n)
 
 
 // GENERATE PAYMENT
-const generate = async  () => {
-    // loading.value = true
+const generate = async () => {
 
-    await checkQrSubscriptionData()
+    // await checkQrSubscriptionData()
+    loadingQr.value = true
+
+    try {
+        await checkQrSubscriptionData() // fungsi API kamu
+    } finally {
+        loadingQr.value = false
+    }
 }
 
 const checkStatus = () => {
@@ -192,7 +211,7 @@ async function checkQrSubscriptionData() {
             const { qrContent, transaction_uuid, expiredQris, totalPayment } = response.data.data
             expiryEpoch = expiredQris
 
-    
+
             qrData.value = {
                 qr: qrContent,
                 code: transaction_uuid,
