@@ -12,6 +12,59 @@
             <HeadersPage @open-modal="openModal" @logout="logout" />
 
 
+            <!-- FULL WIDTH BACKGROUND -->
+            <div class="w-full bg-gradient-to-r from-green-600 to-blue-500 py-3 flex justify-center">
+
+                <!-- CONTENT (TETAP CENTER) -->
+                <div class="max-w-4xl mx-auto">
+
+                    <div class="flex gap-20 border-b border-white/30">
+
+                        <button @click="activeTab = 'profil'"
+                            class="relative px-4 py-2 text-sm font-semibold transition bg-white!" :class="activeTab === 'profil'
+                                ? 'text-black'
+                                : 'text-black hover:text-white'">
+                            Profil
+
+                            <div v-if="activeTab === 'profil'"
+                                class="absolute bottom-0 left-0 w-full h-[3px] bg-red-600! rounded-full">
+                            </div>
+                        </button>
+
+                        <button @click="activeTab = 'subscription'"
+                            class="relative px-4 py-2 text-sm font-semibold transition bg-white!" :class="activeTab === 'subscription'
+                                ? 'text-black!'
+                                : 'text-black! hover:text-white'">
+                            Subscription
+                            <div v-if="activeTab === 'subscription'"
+                                class="absolute bottom-0 left-0 w-full h-[3px] bg-red-600! rounded-full">
+                            </div>
+                        </button>
+
+                        <button @click="activeTab = 'rent'" class="relative px-4 py-2 text-sm font-semibold transition bg-white!"
+                            :class="activeTab === 'rent'
+                                ? 'text-black!'
+                                : 'text-black! hover:text-white'">
+                            Rental
+                            <div v-if="activeTab === 'rent'"
+                                class="absolute bottom-0 left-0 w-full h-[3px] bg-red-600! rounded-full">
+                            </div>
+                        </button>
+
+                        <button @click="activeTab = 'withdrawal'"
+                            class="relative px-4 py-2 text-sm font-semibold transition bg-white!" :class="activeTab === 'withdrawal'
+                                ? 'text-black!'
+                                : 'text-black! hover:text-white'">
+                            Withdrawal
+                            <div v-if="activeTab === 'withdrawal'"
+                                class="absolute bottom-0 left-0 w-full h-[3px] bg-red-600! rounded-full">
+                            </div>
+                        </button>
+
+                    </div>
+
+                </div>
+            </div>
 
             <ProfilPage v-if="activeTab === 'profil'" :studio="studio" :studioNumbers="studioNumbers"
                 :estimatedStudios="estimatedStudios" :BE_BASE_URL="BE_BASE_URL" :formatRupiah="formatRupiah"
