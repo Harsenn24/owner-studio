@@ -11,169 +11,21 @@
 
             <HeadersPage @open-modal="openModal" @logout="logout" />
 
-            <!-- STUDIO INFO CARD -->`
-            <div class="bg-gradient-to-r from-blue-600 to-green-500 py-5">
-
-                <section
-                    class="bg-white rounded-2xl shadow-lg border border-slate-200 p-6 max-w-4xl mx-auto backdrop-blur-sm">
-
-                    <!-- HEADER -->
-                    <div class="mb-6">
-                        <h2 class="text-2xl font-semibold text-blue-800">{{ studio.studio_name }}</h2>
-                        <p class="text-sm text-black">ID: {{ studio.studio_id }}</p>
-                    </div>
-
-                    <!-- GRID INFO -->
-                    <div class="grid md:grid-cols-2 gap-6">
-
-                        <!-- ALAMAT -->
-                        <div>
-                            <h3 class="text-sm font-semibold text-blue-600 mb-2">Alamat Lengkap</h3>
-                            <div class="space-y-1 text-slate-700">
-                                <p>{{ studio.studio_address }}</p>
-                                <p>{{ studio.studio_district }}, {{ studio.studio_city }}</p>
-                                <p>{{ studio.studio_province }}, {{ studio.studio_postal_code }}</p>
-                            </div>
-                        </div>
-
-                        <!-- CONTACT PERSON -->
-                        <div>
-                            <h3 class="text-sm font-semibold text-blue-600 mb-2">Contact Person</h3>
-                            <div class="space-y-1 text-slate-700">
-                                <p>{{ studio.studio_contact_person_name }}</p>
-                                <p>{{ studio.studio_contact_person_phone }}</p>
-                            </div>
-                        </div>
-
-                        <!-- ACCOUNT BANK -->
-                        <div>
-                            <h3 class="text-sm font-semibold text-blue-600 mb-2">Rekening Pembayaran</h3>
-                            <div class="space-y-1 text-slate-700">
-                                <p>{{ studio.studio_bank_name }}</p>
-                                <p>No: {{ studio.studio_bank_account_number }}</p>
-                            </div>
-                        </div>
-
-                        <!-- STATUS -->
-                        <div>
-                            <h3 class="text-sm font-semibold text-blue-600 mb-2">Status Studio</h3>
-
-                            <!-- ACTIVE -->
-                            <template v-if="studio.status === 'active'">
-                                <span
-                                    class="px-3 py-1 text-xs font-semibold rounded-full shadow-md bg-green-100 text-green-700 shadow-green-300">
-                                    ACTIVE
-                                </span>
-
-                                <p class="text-[11px] text-gray-500 mt-1">
-                                    Aktif sampai: {{ studio.active_until }}
-                                </p>
-                            </template>
-
-                            <!-- INACTIVE + BUTTON -->
-                            <template v-else>
-                                <div class="flex items-center gap-3">
-                                    <span
-                                        class="px-3 py-1 text-xs font-semibold rounded-full shadow-md bg-red-100 text-red-700 shadow-red-300">
-                                        INACTIVE
-                                    </span>
-
-                                    <button @click="showModalPaymentSubscribe = true"
-                                        class="px-3 py-1 text-xs bg-blue-500! hover:bg-blue-600 text-white rounded shadow">
-                                        Aktifkan Studio
-                                    </button>
-                                </div>
-                            </template>
-                        </div>
 
 
-                    </div>
-                </section>
+            <ProfilPage v-if="activeTab === 'profil'" :studio="studio" :studioNumbers="studioNumbers"
+                :estimatedStudios="estimatedStudios" :BE_BASE_URL="BE_BASE_URL" :formatRupiah="formatRupiah"
+                @open-payment="showModalPaymentSubscribe = true" @add-studio="addStudioNumber"
+                @edit-studio="openStudioNumberDetail" />
 
-                <!-- STUDIO NUMBER LIST SECTION -->
-                <section
-                    class="bg-white rounded-2xl shadow-lg border border-slate-200 p-6 max-w-4xl mx-auto backdrop-blur-sm mt-5">
-
-                    <div class="flex justify-between items-center">
-                        <h2 class="text-xl font-semibold text-slate-800 mb-4">
-                            🎧 Daftar Nomor Studio
-                        </h2>
-
-                        <div v-if="studioNumbers.length > 0 && studioNumbers.length < estimatedStudios">
-                            <button
-                                class="     mb-4 bg-green-600! text-white rounded-xl shadow hover:bg-green-700! transition"
-                                @click="addStudioNumber">
-                                + Tambah Nomor Studio
-                            </button>
-                        </div>
-
-                    </div>
-
-                    <!-- KALAU ADA DATA -->
-                    <div v-if="studioNumbers.length > 0" class="grid md:grid-cols-2 gap-4">
-
-                        <div v-for="sn in studioNumbers" :key="sn.id"
-                            class="p-4 rounded-xl border border-slate-200 shadow hover:shadow-md transition bg-white">
-
-                            <!-- IMAGE -->
-                            <img :src="`${BE_BASE_URL}uploads/${sn.document_file}`"
-                                class="w-full h-40 object-cover rounded-lg mb-3" alt="Studio Image" />
-
-                            <!-- HEADER -->
-                            <div class="flex justify-between items-center mb-3">
-                                <p class="font-semibold text-slate-800 text-lg">Studio #{{ sn.studio_number }}</p>
-
-                                <button
-                                    class="px-3 py-1 text-sm rounded-lg bg-blue-600! text-white hover:bg-blue-700 transition"
-                                    @click="openStudioNumberDetail(sn)">
-                                    Edit
-                                </button>
-                            </div>
-
-                            <!-- EQUIPMENT LIST -->
-                            <div class="mb-3">
-                                <p class="font-semibold text-slate-700 text-sm mb-1">Equipment:</p>
-                                <ul class="text-sm text-slate-600 space-y-1">
-                                    <li v-for="eq in sn.studio_equipment" :key="eq.name">
-                                        • {{ eq.name }} ({{ eq.quantity }})
-                                    </li>
-                                </ul>
-                            </div>
-
-                            <!-- PRICE -->
-                            <div class="flex justify-between text-sm text-slate-700">
-                                <p>Weekday: <span class="font-semibold">{{ formatRupiah(sn.price_weekday) }}</span></p>
-                                <p>Weekend: <span class="font-semibold">{{ formatRupiah(sn.price_weekend) }}</span></p>
-                            </div>
-
-                        </div>
-
-
-
-                    </div>
-
-
-                    <!-- KALAU BELUM PUNYA -->
-                    <div v-else class="text-center py-10">
-                        <p class="text-slate-500">📭 Kamu belum memiliki nomor studio.</p>
-                        <p class="text-slate-400 text-sm">Silakan tambahkan nomor studio untuk memulai.</p>
-
-                        <button
-                            class="mt-4 px-4 py-2 bg-green-600! text-white rounded-xl shadow hover:bg-green-700! transition"
-                            @click="addStudioNumber">
-                            + Tambah Nomor Studio
-                        </button>
-                    </div>
-
-                </section>
-            </div>
 
             <transition name="modal-fade">
                 <ModalAddStudioPage v-if="showModal" @close-modal="closeModal" />
             </transition>
 
             <transition name="modal-fade">
-                <PaymentSubscribeModalPage v-if="showModalPaymentSubscribe" @close-modal="showModalPaymentSubscribe = false" />
+                <PaymentSubscribeModalPage v-if="showModalPaymentSubscribe"
+                    @close-modal="showModalPaymentSubscribe = false" />
             </transition>
 
 
@@ -191,9 +43,7 @@ import HeadersPage from '../HeadersPage/HeadersPage.vue'
 import ModalAddStudioPage from '../ModalAddStudioPage/ModalAddStudioPage.vue'
 import { studioNumberOwner, submission } from '../../api/studio.js'
 import PaymentSubscribeModalPage from '../PaymentSubscribeModal/PaymentSubscribeModalPage.vue'
-
-
-
+import ProfilPage from './Tab/ProfilPage.vue'
 
 const token = localStorage.getItem('token')
 const deviceId = localStorage.getItem('device_id')
@@ -209,6 +59,9 @@ const checkSubmissionStatus = ref('')
 const showModalPaymentSubscribe = ref(false)
 
 const studio_uuid = router.currentRoute.value.params.studio_uuid
+
+const activeTab = ref('profil') // default tab pertama
+
 
 const sn = ref({
     id: null,
@@ -307,12 +160,12 @@ function openStudioNumberDetail(sn) {
 }
 
 const formatRupiah = (value) => {
-  if (!value) return 'Rp 0'
-  return new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
-    minimumFractionDigits: 0
-  }).format(value)
+    if (!value) return 'Rp 0'
+    return new Intl.NumberFormat('id-ID', {
+        style: 'currency',
+        currency: 'IDR',
+        minimumFractionDigits: 0
+    }).format(value)
 }
 
 function addStudioNumber() {

@@ -2,10 +2,10 @@
     <div class="min-h-screen bg-gradient-to-b from-white to-gray-50 py-10 px-6 flex flex-col gap-10">
         <HeadersPage />
 
-        <div class="w-full border-b border-4 border-black "></div>
+        <div class="w-full h-1 bg-gradient-to-r from-green-600 to-blue-500 rounded"></div>
 
-
-        <h1 class="text-3xl font-bold text-slate-800 text-center">
+        <h1
+            class="text-3xl font-bold text-center bg-gradient-to-r from-green-600 to-blue-500 bg-clip-text text-transparent">
             {{ editPageFlag ? 'Edit Detail Studio' : 'Register Detail Studio' }}</h1>
 
         <!-- STEP 1: Pilih Equipment -->
