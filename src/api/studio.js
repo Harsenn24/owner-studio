@@ -167,4 +167,23 @@ async function subscribeStudio(studio_uuid) {
     return response
 }
 
-export { listStudio, submission, studioNumberOwner, submitStudioNumber, studioNumberDetail, editStudioNumber, subscriptionPrice, checkQrSubscription, subscribeStudio }
+async function checkSubscriptionPayment(studio_uuid, transaction_id) {
+    const response = await axios({
+        method: 'POST',
+        url: `${BE_BASE_URL}owner/funding/subscription/status`,
+        headers: {
+            'authorization': `Bearer ${token}`,
+            'x-device-id': deviceId,
+            'x-ip-address': ip,
+            'x-request-id': uuidv4()
+        },
+        data: {
+            studio_id : studio_uuid,
+            transaction_id
+        }
+    })
+
+    return response
+}
+
+export { listStudio, submission, studioNumberOwner, submitStudioNumber, studioNumberDetail, editStudioNumber, subscriptionPrice, checkQrSubscription, subscribeStudio, checkSubscriptionPayment }
