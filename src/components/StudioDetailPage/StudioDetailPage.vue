@@ -142,8 +142,8 @@
 
                             <!-- PRICE -->
                             <div class="flex justify-between text-sm text-slate-700">
-                                <p>Weekday: <span class="font-semibold">{{ sn.price_weekday }}</span></p>
-                                <p>Weekend: <span class="font-semibold">{{ sn.price_weekend }}</span></p>
+                                <p>Weekday: <span class="font-semibold">{{ formatRupiah(sn.price_weekday) }}</span></p>
+                                <p>Weekend: <span class="font-semibold">{{ formatRupiah(sn.price_weekend) }}</span></p>
                             </div>
 
                         </div>
@@ -304,6 +304,15 @@ function openStudioNumberDetail(sn) {
     const studio_number_uuid = sn.id
     router.push(`/home/${studio_uuid}/${studio_number_uuid}`)
     // console.log("Open Studio Number:", sn)
+}
+
+const formatRupiah = (value) => {
+  if (!value) return 'Rp 0'
+  return new Intl.NumberFormat('id-ID', {
+    style: 'currency',
+    currency: 'IDR',
+    minimumFractionDigits: 0
+  }).format(value)
 }
 
 function addStudioNumber() {
