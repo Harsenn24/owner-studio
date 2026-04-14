@@ -426,8 +426,8 @@ function validTime(op) {
 
 // ---------- COMPUTED ----------
 const canAddOperational = computed(() => {
+    if (operationalList.value.length === 0) return true
     const last = operationalList.value[operationalList.value.length - 1]
-    // require last row to have all fields and valid times
     return last && last.date && last.open && last.close && validTime(last)
 })
 
