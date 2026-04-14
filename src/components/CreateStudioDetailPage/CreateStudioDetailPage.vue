@@ -380,7 +380,8 @@ async function handleUpload(event) {
             uid: uuidv4(),
             date: item.date,
             open: item.open,
-            close: item.close
+            close: item.close,
+            is_operational: true
         }));
 
 
