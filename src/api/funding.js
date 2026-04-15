@@ -8,23 +8,20 @@ const token = localStorage.getItem('token')
 const deviceId = localStorage.getItem('device_id')
 const ip = await getIpAdresses()
 
-async function subscriptionList(studio_uuid, transaction_id) {
+async function subscriptionList(payload) {
     const response = await axios({
         method: 'POST',
-        url: `${BE_BASE_URL}owner/funding/subscription/status`,
+        url: `${BE_BASE_URL}owner/funding/subscription-list`,
         headers: {
             'authorization': `Bearer ${token}`,
             'x-device-id': deviceId,
             'x-ip-address': ip,
             'x-request-id': uuidv4()
         },
-        data: {
-            studio_id : studio_uuid,
-            transaction_id
-        }
+        data: payload
     })
 
     return response
 }
 
-export { listStudio, submission, studioNumberOwner, submitStudioNumber, studioNumberDetail, editStudioNumber, subscriptionPrice, checkQrSubscription, subscribeStudio, checkSubscriptionPayment }
+export { subscriptionList }

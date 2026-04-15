@@ -8,14 +8,14 @@
 
             <!-- SEARCH -->
             <div class="flex flex-col">
-                <label class="text-xs text-center text-black mb-1">Cari Berdasarkan ID Transaksi</label>
+                <label class="text-xs text-center text-black mb-1">Filter ID Transaksi</label>
                 <input v-model="filters.search" type="text" placeholder="ID Transaksi..."
                     class="border rounded px-3 py-2 text-black" />
             </div>
 
             <!-- STATUS -->
             <div class="flex flex-col">
-                <label class="text-xs text-center text-black mb-1">Cari Berdasarkan Status Pembayaran</label>
+                <label class="text-xs text-center text-black mb-1">Filter Status Pembayaran</label>
                 <select v-model="filters.status" class="border rounded px-3 py-2 text-black">
                     <option value="">Semua Status</option>
                     <option value="success">Sukses</option>
@@ -26,7 +26,7 @@
 
             <!-- DATE -->
             <div class="flex flex-col md:col-span-2">
-                <label class="text-xs text-center text-black mb-1">Cari Berdasarkan Status Pembayaran</label>
+                <label class="text-xs text-center text-black mb-1">Filter Tanggal</label>
                 <div class="flex gap-2">
                     <input v-model="filters.start_date" type="date"
                         class="border rounded px-3 py-2 w-full text-black" />
@@ -36,7 +36,7 @@
 
             <!-- LIMIT -->
             <div class="flex flex-col">
-                <label class="text-xs text-center text-black mb-1">Cari Berdasarkan Status Pembayaran</label>
+                <label class="text-xs text-center text-black mb-1">Total Data</label>
                 <select v-model="filters.limit" class="border rounded px-3 py-2 text-black">
                     <option :value="10">10</option>
                     <option :value="25">25</option>
@@ -63,23 +63,23 @@
                 </thead>
 
                 <tbody>
-                    <tr v-for="(item, index) in transactions" :key="item.id" class="border-t">
+                    <tr v-for="(item, index) in transactions" :key="item.transaction_id" class="border-t">
 
-                        <td class="p-3">{{ index + 1 + (page - 1) * filters.limit }}</td>
+                        <td class="p-3 text-black">{{ index + 1 + (page - 1) * filters.limit }}</td>
 
-                        <td class="p-3">{{ item.transaction_id }}</td>
+                        <td class="p-3 text-black">{{ item.transaction_id }}</td>
 
-                        <td class="p-3">{{ formatRupiah(item.amount) }}</td>
+                        <td class="p-3 text-black">{{ formatRupiah(item.amount) }}</td>
 
-                        <td class="p-3">{{ formatDate(item.paid_at) }}</td>
+                        <td class="p-3 text-black">{{ formatDate(item.paid_at) }}</td>
 
-                        <td class="p-3">
+                        <td class="p-3 ">
                             <span :class="getStatusClass(item.status)">
                                 {{ item.status }}
                             </span>
                         </td>
 
-                        <td class="p-3">{{ formatDate(item.expired_at) }}</td>
+                        <td class="p-3 text-black">{{ formatDate(item.expired_at) }}</td>
 
                     </tr>
 
@@ -96,7 +96,8 @@
         <!-- PAGINATION -->
         <div class="flex justify-between items-center mt-4">
 
-            <button @click="prevPage" :disabled="page === 1" class="px-3 py-1 bg-white! text-black rounded disabled:opacity-70">
+            <button @click="prevPage" :disabled="page === 1"
+                class="px-3 py-1 bg-white! text-black rounded disabled:opacity-70">
                 Prev
             </button>
 
@@ -113,10 +114,13 @@
 
 <script setup>
 import { ref, watch, onMounted } from 'vue'
-import axios from 'axios'
+import { subscriptionList } from '../../../api/funding'
+import { useRouter } from 'vue-router'
+
 
 const transactions = ref([])
 const page = ref(1)
+const total = ref(0)
 
 const filters = ref({
     search: '',
@@ -126,19 +130,44 @@ const filters = ref({
     limit: 10
 })
 
+const router = useRouter()
+
+
+const studio_uuid = router.currentRoute.value.params.studio_uuid
+
+
 // FETCH API
 const fetchSubscriptionList = async () => {
     try {
-        const response = await axios.post('/owner/funding/subscription-list', {
+        let payload = {
             page: page.value,
             limit: filters.value.limit,
-            search: filters.value.search,
-            status: filters.value.status,
-            start_date: filters.value.start_date,
-            end_date: filters.value.end_date
-        })
+            studio_id: studio_uuid
+        }
 
-        transactions.value = response.data.data
+        // conditional fields
+        if (filters.value.search) {
+            payload.search = filters.value.search
+        }
+
+        if (filters.value.status) {
+            payload.status = filters.value.status
+        }
+
+        if (filters.value.start_date) {
+            payload.start_date = filters.value.start_date
+        }
+
+        if (filters.value.end_date) {
+            payload.end_date = filters.value.end_date
+        }
+
+
+        const response = await subscriptionList(payload)
+
+        transactions.value = response.data.data.data || []
+        total.value = response.data.data.total
+        page.value = response.data.data.page
     } catch (err) {
         console.error(err)
     }
@@ -158,7 +187,10 @@ onMounted(fetchSubscriptionList)
 
 // PAGINATION
 const nextPage = () => {
-    page.value++
+    const maxPage = Math.ceil(total.value / filters.value.limit)
+    if (page.value < maxPage) {
+        page.value++
+    }
 }
 
 const prevPage = () => {
@@ -182,11 +214,11 @@ const formatDate = (val) => {
 const getStatusClass = (status) => {
     switch (status) {
         case 'success':
-            return 'text-green-600 font-semibold'
+            return 'text-green-600! font-semibold'
         case 'pending':
-            return 'text-yellow-600 font-semibold'
-        case 'failed':
-            return 'text-red-600 font-semibold'
+            return 'text-yellow-600! font-semibold'
+        case 'cancelled':
+            return 'text-red-600! font-semibold'
         default:
             return ''
     }
