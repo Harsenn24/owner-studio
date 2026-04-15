@@ -1,7 +1,18 @@
 <template>
     <div class="max-w-6xl mx-auto p-6 bg-gradient-to-r from-green-600 to-blue-500 rounded-2xl py-5 mt-5">
         <!-- TITLE -->
-        <h2 class="text-xl font-semibold mb-4 text-white">📄 Histori Subscription</h2>
+        <div class="flex justify-between items-center mb-4">
+
+            <h2 class="text-xl font-semibold text-white">
+                📄 Histori Subscription
+            </h2>
+
+            <button @click="clearFilters"
+                class="px-4 py-2 bg-yellow-300! text-black rounded-lg text-sm font-semibold hover:bg-gray-100 transition">
+                Clear Filter
+            </button>
+
+        </div>
 
         <!-- FILTER -->
         <div class="bg-white p-4 rounded-xl shadow mb-4 grid md:grid-cols-5 gap-3 items-end">
@@ -20,7 +31,7 @@
                     <option value="">Semua Status</option>
                     <option value="success">Sukses</option>
                     <option value="pending">Menunggu</option>
-                    <option value="failed">Batal</option>
+                    <option value="cancelled">Batal</option>
                 </select>
             </div>
 
@@ -28,9 +39,22 @@
             <div class="flex flex-col md:col-span-2">
                 <label class="text-xs text-center text-black mb-1">Filter Tanggal</label>
                 <div class="flex gap-2">
-                    <input v-model="filters.start_date" type="date"
-                        class="border rounded px-3 py-2 w-full text-black" />
-                    <input v-model="filters.end_date" type="date" class="border rounded px-3 py-2 w-full text-black" />
+                    <div class="relative w-full">
+                        <input ref="startDateRef" v-model="filters.start_date" type="date"
+                            class="border rounded px-3 py-2 w-full text-black pr-10 cursor-pointer" />
+                        <span @click="openStartDate" class="absolute right-3 top-2.5 cursor-pointer">
+                            📅
+                        </span>
+                    </div>
+
+                    <!-- END DATE -->
+                    <div class="relative w-full">
+                        <input ref="endDateRef" v-model="filters.end_date" type="date"
+                            class="border rounded px-3 py-2 w-full text-black pr-10 cursor-pointer" />
+                        <span @click="openEndDate" class="absolute right-3 top-2.5 cursor-pointer">
+                            📅
+                        </span>
+                    </div>
                 </div>
             </div>
 
@@ -135,6 +159,17 @@ const router = useRouter()
 
 const studio_uuid = router.currentRoute.value.params.studio_uuid
 
+const startDateRef = ref(null)
+const endDateRef = ref(null)
+
+const openStartDate = () => {
+    startDateRef.value?.showPicker()
+}
+
+const openEndDate = () => {
+    endDateRef.value?.showPicker()
+}
+
 
 // FETCH API
 const fetchSubscriptionList = async () => {
@@ -155,11 +190,11 @@ const fetchSubscriptionList = async () => {
         }
 
         if (filters.value.start_date) {
-            payload.start_date = filters.value.start_date
+            payload.start_date = toEpoch(filters.value.start_date)
         }
 
         if (filters.value.end_date) {
-            payload.end_date = filters.value.end_date
+            payload.end_date = toEpoch(filters.value.end_date, true)
         }
 
 
@@ -171,6 +206,34 @@ const fetchSubscriptionList = async () => {
     } catch (err) {
         console.error(err)
     }
+}
+
+const clearFilters = () => {
+    filters.value = {
+        search: '',
+        status: '',
+        start_date: '',
+        end_date: '',
+        limit: 10
+    }
+
+    page.value = 1
+    fetchSubscriptionList()
+}
+
+const toEpoch = (date, isEnd = false) => {
+    if (!date) return null
+
+    const d = new Date(date)
+
+    // kalau end_date → set ke jam 23:59:59
+    if (isEnd) {
+        d.setHours(23, 59, 59, 999)
+    } else {
+        d.setHours(0, 0, 0, 0)
+    }
+
+    return Math.floor(d.getTime() / 1000)
 }
 
 // WATCH FILTER

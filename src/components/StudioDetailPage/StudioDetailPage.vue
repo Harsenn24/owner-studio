@@ -35,7 +35,7 @@
                             class="relative px-4 py-2 text-sm font-semibold transition bg-white!" :class="activeTab === 'subscription'
                                 ? 'text-black!'
                                 : 'text-black! hover:text-white'">
-                            Subscription
+                            Transaksi Berlangganan
                             <div v-if="activeTab === 'subscription'"
                                 class="absolute bottom-0 left-0 w-full h-[3px] bg-red-600! rounded-full">
                             </div>
@@ -45,7 +45,7 @@
                             class="relative px-4 py-2 text-sm font-semibold transition bg-white!" :class="activeTab === 'rent'
                                 ? 'text-black!'
                                 : 'text-black! hover:text-white'">
-                            Rental
+                            Transaksi Sewa
                             <div v-if="activeTab === 'rent'"
                                 class="absolute bottom-0 left-0 w-full h-[3px] bg-red-600! rounded-full">
                             </div>
@@ -55,7 +55,7 @@
                             class="relative px-4 py-2 text-sm font-semibold transition bg-white!" :class="activeTab === 'withdrawal'
                                 ? 'text-black!'
                                 : 'text-black! hover:text-white'">
-                            Withdrawal
+                            Penarikan Dana
                             <div v-if="activeTab === 'withdrawal'"
                                 class="absolute bottom-0 left-0 w-full h-[3px] bg-red-600! rounded-full">
                             </div>
