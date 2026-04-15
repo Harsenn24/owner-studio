@@ -1,6 +1,6 @@
 <!-- Tab/ProfilPage.vue -->
 <template>
-    <div class="bg-gradient-to-r from-blue-600 to-green-500 py-5">
+    <div class="bg-gradient-to-r from-blue-600 to-green-500 py-5 mt-5">
 
         <!-- STUDIO INFO CARD -->
         <section class="bg-white rounded-2xl shadow-lg border border-slate-200 p-6 max-w-4xl mx-auto backdrop-blur-sm">

@@ -41,8 +41,8 @@
                             </div>
                         </button>
 
-                        <button @click="activeTab = 'rent'" class="relative px-4 py-2 text-sm font-semibold transition bg-white!"
-                            :class="activeTab === 'rent'
+                        <button @click="activeTab = 'rent'"
+                            class="relative px-4 py-2 text-sm font-semibold transition bg-white!" :class="activeTab === 'rent'
                                 ? 'text-black!'
                                 : 'text-black! hover:text-white'">
                             Rental
@@ -71,6 +71,9 @@
                 @open-payment="showModalPaymentSubscribe = true" @add-studio="addStudioNumber"
                 @edit-studio="openStudioNumberDetail" />
 
+            <!-- TAB: SUBSCRIPTION -->
+            <SubscriptionTransactionPage v-if="activeTab === 'subscription'" />
+
 
             <transition name="modal-fade">
                 <ModalAddStudioPage v-if="showModal" @close-modal="closeModal" />
@@ -97,6 +100,7 @@ import ModalAddStudioPage from '../ModalAddStudioPage/ModalAddStudioPage.vue'
 import { studioNumberOwner, submission } from '../../api/studio.js'
 import PaymentSubscribeModalPage from '../PaymentSubscribeModal/PaymentSubscribeModalPage.vue'
 import ProfilPage from './Tab/ProfilPage.vue'
+import SubscriptionTransactionPage from './Tab/SubscriptionTransactionPage.vue'
 
 const token = localStorage.getItem('token')
 const deviceId = localStorage.getItem('device_id')
