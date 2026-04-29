@@ -126,7 +126,7 @@
                         <label class="block text-sm font-medium text-slate-600">Tanggal</label>
 
                         <select v-model="op.date"
-                            :disabled="editPageFlag && op.date !== '' && op.open !== '' && op.close !== ''"
+                            :disabled="editPageFlag && op.date && op.open && op.close "
                             :class="(editPageFlag && op.date && op.open && op.close) ? 'opacity-50 pointer-events-none' : ''"
                             class="mt-2 w-full rounded-lg border px-3 py-2 text-sm border-gray-400 text-black">
                             <option disabled value="">Pilih tanggal</option>
@@ -145,7 +145,7 @@
                         <label class="block text-sm font-medium text-slate-600">Jam Buka</label>
 
                         <select v-model="op.open"
-                            :disabled="editPageFlag && op.date !== '' && op.open !== '' && op.close !== ''"
+                            :disabled="editPageFlag && op.date  && op.open  && op.close "
                             :class="(editPageFlag && op.date && op.open && op.close) ? 'opacity-50 pointer-events-none' : ''"
                             class="mt-2 w-full rounded-lg border px-3 py-2 text-sm border-gray-400 text-black">
                             <option disabled value="">Pilih Jam Buka</option>
@@ -161,7 +161,7 @@
                         <label class="block text-sm font-medium text-slate-600">Jam Tutup</label>
 
                         <select v-model="op.close"
-                            :disabled="editPageFlag && op.date !== '' && op.open !== '' && op.close !== ''"
+                            :disabled="editPageFlag && op.date  && op.open  && op.close "
                             :class="(editPageFlag && op.date && op.open && op.close) ? 'opacity-50 pointer-events-none' : ''"
                             class="mt-2 w-full rounded-lg border px-3 py-2 text-sm border-gray-400 text-black">
                             <option disabled value="">Pilih Jam Tutup</option>
