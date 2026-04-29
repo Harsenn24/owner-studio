@@ -81,8 +81,8 @@
 
                 <div class="flex items-center gap-4">
 
-                    <button v-if="(!editPageFlag && operationalList.length > 1) || (editPageFlag && !op.date)"
-                        @click="removeOperational(index)" class="text-xs bg-red-500! text-white ml-2">
+                    <button v-if="(op.delete_able)" @click="removeOperational(index)"
+                        class="text-xs bg-red-500! text-white ml-2">
                         Hapus
                     </button>
 
@@ -118,16 +118,15 @@
                 </div>
 
 
-
                 <div class="flex flex-col md:flex-row gap-4 items-start">
 
                     <!-- Tanggal -->
                     <div class="flex-1 bg-white rounded-lg p-4">
                         <label class="block text-sm font-medium text-slate-600">Tanggal</label>
 
-                        <select v-model="op.date"
-                            :disabled="editPageFlag && op.date && op.open && op.close "
-                            :class="(editPageFlag && op.date && op.open && op.close) ? 'opacity-50 pointer-events-none' : ''"
+
+                        <select v-model="op.date" :disabled="!op.delete_able"
+                            :class="!op.delete_able ? 'opacity-50 pointer-events-none' : ''"
                             class="mt-2 w-full rounded-lg border px-3 py-2 text-sm border-gray-400 text-black">
                             <option disabled value="">Pilih tanggal</option>
                             <option v-for="d in filteredDates(index)" :key="d.id" :value="d.date">
@@ -144,9 +143,8 @@
                     <div class="flex-1 bg-white rounded-lg p-4">
                         <label class="block text-sm font-medium text-slate-600">Jam Buka</label>
 
-                        <select v-model="op.open"
-                            :disabled="editPageFlag && op.date  && op.open  && op.close "
-                            :class="(editPageFlag && op.date && op.open && op.close) ? 'opacity-50 pointer-events-none' : ''"
+                        <select v-model="op.open" :disabled="!op.delete_able"
+                            :class="!op.delete_able ? 'opacity-50 pointer-events-none' : ''"
                             class="mt-2 w-full rounded-lg border px-3 py-2 text-sm border-gray-400 text-black">
                             <option disabled value="">Pilih Jam Buka</option>
                             <option v-for="h in hours" :key="h.id" :value="h.hour_time">
@@ -160,9 +158,8 @@
                     <div class="flex-1 bg-white rounded-lg p-4">
                         <label class="block text-sm font-medium text-slate-600">Jam Tutup</label>
 
-                        <select v-model="op.close"
-                            :disabled="editPageFlag && op.date  && op.open  && op.close "
-                            :class="(editPageFlag && op.date && op.open && op.close) ? 'opacity-50 pointer-events-none' : ''"
+                        <select v-model="op.close" :disabled="!op.delete_able"
+                            :class="!op.delete_able ? 'opacity-50 pointer-events-none' : ''"
                             class="mt-2 w-full rounded-lg border px-3 py-2 text-sm border-gray-400 text-black">
                             <option disabled value="">Pilih Jam Tutup</option>
                             <option v-for="h in hours" :key="h.id" :value="h.hour_time">
@@ -203,7 +200,7 @@
                         {{ uploadStatus }}
                     </p>
                 </div>
-                <button class="text-xl font-semibold text-white mb-4 px-3 py-1 rounded"
+                <button class="text-xl font-semibold text-white bg-red-500! mb-4 px-3 py-1 rounded"
                     :class="{ 'opacity-50 cursor-not-allowed': !canAddOperational }" :disabled="!canAddOperational"
                     @click="addOperational" aria-disabled="!canAddOperational">
                     + Tambah Jam Operasional
@@ -287,45 +284,31 @@ import { useRouter } from 'vue-router'
 import { getIpAdresses } from '../../services/axios/ip-adress.services.js'
 import HeadersPage from '../HeadersPage/HeadersPage.vue'
 import ModalStudioNumberSuccessPage from '../ModalStudioNumberSuccessPage/ModalStudioNumberSuccessPage.vue'
-import { editStudioNumber, studioNumberDetail, submitStudioNumber } from '../../api/studio.js'
-
-
+import { editStudioNumber, studioNumberDetail } from '../../api/studio.js'
 
 const router = useRouter()
-
 // ---------- CONFIG ----------
-const BE_BASE_URL = import.meta.env.VITE_STUDIO_BAND_BE_BASE_URL || '/' // set env
-
+const BE_BASE_URL = import.meta.env.VITE_STUDIO_BAND_BE_BASE_URL || '/'
 // ---------- STATE ----------
 const equipments = ref([])
-const selectedEquipments = reactive({}) // keys: equipment_id -> qty
-
+const selectedEquipments = reactive({})
 const prices = reactive({ weekday: '', weekend: '' })
-
-const dates = ref([]) // expect array of { date_id, date } where date is 'YYYY-MM-DD'
+const dates = ref([])
 const documents = ref([])
 const selectedDocumentId = ref(null)
-
-const hours = ref([]) // optional, if you want to predefine hours
-
+const hours = ref([])
 const loading = ref(false)
 const showModalStudioNumberSuccessPage = ref(false)
-
 const studio_uuid = ref("");
 const studio_number_detail = ref(null);
-
 const editPageFlag = ref(false);
 
 
 // operational rows
 const operationalList = ref([]);
-
-const isManualDisabled = ref(false);
 const uploadStatus = ref("");
-
 const imageInput = ref(null);
 const previewImage = ref(null);
-
 const formUploadImageEdit = ref(null);
 
 // ---------- HELPERS ----------
@@ -395,7 +378,7 @@ async function handleUpload(event) {
 
 function addOperational() {
     if (!canAddOperational.value) return
-    operationalList.value.push({ uid: uuidv4(), date: '', open: '', close: '' })
+    operationalList.value.push({ uid: uuidv4(), date: '', open: '', close: '', delete_able: true })
 }
 
 function removeOperational(idx) {
@@ -556,13 +539,6 @@ async function submit(editPageFlag) {
             return
         }
 
-
-
-        // const resultSubmit = await submitStudioNumber(payload)
-        // if (resultSubmit.data.status) {
-        //     studio_uuid.value = router.currentRoute.value.params.studio_uuid
-        //     showModalStudioNumberSuccessPage.value = true
-        // }
     } catch (err) {
         console.error(err)
         alert('Gagal menyimpan data studio!')
@@ -598,10 +574,9 @@ async function fetchStudioNumberDetail(studio_number_uuid, studio_uuid) {
                 date: item.date,
                 open: item.open,
                 close: item.close,
-                is_operational: item.is_operational === 1 ? true : false
+                is_operational: item.is_operational === 1 ? true : false,
+                delete_able: item.delete_able
             }));
-
-            console.log(operationalList.value);
 
             prices.weekday = response.data.data.price_weekday
             prices.weekend = response.data.data.price_weekend
@@ -616,13 +591,6 @@ async function fetchStudioNumberDetail(studio_number_uuid, studio_uuid) {
 onMounted(async () => {
     const isEditPage = await editOrCreatePage()
     const studio_uuid = router.currentRoute.value.params.studio_uuid
-
-    // operationalList.value.push({
-    //     uid: uuidv4(),
-    //     date: '',
-    //     open: '',
-    //     close: ''
-    // });
 
     if (isEditPage.editPage) {
         await Promise.all([fetchEquipment(), fetchDate(), fetchDocuments(), fetchHours(), fetchStudioNumberDetail(isEditPage.studio_number_uuid, studio_uuid)])
