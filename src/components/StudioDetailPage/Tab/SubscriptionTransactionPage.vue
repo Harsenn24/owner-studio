@@ -1,5 +1,5 @@
 <template>
-    <div class="max-w-6xl mx-auto p-6 bg-gradient-to-r from-green-600 to-blue-500 rounded-2xl py-5 mt-5">
+    <div class="max-w-8xl mx-auto p-6 bg-gradient-to-r from-green-600 to-blue-500 rounded-2xl py-5 mt-5">
         <!-- TITLE -->
         <div class="flex justify-between items-center mb-4">
 

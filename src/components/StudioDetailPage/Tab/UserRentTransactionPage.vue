@@ -1,5 +1,5 @@
 <template>
-    <div class="max-w-6xl mx-auto p-6 bg-gradient-to-r from-green-600 to-blue-500 rounded-2xl py-5 mt-5">
+    <div class="max-w-8xl mx-auto p-6 bg-gradient-to-r from-green-600 to-blue-500 rounded-2xl py-5 mt-5">
         <!-- TITLE -->
         <div class="flex justify-between items-center mb-4">
 
@@ -15,10 +15,8 @@
         </div>
 
         <!-- FILTER -->
-        <div class="bg-white p-4 rounded-xl shadow mb-4 grid md:grid-cols-5 gap-3 items-end">
-
-            <!-- SEARCH -->
-            <div class="flex flex-col">
+        <div class="bg-white p-4 rounded-xl shadow mb-4 flex justify-center gap-3 overflow-x-auto">            <!-- SEARCH -->
+            <div class="flex flex-col w-48">
                 <label class="text-xs text-center text-black mb-1">ID Transaksi</label>
                 <input v-model="filters.search" type="text" placeholder="ID Transaksi..."
                     class="border rounded px-3 py-2 text-black" />
@@ -119,7 +117,7 @@
 
                         <td class="p-3 text-black">{{ item.studio }}</td>
 
-                        <td class="p-3 text-black">{{ formatDate(item.date) }}</td>
+                        <td class="p-3 text-black">{{ item.date }}</td>
 
                         <td class="p-3 text-black">{{ item.time }}</td>
 
@@ -129,14 +127,19 @@
 
                         <td class="p-3 text-black">{{ formatRupiah(item.total_amount) }}</td>
 
-                        <td class="p-3 text-black">{{ item.payment_status }}</td>
 
-                        <td class="p-3 text-black">{{ item.recon_status}}</td>
+                        <td class="p-3 ">
+                            <span :class="getStatusClass(item.payment_status)">
+                                {{ item.payment_status }}
+                            </span>
+                        </td>
+
+                        <td class="p-3 text-black">{{ item.recon_status ? 'Selesai' : 'Menunggu' }}</td>
 
                     </tr>
 
                     <tr v-if="transactions.length === 0">
-                        <td colspan="6" class="text-center p-4 text-gray-500">
+                        <td colspan="12" class="text-center p-4 text-gray-500">
                             Tidak ada data
                         </td>
                     </tr>
@@ -314,7 +317,7 @@ const formatDate = (val) => {
 // STATUS COLOR
 const getStatusClass = (status) => {
     switch (status) {
-        case 'success':
+        case 'booked':
             return 'text-green-600! font-semibold'
         case 'pending':
             return 'text-yellow-600! font-semibold'

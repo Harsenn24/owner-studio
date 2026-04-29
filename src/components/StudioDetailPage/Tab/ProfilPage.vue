@@ -59,7 +59,7 @@
                             </span>
 
                             <button @click="$emit('open-payment')"
-                                class="px-3 py-1 text-xs bg-blue-500 text-white rounded">
+                                class="px-3 py-1 text-xs bg-blue-500! text-white rounded">
                                 Aktifkan Studio
                             </button>
                         </div>
@@ -78,7 +78,7 @@
                 </h2>
 
                 <div v-if="studioNumbers.length > 0 && studioNumbers.length < estimatedStudios">
-                    <button class="mb-4 bg-green-600 text-white rounded-xl" @click="$emit('add-studio')">
+                    <button class="mb-4 bg-green-600! text-white rounded-xl" @click="$emit('add-studio')">
                         + Tambah Nomor Studio
                     </button>
                 </div>
@@ -120,7 +120,7 @@
             <div v-else class="text-center py-10">
                 <p>📭 Belum ada studio</p>
 
-                <button class="mt-4 px-4 py-2 bg-green-600 text-white rounded-xl" @click="$emit('add-studio')">
+                <button class="mt-4 px-4 py-2 bg-green-600! text-white rounded-xl" @click="$emit('add-studio')">
                     + Tambah Nomor Studio
                 </button>
             </div>
