@@ -4,7 +4,7 @@
         <div class="flex justify-between items-center mb-4">
 
             <h2 class="text-xl font-semibold text-white">
-                📄 Histori Subscription
+                📄 Histori Berlangganan
             </h2>
 
             <button @click="clearFilters"

@@ -267,7 +267,7 @@
         <!-- Submit -->
         <div class="text-center">
             <button @click="submit(editPageFlag)" :disabled="loading"
-                class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl shadow">
+                class="px-6 py-3 bg-blue-400! hover:bg-blue-500! text-white font-medium rounded-xl shadow">
                 {{ loading ? 'Menyimpan...' : '💾 Simpan Detail Studio' }}
             </button>
         </div>

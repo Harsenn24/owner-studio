@@ -74,6 +74,8 @@
             <!-- TAB: SUBSCRIPTION -->
             <SubscriptionTransactionPage v-if="activeTab === 'subscription'" />
 
+            <UserRentTransactionPage v-if="activeTab === 'rent'" />
+
 
             <transition name="modal-fade">
                 <ModalAddStudioPage v-if="showModal" @close-modal="closeModal" />
@@ -101,6 +103,8 @@ import { studioNumberOwner, submission } from '../../api/studio.js'
 import PaymentSubscribeModalPage from '../PaymentSubscribeModal/PaymentSubscribeModalPage.vue'
 import ProfilPage from './Tab/ProfilPage.vue'
 import SubscriptionTransactionPage from './Tab/SubscriptionTransactionPage.vue'
+import UserRentTransactionPage from './Tab/UserRentTransactionPage.vue'
+
 
 const token = localStorage.getItem('token')
 const deviceId = localStorage.getItem('device_id')

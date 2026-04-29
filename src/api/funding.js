@@ -11,7 +11,7 @@ const ip = await getIpAdresses()
 async function subscriptionList(payload) {
     const response = await axios({
         method: 'POST',
-        url: `${BE_BASE_URL}owner/funding/subscription-list`,
+        url: `${BE_BASE_URL}owner/funding/subscription/list`,
         headers: {
             'authorization': `Bearer ${token}`,
             'x-device-id': deviceId,
@@ -24,4 +24,20 @@ async function subscriptionList(payload) {
     return response
 }
 
-export { subscriptionList }
+async function rentList(payload) {
+    const response = await axios({
+        method: 'POST',
+        url: `${BE_BASE_URL}owner/funding/transaction/list`,
+        headers: {
+            'authorization': `Bearer ${token}`,
+            'x-device-id': deviceId,
+            'x-ip-address': ip,
+            'x-request-id': uuidv4()
+        },
+        data: payload
+    })
+
+    return response
+}
+
+export { subscriptionList, rentList }
