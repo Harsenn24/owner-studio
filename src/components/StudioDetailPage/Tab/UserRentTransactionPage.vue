@@ -24,7 +24,7 @@
 
             <!-- STATUS -->
             <div class="flex flex-col">
-                <label class="text-xs text-center text-black mb-1">Status Pembayaran</label>
+                <label class="text-xs text-center text-black mb-1">Status Sewa</label>
                 <select v-model="filters.status" class="border rounded px-3 py-2 text-black">
                     <option value="">Semua Status</option>
                     <option value="booked">Sukses</option>
@@ -38,8 +38,8 @@
                 <label class="text-xs text-center text-black mb-1">Status Settlement</label>
                 <select v-model="filters.settled" class="border rounded px-3 py-2 text-black">
                     <option value="">Semua</option>
-                    <option value="1">Yes</option>
-                    <option value="2">No</option>
+                    <option value="1">Selesai</option>
+                    <option value="2">Menunggu</option>
                 </select>
             </div>
 
@@ -52,7 +52,7 @@
 
             <!-- DATE -->
             <div class="flex flex-col md:col-span-2">
-                <label class="text-xs text-center text-black mb-1">Filter Tanggal</label>
+                <label class="text-xs text-center text-black mb-1">Filter Tanggal Sewa</label>
                 <div class="flex gap-2">
                     <div class="relative w-full">
                         <input ref="startDateRef" v-model="filters.start_date" type="date"
@@ -96,7 +96,7 @@
                         <th class="p-3">Nama Penyewa</th>
                         <th class="p-3">ID Transaksi</th>
                         <th class="p-3">Studio Nomor</th>
-                        <th class="p-3">Tanggal</th>
+                        <th class="p-3">Tanggal Sewa</th>
                         <th class="p-3">Jam Sewa</th>
                         <th class="p-3">Biaya Sewa</th>
                         <th class="p-3">Biaya Admin</th>
@@ -130,7 +130,7 @@
 
                         <td class="p-3 ">
                             <span :class="getStatusClass(item.payment_status)">
-                                {{ item.payment_status }}
+                                {{ getStatusOutput(item.payment_status) }}
                             </span>
                         </td>
 
@@ -323,6 +323,19 @@ const getStatusClass = (status) => {
             return 'text-yellow-600! font-semibold'
         case 'cancelled':
             return 'text-red-600! font-semibold'
+        default:
+            return ''
+    }
+}
+
+const getStatusOutput = (status) => {
+    switch (status) {
+        case 'booked':
+            return 'Sukses'
+        case 'pending':
+            return 'Menunggu'
+        case 'cancelled':
+            return 'Batal'
         default:
             return ''
     }
