@@ -76,6 +76,9 @@
 
             <UserRentTransactionPage v-if="activeTab === 'rent'" />
 
+            <WithdrawalTransactionPage v-if="activeTab === 'withdrawal'" />
+
+
 
             <transition name="modal-fade">
                 <ModalAddStudioPage v-if="showModal" @close-modal="closeModal" />
@@ -104,6 +107,8 @@ import PaymentSubscribeModalPage from '../PaymentSubscribeModal/PaymentSubscribe
 import ProfilPage from './Tab/ProfilPage.vue'
 import SubscriptionTransactionPage from './Tab/SubscriptionTransactionPage.vue'
 import UserRentTransactionPage from './Tab/UserRentTransactionPage.vue'
+import WithdrawalTransactionPage from './Tab/WithdrawalTransactionPage.vue'
+
 
 
 const token = localStorage.getItem('token')
