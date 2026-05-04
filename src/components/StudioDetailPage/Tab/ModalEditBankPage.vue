@@ -78,7 +78,7 @@ const props = defineProps({
     bankList: Array
 })
 
-const emit = defineEmits(['close', 'submit'])
+const emit = defineEmits(['close', 'submit', 'success'])
 
 const searchBank = ref('')
 const selectedBank = ref('')
@@ -120,7 +120,10 @@ async function handleSaveBank() {
 
         await editBankAccountApi(payload)
 
+
+        emit('success')
         emit('close')
+
 
     } catch (error) {
         console.log(error)

@@ -99,7 +99,7 @@
         </div>
     </div>
 
-    <ModalEditBankPage :show="showBankModal" :bankList="bankList" @close="showBankModal = false" />
+    <ModalEditBankPage :show="showBankModal" :bankList="bankList" @close="showBankModal = false" @success="fetchOwnerTransactionDetail" />
 
 </template>
 
