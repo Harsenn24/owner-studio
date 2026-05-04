@@ -72,4 +72,36 @@ async function reconApi(payload) {
     return response
 }
 
-export { subscriptionList, rentList, ownerTransactionDetailApi, reconApi }
+async function bankListApi(payload) {
+    const response = await axios({
+        method: 'POST',
+        url: `${BE_BASE_URL}owner/funding/bank-list`,
+        headers: {
+            'authorization': `Bearer ${token}`,
+            'x-device-id': deviceId,
+            'x-ip-address': ip,
+            'x-request-id': uuidv4()
+        },
+        data: payload
+    })
+
+    return response
+}
+
+async function editBankAccountApi(payload) {
+    const response = await axios({
+        method: 'POST',
+        url: `${BE_BASE_URL}owner/funding/bank-account/edit`,
+        headers: {
+            'authorization': `Bearer ${token}`,
+            'x-device-id': deviceId,
+            'x-ip-address': ip,
+            'x-request-id': uuidv4()
+        },
+        data: payload
+    })
+
+    return response
+}
+
+export { subscriptionList, rentList, ownerTransactionDetailApi, reconApi, bankListApi, editBankAccountApi }
