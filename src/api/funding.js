@@ -56,4 +56,20 @@ async function ownerTransactionDetailApi(payload) {
     return response
 }
 
-export { subscriptionList, rentList, ownerTransactionDetailApi }
+async function reconApi(payload) {
+    const response = await axios({
+        method: 'POST',
+        url: `${BE_BASE_URL}owner/funding/recon`,
+        headers: {
+            'authorization': `Bearer ${token}`,
+            'x-device-id': deviceId,
+            'x-ip-address': ip,
+            'x-request-id': uuidv4()
+        },
+        data: payload
+    })
+
+    return response
+}
+
+export { subscriptionList, rentList, ownerTransactionDetailApi, reconApi }
