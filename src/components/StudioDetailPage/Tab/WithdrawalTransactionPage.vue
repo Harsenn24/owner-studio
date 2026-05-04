@@ -99,77 +99,16 @@
         </div>
     </div>
 
-    <!-- Modal Ganti Rekening -->
-    <div v-if="showBankModal" class="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+    <ModalEditBankPage :show="showBankModal" :bankList="bankList" @close="showBankModal = false" />
 
-        <div class="bg-white w-full max-w-md rounded-2xl shadow-lg p-6">
-
-            <!-- Title -->
-            <h2 class="text-lg font-semibold mb-4 text-gray-800 text-center">
-                Pergantian Akun Bank
-            </h2>
-
-            <!-- Form -->
-            <div class="space-y-4">
-
-                <!-- Pilih Bank -->
-                <div class="relative">
-                    <label class="text-sm text-gray-600">Nama Bank</label>
-
-                    <!-- Input -->
-                    <input type="text" v-model="searchBank" @focus="showDropdownBank = true" placeholder="Cari nama bank..."
-                        class="w-full mt-1 border border-gray-300 rounded-lg px-3 py-2 text-sm text-black" />
-
-                    <!-- Dropdown -->
-                    <div v-if="showDropdownBank"
-                        class="absolute z-50 w-full bg-white border border-gray-300 rounded-lg mt-1 max-h-48 overflow-y-auto shadow text-black">
-                        <div v-for="bank in filteredBanks" :key="bank.id" @click="selectBank(bank)"
-                            class="px-3 py-2 text-sm hover:bg-gray-100 cursor-pointer">
-                            {{ bank.name }}
-                        </div>
-
-                        <div v-if="filteredBanks.length === 0" class="px-3 py-2 text-sm text-gray-400">
-                            Bank tidak ditemukan
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Nomor Rekening -->
-                <div>
-                    <label class="text-sm text-gray-600">Nomor Rekening</label>
-                    <input type="text" v-model="accountNumber" placeholder="Masukkan nomor rekening"
-                        @keydown="handleKeydown"
-                        class="w-full mt-1 border border-gray-300 rounded-lg px-3 py-2 text-sm text-black"
-                        :class="accountNumber && accountNumber.length < 5 ? 'border-red-500' : ''" />
-
-                    <p v-if="accountNumber && accountNumber.length < 5" class="text-xs text-red-500 mt-1">
-                        Nomor rekening minimal 5 digit
-                    </p>
-                </div>
-
-            </div>
-
-            <!-- Action -->
-            <div class="flex justify-end gap-3 mt-6">
-                <button @click="showBankModal = false" class="px-4 py-2 text-sm bg-red-400! rounded-lg">
-                    Batal
-                </button>
-
-                <button @click="handleSaveBank" :disabled="!accountNumber || accountNumber.length < 5"
-                    class="px-4 py-2 text-sm bg-blue-600! text-white rounded-lg">
-                    Simpan
-                </button>
-            </div>
-
-        </div>
-    </div>
 </template>
 
 <script setup>
 
-import { ref, watch, onMounted, computed } from 'vue'
-import { bankListApi, editBankAccountApi, ownerTransactionDetailApi, reconApi } from '../../../api/funding'
+import { ref, onMounted, computed } from 'vue'
+import { bankListApi, ownerTransactionDetailApi, reconApi } from '../../../api/funding'
 import { useRouter } from 'vue-router'
+import ModalEditBankPage from './ModalEditBankPage.vue'
 const router = useRouter()
 
 
@@ -194,18 +133,7 @@ const studio_uuid = router.currentRoute.value.params.studio_uuid
 const loadingRecon = ref(false)
 const showBankModal = ref(false)
 const bankList = ref([])
-const selectedBank = ref('')
-const accountNumber = ref('')
 const loadingBank = ref(false)
-const searchBank = ref('')
-const showDropdownBank = ref(false)
-
-const selectBank = (bank) => {
-    selectedBank.value = bank.prima_code
-    searchBank.value = bank.name
-    showDropdownBank.value = false
-}
-
 
 const fetchOwnerTransactionDetail = async () => {
     try {
@@ -229,13 +157,6 @@ const formatRupiah = (val) => {
     }).format(val)
 }
 
-const filteredBanks = computed(() => {
-    if (!searchBank.value) return bankList.value
-
-    return bankList.value.filter(bank =>
-        bank.name.toLowerCase().includes(searchBank.value.toLowerCase())
-    )
-})
 
 const formatRupiahv2 = (val) => {
     if (!val) return 'Rp 0'
@@ -288,28 +209,6 @@ const handleChangeBank = async () => {
     } finally {
         loadingBank.value = false
     }
-}
-
-async function handleSaveBank() {
-    try {
-        const payload = {
-            studio_uuid,
-            bank_code: selectedBank.value,
-            bank_account_number: accountNumber.value
-
-        }
-
-        console.log(payload)
-
-        await editBankAccountApi(payload)
-        await fetchOwnerTransactionDetail()
-
-        showBankModal.value = false
-
-    } catch (error) {
-        console.log(error)
-        alert('Gagal Edit Rekening')
-    } 
 }
 
 const fetchRecon = async () => {
