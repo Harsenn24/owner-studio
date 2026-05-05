@@ -104,4 +104,13 @@ async function editBankAccountApi(payload) {
     return response
 }
 
-export { subscriptionList, rentList, ownerTransactionDetailApi, reconApi, bankListApi, editBankAccountApi }
+async function adminTransferFeeApi() {
+    const response = await axios({
+        method: 'GET',
+        url: `${BE_BASE_URL}owner/funding/transfer/fee`,
+    })
+
+    return response
+}
+
+export { subscriptionList, rentList, ownerTransactionDetailApi, reconApi, bankListApi, editBankAccountApi, adminTransferFeeApi }

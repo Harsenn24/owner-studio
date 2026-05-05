@@ -81,15 +81,21 @@
                     <label class="text-xs text-gray-500">Jumlah Penarikan</label>
                     <input type="text" :value="formattedWithdraw" @input="handleInput" @keydown="handleKeydown"
                         placeholder="Rp 0"
-                        class="w-full mt-1 border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 text-black focus:ring-blue-400" />
-                    <p class="text-xs text-black mt-1">
+                        class="w-full mt-1 border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 text-black focus:ring-blue-400"
+                        :class="showErrorInputWithDraw ? 'border-red-500!' : 'border-gray-300'" />
+
+                    <p v-if="showErrorInputWithDraw" class="text-xs text-red-500! mt-1">
+                        Minimal penarikan Rp 50.000
+                    </p>
+
+                    <p v-else class="text-xs text-black mt-1">
                         *Minimal penarikan Rp 50.000
                     </p>
                 </div>
 
                 <!-- Tombol Tarik Dana -->
                 <div class="w-full md:w-auto">
-                    <button @click="handleWithdraw"
+                    <button @click="handleTransfer" :disabled="!isValidWithdraw"
                         class="w-full md:w-auto bg-gradient-to-r from-blue-500 to-green-500 hover:opacity-90 text-white px-6 py-2 rounded-lg shadow transition">
                         Tarik Dana
                     </button>
@@ -99,16 +105,21 @@
         </div>
     </div>
 
-    <ModalEditBankPage :show="showBankModal" :bankList="bankList" @close="showBankModal = false" @success="fetchOwnerTransactionDetail" />
+    <ModalEditBankPage :show="showBankModal" :bankList="bankList" @close="showBankModal = false"
+        @success="fetchOwnerTransactionDetail" />
+
+    <ModalTransferPage :show="showTransferModal" @close="showTransferModal = false" :withdrawAmount="withdrawAmount" :adminFeeTransfer="adminFeeTransfer" :totalTransfer="totalTransfer"
+        :transactionDetail="ownerTransactionDetailResult" />
 
 </template>
 
 <script setup>
 
 import { ref, onMounted, computed } from 'vue'
-import { bankListApi, ownerTransactionDetailApi, reconApi } from '../../../api/funding'
+import { bankListApi, ownerTransactionDetailApi, reconApi, adminTransferFeeApi } from '../../../api/funding'
 import { useRouter } from 'vue-router'
 import ModalEditBankPage from './ModalEditBankPage.vue'
+import ModalTransferPage from './ModalTransferPage.vue'
 const router = useRouter()
 
 
@@ -126,14 +137,24 @@ const ownerTransactionDetailResult = ref({
 })
 
 const withdrawAmount = ref(0)
-
-
+const MIN_WITHDRAW = 50000
 const studio_uuid = router.currentRoute.value.params.studio_uuid
-
 const loadingRecon = ref(false)
 const showBankModal = ref(false)
 const bankList = ref([])
 const loadingBank = ref(false)
+const showTransferModal = ref(false)
+const adminFeeTransfer = ref(0)
+const totalTransfer = ref(0)
+
+
+const isValidWithdraw = computed(() => {
+    return withdrawAmount.value >= MIN_WITHDRAW
+})
+
+const showErrorInputWithDraw = computed(() => {
+    return withdrawAmount.value > 0 && withdrawAmount.value < MIN_WITHDRAW
+})
 
 const fetchOwnerTransactionDetail = async () => {
     try {
@@ -184,13 +205,8 @@ const handleKeydown = (e) => {
         'Tab'
     ]
 
-    // izinkan control keys
     if (allowedKeys.includes(e.key)) return
-
-    // izinkan angka 0-9
     if (/^[0-9]$/.test(e.key)) return
-
-    // selain itu → block
     e.preventDefault()
 }
 
@@ -209,6 +225,13 @@ const handleChangeBank = async () => {
     } finally {
         loadingBank.value = false
     }
+}
+
+const handleTransfer = async () => {
+    await fetchOwnerTransactionDetail()
+    await fetchAdminTransferFee()
+    totalTransfer.value = withdrawAmount.value + adminFeeTransfer.value
+    showTransferModal.value = true
 }
 
 const fetchRecon = async () => {
@@ -230,9 +253,20 @@ const fetchRecon = async () => {
     }
 }
 
-onMounted(async () => {
-    await Promise.all([fetchOwnerTransactionDetail()])
+const fetchAdminTransferFee = async () => {
+    try {
+        const response = await adminTransferFeeApi()
+        const dataResponse = response.data.data
+        adminFeeTransfer.value = dataResponse.admin_transfer
 
+    } catch (error) {
+        console.log(error)
+        alert('Gagal memuat fee transfer')
+    }
+}
+
+onMounted(async () => {
+    await Promise.all([fetchOwnerTransactionDetail(), fetchAdminTransferFee()])
 })
 
 </script>
