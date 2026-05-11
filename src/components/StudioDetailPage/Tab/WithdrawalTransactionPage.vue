@@ -33,7 +33,7 @@
                 <p class="text-sm text-gray-600 mb-1">Saldo Pencairan</p>
                 <h2 class="text-2xl font-semibold text-gray-800">{{
                     formatRupiah(ownerTransactionDetailResult.total_amount_disbursement) }}</h2>
-                <p class="text-xs text-green-600 mt-1">Tersedia untuk ditarik</p>
+                <p class="text-xs text-green-600 mt-1">Total Saldo Pencairan</p>
             </div>
 
         </div>
@@ -84,21 +84,24 @@
                         class="w-full mt-1 border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 text-black focus:ring-blue-400"
                         :class="showErrorInputWithDraw ? 'border-red-500!' : 'border-gray-300'" />
 
-                    <p v-if="showErrorInputWithDraw" class="text-xs text-red-500! mt-1">
-                        Minimal penarikan Rp 50.000
-                    </p>
-
-                    <p v-else class="text-xs text-black mt-1">
-                        *Minimal penarikan Rp 50.000
+                    <p class="text-xs mt-2 min-h-[16px]"
+                        :class="withdrawErrorMessage ? 'text-red-500!' : 'text-transparent'">
+                        {{ withdrawErrorMessage || '.' }}
                     </p>
                 </div>
 
                 <!-- Tombol Tarik Dana -->
                 <div class="w-full md:w-auto">
-                    <button @click="handleTransfer" :disabled="!isValidWithdraw"
-                        class="w-full md:w-auto bg-gradient-to-r from-blue-500 to-green-500 hover:opacity-90 text-white px-6 py-2 rounded-lg shadow transition">
+                    <button @click="handleTransfer" :disabled="!isValidWithdraw" :class="[
+                        'w-full md:w-auto text-white px-6 py-2 rounded-lg shadow transition',
+                        isValidWithdraw
+                            ? 'bg-gradient-to-r from-blue-500 to-green-500 hover:opacity-90'
+                            : 'bg-gray-400! cursor-not-allowed'
+                    ]">
                         Tarik Dana
                     </button>
+
+
                 </div>
 
             </div>
@@ -108,7 +111,8 @@
     <ModalEditBankPage :show="showBankModal" :bankList="bankList" @close="showBankModal = false"
         @success="fetchOwnerTransactionDetail" />
 
-    <ModalTransferPage :show="showTransferModal" @close="showTransferModal = false" :withdrawAmount="withdrawAmount" :adminFeeTransfer="adminFeeTransfer" :totalTransfer="totalTransfer"
+    <ModalTransferPage :show="showTransferModal" @close="showTransferModal = false; fetchOwnerTransactionDetail();"
+        :withdrawAmount="withdrawAmount" :adminFeeTransfer="adminFeeTransfer" :totalTransfer="totalTransfer"
         :transactionDetail="ownerTransactionDetailResult" />
 
 </template>
@@ -148,13 +152,27 @@ const showTransferModal = ref(false)
 const adminFeeTransfer = ref(0)
 const totalTransfer = ref(0)
 
-
 const isValidWithdraw = computed(() => {
-    return withdrawAmount.value >= MIN_WITHDRAW
+    return withdrawAmount.value >= MIN_WITHDRAW && withdrawAmount.value + adminFeeTransfer.value <= ownerTransactionDetailResult.value.total_amount_recon_pending
 })
 
 const showErrorInputWithDraw = computed(() => {
     return withdrawAmount.value > 0 && withdrawAmount.value < MIN_WITHDRAW
+})
+
+const withdrawErrorMessage = computed(() => {
+    if (!withdrawAmount.value || withdrawAmount.value < MIN_WITHDRAW) {
+        return `Minimal penarikan Rp ${MIN_WITHDRAW.toLocaleString('id-ID')}`
+    }
+
+    if (
+        withdrawAmount.value + adminFeeTransfer.value >
+        ownerTransactionDetailResult.value.total_amount_recon_pending
+    ) {
+        return 'Saldo tidak mencukupi'
+    }
+
+    return ''
 })
 
 const fetchOwnerTransactionDetail = async () => {

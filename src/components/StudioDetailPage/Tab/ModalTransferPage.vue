@@ -71,11 +71,20 @@
                     Batal
                 </button>
 
-                <button @click="handleConfirm"
-                    class="w-full bg-gradient-to-r from-blue-500 to-green-500 text-white py-2 rounded-lg hover:opacity-90">
-                    Konfirmasi Tarik Dana
+                <button @click="handleConfirm(accountHolderName, totalTransfer)"
+                    :disabled="!isInquiry || loadingTransfer" :class="[
+                        'w-full py-2 rounded-lg text-white transition',
+                        !isInquiry || loadingTransfer
+                            ? 'bg-gray-400! cursor-not-allowed'
+                            : 'bg-gradient-to-r! from-blue-500! to-green-500! hover:opacity-90'
+                    ]">
+                    {{ loadingTransfer ? 'Memproses Tarik Dana...' : 'Konfirmasi Tarik Dana' }}
                 </button>
             </div>
+
+            <p v-if="!isInquiry" class="mt-3 text-sm text-red-500! text-center">
+                Silakan lakukan inquiry rekening terlebih dahulu sebelum melakukan konfirmasi tarik dana.
+            </p>
 
         </div>
     </div>
@@ -84,7 +93,7 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { inquiryApi } from '../../../api/funding'
+import { inquiryApi, transferApi } from '../../../api/funding'
 const router = useRouter()
 
 
@@ -92,6 +101,8 @@ const studio_uuid = router.currentRoute.value.params.studio_uuid
 const isInquiry = ref(false)
 const accountHolderName = ref('')
 const loadingInquiry = ref(false)
+const loadingTransfer = ref(false)
+
 
 const handleInquiry = async (bank_code, account_number, amount) => {
     try {
@@ -132,9 +143,31 @@ const formatRupiah = (val) => {
 
 const emit = defineEmits(['close', 'confirm'])
 
-const handleConfirm = () => {
-    emit('confirm')
-    emit('close')
+const handleConfirm = async (account_name, amount) => {
+    try {
+        loadingTransfer.value = true
+
+        const payload = {
+            studio_id: studio_uuid,
+            amount: amount.toString(),
+            account_name
+        }
+
+
+        const res = await transferApi(payload)
+        if (res.data.message !== "success") throw new Error(res.data.message)
+
+        props.withdrawAmount = 0
+
+        emit('confirm')
+        emit('close')
+    } catch (error) {
+        console.log(error)
+        alert('Gagal konfirmasi tarik dana')
+    } finally {
+        loadingTransfer.value = false
+    }
+
 }
 
 const handleClose = () => {
