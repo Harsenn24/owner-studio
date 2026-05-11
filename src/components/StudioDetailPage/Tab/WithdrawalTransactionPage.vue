@@ -132,7 +132,8 @@ const ownerTransactionDetailResult = ref({
     bank: {
         bank_name: "",
         bank_alias: "",
-        bank_account: ""
+        bank_account: "",
+        bank_code: ""
     }
 })
 

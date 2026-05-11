@@ -113,4 +113,20 @@ async function adminTransferFeeApi() {
     return response
 }
 
-export { subscriptionList, rentList, ownerTransactionDetailApi, reconApi, bankListApi, editBankAccountApi, adminTransferFeeApi }
+async function inquiryApi(payload) {
+    const response = await axios({
+        method: 'POST',
+        url: `${BE_BASE_URL}owner/funding/inquiry`,
+        headers: {
+            'authorization': `Bearer ${token}`,
+            'x-device-id': deviceId,
+            'x-ip-address': ip,
+            'x-request-id': uuidv4()
+        },
+        data: payload
+    })
+
+    return response
+}
+
+export { subscriptionList, rentList, ownerTransactionDetailApi, reconApi, bankListApi, editBankAccountApi, adminTransferFeeApi, inquiryApi }

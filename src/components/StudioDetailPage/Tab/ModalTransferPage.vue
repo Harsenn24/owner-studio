@@ -6,7 +6,7 @@
             <!-- Header -->
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-xl font-semibold text-gray-800">Tarik Dana</h2>
-                <button @click="$emit('close')"
+                <button @click="handleClose()"
                     class="bg-white!  border border-gray-300! text-black hover:text-gray-600! hover:border-black! text-xl">×</button>
             </div>
 
@@ -27,9 +27,21 @@
                     <span class="font-medium">{{ transactionDetail?.bank?.bank_account }}</span>
                 </div>
 
-                <div class="flex justify-between">
+                <div class="flex justify-between items-center">
                     <span>Pemilik Rekening</span>
-                    <span class="font-medium">John Doe</span>
+
+                    <!-- Jika sudah inquiry -->
+                    <span v-if="isInquiry" class="font-medium text-right">
+                        {{ accountHolderName }}
+                    </span>
+
+                    <!-- Jika belum inquiry -->
+                    <button v-else
+                        @click="handleInquiry(transactionDetail?.bank?.bank_code, transactionDetail?.bank?.bank_account, totalTransfer)"
+                        :disabled="loadingInquiry"
+                        class="bg-blue-500! hover:bg-blue-600! text-white text-xs px-3 py-1 rounded-lg shadow disabled:opacity-50">
+                        {{ loadingInquiry ? 'Checking...' : 'Inquiry Rekening' }}
+                    </button>
                 </div>
 
                 <hr class="my-2" />
@@ -54,7 +66,7 @@
 
             <!-- Actions -->
             <div class="flex gap-3 mt-6">
-                <button @click="$emit('close')"
+                <button @click="handleClose()"
                     class="w-full bg-gray-200! hover:bg-gray-300! text-gray-700 py-2 rounded-lg">
                     Batal
                 </button>
@@ -70,6 +82,41 @@
 </template>
 
 <script setup>
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { inquiryApi } from '../../../api/funding'
+const router = useRouter()
+
+
+const studio_uuid = router.currentRoute.value.params.studio_uuid
+const isInquiry = ref(false)
+const accountHolderName = ref('')
+const loadingInquiry = ref(false)
+
+const handleInquiry = async (bank_code, account_number, amount) => {
+    try {
+        loadingInquiry.value = true
+
+        const payload = {
+            studio_id: studio_uuid,
+            amount: amount.toString(),
+            bank_code: bank_code,
+            account_number: account_number
+        }
+
+
+        const res = await inquiryApi(payload)
+        if (res.data.message !== "success") throw new Error(res.data.message)
+        accountHolderName.value = res.data.data.account_name
+
+        isInquiry.value = true
+    } catch (error) {
+        console.log(error)
+        alert('Gagal inquiry rekening')
+    } finally {
+        loadingInquiry.value = false
+    }
+}
 
 const props = defineProps({
     show: Boolean,
@@ -87,6 +134,11 @@ const emit = defineEmits(['close', 'confirm'])
 
 const handleConfirm = () => {
     emit('confirm')
+    emit('close')
+}
+
+const handleClose = () => {
+    isInquiry.value = false
     emit('close')
 }
 
