@@ -106,7 +106,144 @@
 
             </div>
         </div>
+
+        <!-- FILTER -->
+        <div class="bg-white p-4 rounded-xl shadow mb-4 grid md:grid-cols-5 gap-3 items-end mt-6">
+
+            <!-- SEARCH -->
+            <div class="flex flex-col">
+                <label class="text-xs text-center text-black mb-1">Filter ID Transaksi</label>
+                <input v-model="filters.transaction_id" type="text" placeholder="ID Transaksi..."
+                    class="border rounded px-3 py-2 text-black" />
+            </div>
+
+            <!-- STATUS -->
+            <div class="flex flex-col">
+                <label class="text-xs text-center text-black mb-1">Filter Status Pembayaran</label>
+                <select v-model="filters.status" class="border rounded px-3 py-2 text-black">
+                    <option value="">Semua Status</option>
+                    <option value="success">Sukses</option>
+                    <option value="pending">Menunggu</option>
+                    <option value="failed">Gagal</option>
+                </select>
+            </div>
+
+            <!-- DATE -->
+            <div class="flex flex-col md:col-span-2">
+                <label class="text-xs text-center text-black mb-1">Filter Tanggal</label>
+                <div class="flex gap-2">
+                    <div class="relative w-full">
+                        <input ref="startDateRef" v-model="filters.date_start" type="date"
+                            class="border rounded px-3 py-2 w-full text-black pr-10 cursor-pointer" />
+                        <span @click="openStartDate" class="absolute right-3 top-2.5 cursor-pointer">
+                            📅
+                        </span>
+                    </div>
+
+                    <!-- END DATE -->
+                    <div class="relative w-full">
+                        <input ref="endDateRef" v-model="filters.date_end" type="date"
+                            class="border rounded px-3 py-2 w-full text-black pr-10 cursor-pointer" />
+                        <span @click="openEndDate" class="absolute right-3 top-2.5 cursor-pointer">
+                            📅
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LIMIT -->
+            <div class="flex flex-col">
+                <label class="text-xs text-center text-black mb-1">Total Data</label>
+                <select v-model="filters.limit" class="border rounded px-3 py-2 text-black">
+                    <option :value="10">10</option>
+                    <option :value="25">25</option>
+                    <option :value="50">50</option>
+                    <option :value="100">100</option>
+                </select>
+            </div>
+
+        </div>
+
+        <div class=" rounded-xl shadow overflow-x-auto">
+            <!-- TITLE -->
+            <div class="flex justify-between items-center mb-1 p-4 bg-red-200">
+
+                <h2 class="text-xl font-semibold text-black!">
+                    📄 Histori Berlangganan
+                </h2>
+
+                <button @click="clearFilters"
+                    class="px-4 py-2 bg-red-500! text-black rounded-lg text-sm font-semibold hover:bg-gray-100 transition">
+                    Clear Filter
+                </button>
+
+            </div>
+            <table class="w-full text-sm text-left p-4">
+                <thead class="bg-red-200 ">
+                    <tr class="text-black">
+                        <th class="p-3">No</th>
+                        <th class="p-3">ID Transaksi</th>
+                        <th class="p-3">Jumlah</th>
+                        <th class="p-3">Tanggal</th>
+                        <th class="p-3">Status</th>
+                        <th class="p-3">Bank</th>
+                        <th class="p-3">Nomor Rekening</th>
+                        <th class="p-3">Nama Penerima</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr v-for="(item, index) in listDisbursment" :key="item.id" class="border-b hover:bg-gray-50">
+                        <td class="p-3 text-black">{{ index + 1 }}</td>
+                        <td class="p-3 font-medium text-blue-600">
+                            {{ item.id }}
+                        </td>
+                        <td class="p-3 text-black">
+                            Rp {{ item.amount.toLocaleString('id-ID') }}
+                        </td>
+                        <td class="p-3 text-black">{{ formatDate(item.transaction_date) }}</td>
+
+                        <td class="p-3">
+                            <span :class="[
+                                'px-3 py-1 rounded-full text-xs font-semibold',
+                                item.payment_status === 'success'
+                                    ? 'bg-green-100 text-green-700'
+                                    : item.payment_status === 'pending'
+                                        ? 'bg-yellow-100 text-yellow-700'
+                                        : 'bg-red-100 text-red-700'
+                            ]">
+                                {{ item.payment_status }}
+                            </span>
+                        </td>
+
+                        <td class="p-3 text-black">{{ item.bank_name }}</td>
+                        <td class="p-3 text-black">{{ item.bank_account }}</td>
+                        <td class="p-3 text-black">{{ item.bank_account_name }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- PAGINATION -->
+        <div class="flex justify-between items-center mt-4">
+
+            <button @click="prevPage" :disabled="page === 1"
+                class="px-3 py-1 bg-white! text-black rounded disabled:opacity-70">
+                Prev
+            </button>
+
+            <div class="text-black!">
+                <p>Page {{ page }}</p>
+            </div>
+
+            <button @click="nextPage" class="px-3 py-1 bg-white! text-black rounded">
+                Next
+            </button>
+
+        </div>
     </div>
+
+
 
     <ModalEditBankPage :show="showBankModal" :bankList="bankList" @close="showBankModal = false"
         @success="fetchOwnerTransactionDetail" />
@@ -119,13 +256,78 @@
 
 <script setup>
 
-import { ref, onMounted, computed } from 'vue'
-import { bankListApi, ownerTransactionDetailApi, reconApi, adminTransferFeeApi } from '../../../api/funding'
+import { ref, onMounted, computed, watch } from 'vue'
+import { bankListApi, ownerTransactionDetailApi, reconApi, adminTransferFeeApi, disbursementListApi } from '../../../api/funding'
 import { useRouter } from 'vue-router'
 import ModalEditBankPage from './ModalEditBankPage.vue'
 import ModalTransferPage from './ModalTransferPage.vue'
 const router = useRouter()
 
+const formatDate = (val) => {
+    if (!val) return '-'
+    return new Date(val * 1000).toLocaleString('id-ID')
+}
+
+const startDateRef = ref(null)
+const endDateRef = ref(null)
+const page = ref(1)
+const total = ref(0)
+
+const clearFilters = () => {
+    filters.value = {
+        date_start: '',
+        date_end: '',
+        transaction_id: '',
+        limit: 10,
+        status: '',
+    }
+
+    page.value = 1
+    fetchDisbursementList()
+}
+
+const nextPage = () => {
+    const maxPage = Math.ceil(total.value / filters.value.limit)
+    if (page.value < maxPage) {
+        page.value++
+    }
+}
+
+const prevPage = () => {
+    if (page.value > 1) page.value--
+}
+
+const openStartDate = () => {
+    startDateRef.value?.showPicker()
+}
+
+const openEndDate = () => {
+    endDateRef.value?.showPicker()
+}
+
+const toEpoch = (date, isEnd = false) => {
+    if (!date) return null
+
+    const d = new Date(date)
+
+    if (isEnd) {
+        d.setHours(23, 59, 59, 999)
+    } else {
+        d.setHours(0, 0, 0, 0)
+    }
+
+    return Math.floor(d.getTime() / 1000)
+}
+
+const listDisbursment = ref([])
+
+const filters = ref({
+    date_start: '',
+    date_end: '',
+    transaction_id: '',
+    limit: 10,
+    status: '',
+})
 
 const ownerTransactionDetailResult = ref({
     total_transaction: 0,
@@ -284,8 +486,54 @@ const fetchAdminTransferFee = async () => {
     }
 }
 
+const fetchDisbursementList = async () => {
+    try {
+        let payload = {
+            page: page.value,
+            limit: filters.value.limit,
+            studio_id: studio_uuid
+        }
+
+        if (filters.value.search) {
+            payload.search = filters.value.search
+        }
+
+        if (filters.value.status) {
+            payload.status = filters.value.status
+        }
+
+        if (filters.value.date_start) {
+            payload.date_start = toEpoch(filters.value.date_start)
+        }
+
+        if (filters.value.date_end) {
+            payload.date_end = toEpoch(filters.value.date_end)
+        }
+
+        if (filters.value.transaction_id) {
+            payload.transaction_id = filters.value.transaction_id
+        }
+
+        const res = await disbursementListApi(payload)
+        listDisbursment.value = res.data.data.data
+        page.value = res.data.data.page
+        total.value = res.data.data.total
+
+    } catch (error) {
+        console.error(err)
+    }
+}
+
+watch(filters, () => {
+    page.value = 1
+    fetchDisbursementList()
+}, { deep: true })
+
+watch(page, fetchDisbursementList)
+
+
 onMounted(async () => {
-    await Promise.all([fetchOwnerTransactionDetail(), fetchAdminTransferFee()])
+    await Promise.all([fetchOwnerTransactionDetail(), fetchAdminTransferFee(), fetchDisbursementList()])
 })
 
 </script>
